@@ -57,84 +57,71 @@
   }
 
   // Build payload on final page
-  function buildPayload(){
-    const qs = (function(){ try{ return Object.fromEntries(new URLSearchParams(location.search||'')); }catch(_){ return {}; } })();
-    const s = Object.assign({}, getState(), qs, captureFromDom(document)); // final safeguard
+  
+function buildPayload(){
+  const qs = (function(){ try{ return Object.fromEntries(new URLSearchParams(location.search||'')); }catch(_){ return {}; } })();
+  const s = Object.assign({}, getState(), qs, captureFromDom(document));
 
-    // Map aliases
-    const out = {};
-    for (const [k,v] of Object.entries(s)){
-      const key = KEY_ALIAS[k] || k;
-      out[key] = v;
-    }
-
-    // Normalize arrays
-    if (out.timeslot && !Array.isArray(out.timeslot)) out.timeslot=[out.timeslot];
-    if (out.contact_time_preference && !Array.isArray(out.contact_time_preference)) out.contact_time_preference=[out.contact_time_preference];
-    if (out.contact_method && !Array.isArray(out.contact_method)) out.contact_method=[out.contact_method];
-
-    // Contact method "其他 + text"
-    out.contact_method = mergeOther(out.contact_method, s['other-method'] || s.other_method);
-    // Timeslot "其他指定時間"
-    out.timeslot = mergeOther(out.timeslot, s.time_other || s.other_time || s['otherTimeInput'] || '' || ((document.getElementById('otherTimeInput')||{}).value||''));
-    // Housing type "其他 + text"
-    if (s.houseType==='其他' || s.housing_type==='其他'){
-      out.housing_type = mergeOther(out.housing_type || '其他', s.housing_type_other || s.otherTypeInput || ((document.getElementById('otherTypeInput')||{}).value||''));
-    }
-
-    // Social name
-    if (s['contact-name'] && !out.social_name) out.social_name = s['contact-name'];
-
-    // Remove empty and 'on'
-    for (const k of Object.keys(out)){
-      const v=out[k];
-      if (v==null) { delete out[k]; continue; }
-      if (typeof v==='string' && (v==='' || v==='on')) { delete out[k]; continue; }
-      if (Array.isArray(v)) {
-        const filt = v.filter(x=>String(x).trim()!=='' && x!=='on');
-        out[k] = filt.length ? filt : undefined;
-        if (!out[k]) delete out[k];
-      }
-    }
-    // Attach meta
-    out._id = (function(){ const d=new Date(); return 'bk_'+d.getTime().toString(36); })();
-    out._final = true;
-    out._page = { title: document.title, path: location.pathname, url: location.href };
-    return out;
+  const out = {};
+  for (const [k,v] of Object.entries(s)){
+    const key = KEY_ALIAS[k] || k;
+    out[key] = v;
   }
 
-  // Attach listeners on all pages to persist state
-  document.addEventListener('change', function(e){
-    const t=e.target;
-    if (!t || !t.name) return;
-    setState(captureFromDom(t.closest('form')||document));
-  }, {capture:true});
+  // Helpers
+  const dedup = a => Array.from(new Set([].concat(a||[]).map(x=>String(x).trim()).filter(x=>x && x!=='on')));
+  const join = a => dedup(a).join('、');
+  const text = id => { try{ return (document.getElementById(id)?.value||'').trim(); }catch(_){ return ''; } };
 
-  // Final page submission
-  function onSubmit(e){
-    const form=e.target;
-    const isFinal = /final-booking/i.test(location.pathname) || form.hasAttribute('data-final');
-    if (!isFinal) return; // Let non-final pages proceed to next
-    e.preventDefault();
-    const payload = buildPayload();
-    if (DEBUG) log('payload', payload);
+  // timeslot
+  let ts = dedup(out.timeslot);
+  const tsExtra = s.time_other || s.other_time || s['otherTimeInput'] || text('otherTimeInput');
+  if (tsExtra) ts = dedup(ts.concat([tsExtra]));
+  if (ts.length) out.timeslot = ts; else delete out.timeslot;
 
-    fetch(FN, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)})
-      .then(async res=>{
-        const txt = await res.text();
-        if (!res.ok) throw new Error('['+res.status+'] '+txt.slice(0,500));
-        try{ form.reset(); }catch(_){}
-        clearState();
-        const toast=document.getElementById('toast');
-        if (toast){ toast.style.display='block'; setTimeout(()=>{ toast.style.display='none'; location.href='index.html'; }, 1500); }
-        else { setTimeout(()=>{ location.href='index.html'; }, 1200); }
-      })
-      .catch(err=>{
-        alert('提交失敗：'+err.message);
-        if (DEBUG) log('submit error', err);
-      });
+  // contact_time_preference
+  out.contact_time_preference = dedup(out.contact_time_preference);
+  if (!out.contact_time_preference.length) delete out.contact_time_preference;
+
+  // housing_type: build from selected radio + extra once
+  let selectedHousing = s.housing_type || s.houseType || '';
+  const extraHousing = s.housing_type_other || s.otherTypeInput || text('otherTypeInput');
+  if (/其他/.test(String(selectedHousing)) && extraHousing) {
+    out.housing_type = `其他、${extraHousing.trim()}`;
+  } else if (selectedHousing) {
+    out.housing_type = String(selectedHousing).trim();
+  } else if (extraHousing) {
+    out.housing_type = String(extraHousing).trim();
+  } else {
+    delete out.housing_type;
   }
-  Array.prototype.forEach.call(document.forms, f=> f.addEventListener('submit', onSubmit, {capture:true}));
+
+  // contact_method: make single string, include '其他＋文字' if present
+  let cm = [].concat(out.contact_method||[]);
+  const otherMethod = s['other-method'] || s.other_method || '';
+  if (cm.length===0 && (s['contact-method']||s.contact_method)) cm = [s['contact-method']||s.contact_method];
+  if (cm.some(v=>/其他/.test(String(v))) && otherMethod.trim()) {
+    cm = dedup(cm.concat([otherMethod.trim()]));
+  }
+  if (cm.length) out.contact_method = join(cm); else delete out.contact_method;
+
+  // social_name
+  if (s['contact-name'] && !out.social_name) out.social_name = s['contact-name'];
+
+  // Remove empty / 'on'
+  for (const k of Object.keys(out)){
+    const v=out[k];
+    if (v==null) { delete out[k]; continue; }
+    if (typeof v==='string' && (v==='' || v==='on')) { delete out[k]; continue; }
+    if (Array.isArray(v) && !v.length) delete out[k];
+  }
+
+  out._id = 'bk_'+Date.now().toString(36);
+  out._final = true;
+  out._page = { title: document.title, path: location.pathname, url: location.href };
+  return out;
+}
+Array.prototype.forEach.call(document.forms, f=> f.addEventListener('submit', onSubmit, {capture:true}));
 
   // Expose for debugging
   window.__booking__ = { getState, setState, buildPayload };
