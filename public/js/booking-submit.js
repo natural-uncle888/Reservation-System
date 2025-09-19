@@ -127,28 +127,7 @@
       _missing: missingKeys(draft)
     });
     if (DEBUG) { console.warn('[booking] missing:', payload._missing); console.table(payload); }
-    const res = await 
-    // 強制從 DOM 取值
-    (function forceExtractFromDOM(){
-      try{
-        var ts = Array.prototype.map.call(document.querySelectorAll('input[name="time"]:checked'), function(i){ return i.value; });
-        var tsExtra = (document.getElementById('otherTimeInput') && document.getElementById('otherTimeInput').value || '').trim();
-        if (tsExtra) ts.push(tsExtra);
-        if (ts.length) payload.timeslot = ts;
-
-        var ct = Array.prototype.map.call(document.querySelectorAll('input[name="contact"]:checked'), function(i){ return i.value; });
-        if (ct.length) payload.contact_time_preference = ct;
-
-        var htChecked = document.querySelector('input[name="houseType"]:checked');
-        var ht = htChecked ? htChecked.value : '';
-        var htExtra = (document.getElementById('otherTypeInput') && document.getElementById('otherTypeInput').value || '').trim();
-        if (htChecked && htChecked.id === 'otherType' && htExtra) {
-          ht = ht ? [ht, htExtra] : htExtra;
-        }
-        if (ht) payload.housing_type = ht;
-      }catch(_){}
-    })();
-    fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const res = await fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     if (res.ok) { try{ form.reset(); }catch(_){ } clearDraft(); if (typeof window.showSuccessModal==='function') try{ showSuccessModal(); }catch(_){ } }
     else { const t=await res.text(); alert('提交失敗：'+t); }
   }
