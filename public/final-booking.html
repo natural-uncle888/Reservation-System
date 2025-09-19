@@ -220,15 +220,15 @@
 <div class="card">
 <h2>煩請您告知時段（可複選）<span class="required">*</span></h2>
 <!-- 多選時段（同名 name="time" 送出時會有多個值） -->
-<label><input name="time" type="checkbox" value="平日"/>平日</label>
-<label><input name="time" type="checkbox" value="假日"/>假日</label>
-<label><input name="time" type="checkbox" value="上午"/>上午</label>
-<label><input name="time" type="checkbox" value="下午"/>下午</label>
-<label><input name="time" type="checkbox" value="皆可"/>皆可</label>
+<label><input name="time" type="checkbox"/>平日</label>
+<label><input name="time" type="checkbox"/>假日</label>
+<label><input name="time" type="checkbox"/>上午</label>
+<label><input name="time" type="checkbox"/>下午</label>
+<label><input name="time" type="checkbox"/>皆可</label>
 <!-- 其他指定時間（勾選後展開輸入框） -->
-<label><input id="otherTime" name="time" type="checkbox" value="其他指定時間"/>其他指定時間</label>
+<label><input id="otherTime" name="time" type="checkbox"/>其他指定時間</label>
 <!-- 預設隱藏；JS 依勾選狀態顯示/隱藏 -->
-<textarea id="otherTimeInput" name="time" placeholder="請輸入您的指定時段" style="display:none;"></textarea>
+<textarea id="otherTimeInput" placeholder="請輸入您的指定時段" style="display:none;"></textarea>
 </div>
 <!-- =====================================================
            區塊 2：顧客姓名（必填）
@@ -236,7 +236,7 @@
            ===================================================== -->
 <div class="card">
 <h2>顧客姓名<span class="required">*</span></h2>
-<input id="name" name="name" placeholder="請輸入您的姓名" required="" type="text"/>
+<input id="name" placeholder="請輸入您的姓名" required="" type="text"/>
 </div>
 <!-- =====================================================
            區塊 3：聯繫電話（必填）
@@ -244,7 +244,7 @@
            ===================================================== -->
 <div class="card">
 <h2>聯繫電話<span class="required">*</span></h2>
-<input id="phone" name="phone" placeholder="請輸入您的聯絡電話" required="" type="tel"/>
+<input id="phone" placeholder="請輸入您的聯絡電話" required="" type="tel"/>
 </div>
 <!-- =====================================================
            區塊 4：方便聯繫時間（可複選）
@@ -252,12 +252,12 @@
            ===================================================== -->
 <div class="card">
 <h2>方便聯繫時間（可複選）<span class="required">*</span></h2>
-<label><input name="contact" type="checkbox" value="平日"/>平日</label>
-<label><input name="contact" type="checkbox" value="假日"/>假日</label>
-<label><input name="contact" type="checkbox" value="上午"/>上午</label>
-<label><input name="contact" type="checkbox" value="下午"/>下午</label>
-<label><input name="contact" type="checkbox" value="晚上"/>晚上</label>
-<label><input name="contact" type="checkbox" value="皆可"/>皆可</label>
+<label><input name="contact" type="checkbox"/>平日</label>
+<label><input name="contact" type="checkbox"/>假日</label>
+<label><input name="contact" type="checkbox"/>上午</label>
+<label><input name="contact" type="checkbox"/>下午</label>
+<label><input name="contact" type="checkbox"/>晚上</label>
+<label><input name="contact" type="checkbox"/>皆可</label>
 </div>
 <!-- =====================================================
            區塊 5：清洗保養地址（必填）
@@ -265,7 +265,7 @@
            ===================================================== -->
 <div class="card">
 <h2>清洗保養地址<span class="required">*</span></h2>
-<textarea id="address" name="address" placeholder="請輸入完整地址" required=""></textarea>
+<textarea id="address" placeholder="請輸入完整地址" required=""></textarea>
 </div>
 <!-- =====================================================
            區塊 6：居住地型態（必選其一）
@@ -273,12 +273,12 @@
            ===================================================== -->
 <div class="card">
 <h2>居住地型態<span class="required">*</span></h2>
-<label><input name="houseType" type="radio" value="透天屋"/>透天屋</label>
-<label><input name="houseType" type="radio" value="大樓（有電梯）"/>大樓（有電梯）</label>
-<label><input name="houseType" type="radio" value="大樓（無電梯）"/>大樓（無電梯）</label>
-<label><input id="otherType" name="houseType" type="radio" value="其他"/>其他</label>
+<label><input name="houseType" type="radio"/>透天屋</label>
+<label><input name="houseType" type="radio"/>大樓（有電梯）</label>
+<label><input name="houseType" type="radio"/>大樓（無電梯）</label>
+<label><input id="otherType" name="houseType" type="radio"/>其他</label>
 <!-- 預設隱藏；JS 依勾選狀態顯示/隱藏 -->
-<textarea id="otherTypeInput" name="houseType" placeholder="請輸入居住地型態" style="display:none;"></textarea>
+<textarea id="otherTypeInput" placeholder="請輸入居住地型態" style="display:none;"></textarea>
 </div>
 <!-- =====================================================
            區塊 7：其他備註（選填）
@@ -286,7 +286,7 @@
            ===================================================== -->
 <div class="card">
 <h2>✍️ 其他備註說明（如有特殊需求或補充）</h2>
-<textarea name="note" placeholder="請輸入備註"></textarea>
+<textarea placeholder="請輸入備註"></textarea>
 </div>
 <!-- 送出按鈕 -->
 <div class="button-container">
@@ -413,5 +413,35 @@
       });
     });
   </script>
-<script defer="True" src="/js/booking-submit.js?v=8"></script></body>
+<script>(function(){
+  function addHidden(name, value){
+    if(!value) return;
+    var i=document.createElement('input'); i.type='hidden'; i.name=name; i.value=String(value);
+    (document.getElementById('bookingForm')||document.forms[0]||document.body).appendChild(i);
+  }
+  // Merge contact-method from URL
+  try{
+    var qs=new URLSearchParams(location.search||'');
+    var cm=qs.get('contact-method')||'';
+    var om=(qs.get('other-method')||'').trim();
+    var cname=(qs.get('contact-name')||'').trim();
+    if(cm){ addHidden('contact-method', (/其他/.test(cm)&&om)?('其他、'+om):cm); }
+    if(cname){ addHidden('contact-name', cname); }
+  }catch(_){}
+  // On submit, append "其他" free-text into same keys so captureFromNames picks them up
+  try{
+    var form=document.getElementById('bookingForm')||document.forms[0];
+    if(form){
+      form.addEventListener('submit', function(){
+        var ot=document.getElementById('otherTimeInput');
+        var txt=ot && ot.value ? ot.value.trim() : '';
+        if(txt) addHidden('time', txt);
+        var otherType=document.getElementById('otherType');
+        var typeTxtEl=document.getElementById('otherTypeInput');
+        var typeTxt=typeTxtEl && typeTxtEl.value ? typeTxtEl.value.trim() : '';
+        if(otherType && otherType.checked && typeTxt) addHidden('houseType', typeTxt);
+      }, {capture:true});
+    }
+  }catch(_){}
+})();</script><script defer="True" src="/js/booking-submit.js?v=8"></script></body>
 </html>
