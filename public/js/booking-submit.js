@@ -118,9 +118,45 @@
   }
 
   async function submitFinal(form){
-    const draft = normalizeKeys(Object.assign({}, getDraft(), captureFromNames(document), captureFromDataFields(document)));
+    const qs = (function(){ try { return Object.fromEntries(new URLSearchParams(location.search||'')); } catch(_) { return {}; } })();
+    const draft = normalizeKeys(Object.assign({}, qs, getDraft(), captureFromNames(document), captureFromDataFields(document)));
     const payload = Object.assign({}, draft, {
-      _id: getId(),
+
+    // 強制合併與覆寫，確保信件顯示完整
+    (function mergeAll(){
+      try{
+        // 1) 可安排時段 → payload.timeslot
+        var ts = Array.prototype.map.call(document.querySelectorAll('input[name="time"]:checked'), i=>i.value);
+        var tsExtra = (document.getElementById('otherTimeInput') && document.getElementById('otherTimeInput').value || '').trim();
+        if (tsExtra) ts.push(tsExtra);
+        if (ts.length) payload.timeslot = ts;
+
+        // 2) 方便聯繫時間 → payload.contact_time_preference
+        var ct = Array.prototype.map.call(document.querySelectorAll('input[name="contact"]:checked'), i=>i.value);
+        if (ct.length) payload.contact_time_preference = ct;
+
+        // 3) 居住地型態 → payload.housing_type
+        var htChecked = document.querySelector('input[name="houseType"]:checked');
+        var ht = htChecked ? htChecked.value : '';
+        var htExtra = (document.getElementById('otherTypeInput') && document.getElementById('otherTypeInput').value || '').trim();
+        if (htChecked && htChecked.id === 'otherType' && htExtra) {
+          ht = ht ? [ht, htExtra] : htExtra;
+        }
+        if (ht) payload.housing_type = ht;
+
+        // 4) 與我們聯繫方式（若使用 Contact 頁帶來的 GET 參數）→ payload.contact_method
+        var cm = draft.contact_method;
+        var otherText = (draft['other-method'] || draft.other_method || '').trim ? (draft['other-method'] || draft.other_method || '').trim() : (draft['other-method'] || draft.other_method || '');
+        if (cm) {
+          if (/其他/.test(String(cm)) && otherText) {
+            payload.contact_method = Array.isArray(cm) ? cm.concat([otherText]) : [cm, otherText];
+          } else {
+            payload.contact_method = cm;
+          }
+        }
+      }catch(_){}
+    })();
+          _id: getId(),
       _final: true,
       _page: { title: pageTitle(), path: pagePath(), url: location.href },
       _sections: buildSections(draft),
