@@ -22,7 +22,7 @@
     'timeslot','name','phone','contact_time_preference','address','housing_type','note'
   ];
 
-  function log(){ try{ if(DEBUG) console.log.apply(console, ['[booking]', ...arguments]); }catch(e){} }
+  function log(){ if(DEBUG) try{ console.log.apply(console, ['[booking]', ...arguments]); }catch(e){} }
   function uid(){ return (Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
   function getId(){ let id=localStorage.getItem(LS_ID); if(!id){ id=uid(); localStorage.setItem(LS_ID,id); } return id; }
   function getDraft(){ try{ return JSON.parse(localStorage.getItem(LS_DATA)||'{}'); }catch(_){ return {}; } }
