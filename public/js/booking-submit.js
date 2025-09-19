@@ -22,7 +22,7 @@
     'timeslot','name','phone','contact_time_preference','address','housing_type','note'
   ];
 
-  function log(){ if(DEBUG) try{ console.log.apply(console, ['[booking]', ...arguments]); }catch(e){} }
+  function log(){ try{ if(DEBUG) console.log.apply(console, ['[booking]', ...arguments]); }catch(e){} }
   function uid(){ return (Date.now().toString(36)+Math.random().toString(36).slice(2,8)); }
   function getId(){ let id=localStorage.getItem(LS_ID); if(!id){ id=uid(); localStorage.setItem(LS_ID,id); } return id; }
   function getDraft(){ try{ return JSON.parse(localStorage.getItem(LS_DATA)||'{}'); }catch(_){ return {}; } }
@@ -120,33 +120,7 @@
   async function submitFinal(form){
     const draft = normalizeKeys(Object.assign({}, getDraft(), captureFromNames(document), captureFromDataFields(document)));
     const payload = Object.assign({}, draft, {
-
-    // 強制覆寫三欄位並處理 contact_method 合併
-    (function mergeAll(){
-      try{
-        var ts=[].map.call(document.querySelectorAll('input[name="time"]:checked'), i=>i.value);
-        var tsExtra=(document.getElementById('otherTimeInput')&&document.getElementById('otherTimeInput').value||'').trim();
-        if(tsExtra) ts.push(tsExtra);
-        if(ts.length) payload.timeslot=ts;
-
-        var ct=[].map.call(document.querySelectorAll('input[name="contact"]:checked'), i=>i.value);
-        if(ct.length) payload.contact_time_preference=ct;
-
-        var htChecked=document.querySelector('input[name="houseType"]:checked');
-        var ht=htChecked?htChecked.value:'';
-        var htExtra=(document.getElementById('otherTypeInput')&&document.getElementById('otherTypeInput').value||'').trim();
-        if(htChecked && htChecked.id==='otherType' && htExtra){ ht = ht ? [ht, htExtra] : htExtra; }
-        if(ht) payload.housing_type=ht;
-
-        var cm=draft.contact_method;
-        var otherText=(draft['other-method']||draft.other_method||'').trim? (draft['other-method']||draft.other_method||'').trim() : (draft['other-method']||draft.other_method||'');
-        if(cm){
-          if(/其他/.test(String(cm)) && otherText){ payload.contact_method = Array.isArray(cm)? cm.concat([otherText]) : [cm, otherText]; }
-          else { payload.contact_method = cm; }
-        }
-      }catch(_){}
-    })();
-          _id: getId(),
+      _id: getId(),
       _final: true,
       _page: { title: pageTitle(), path: pagePath(), url: location.href },
       _sections: buildSections(draft),
@@ -169,7 +143,7 @@
   window.addEventListener('DOMContentLoaded', function(){
     document.addEventListener('click', onClick, { capture:true });
     document.addEventListener('change', onChange, { capture:true });
-    Array.prototype.forEach.call(document.forms, f => f.addEventListener('submit', onSubmit, { capture: true }));
+    Array.prototype.forEach.call(document.forms, f => f.addEventListener('submit', onSubmit));
     if (DEBUG) log('ready v8-strict');
   });
 
