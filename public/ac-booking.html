@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<!--
+    [HEAD 基本設定說明]
+    - lang="zh-Hant"：告知瀏覽器與搜尋引擎此頁為繁體中文。
+    - <meta charset="UTF-8">：使用 UTF-8 編碼，避免中文亂碼。
+    - <meta name="viewport"...>：行動裝置版面自適應，1.0 初始縮放。
+    - <title>：瀏覽器分頁標題。
+  -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>冷氣清洗 預約表單</title>
+<style>
+    /*
+      [全域樣式說明]
+      - body：全站基底字型、顏色、背景、基本過場轉場。
+      - 使用系統與 Google Noto Sans TC（若有載入）相容字體，避免中英文混排不協調。
+    */
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      color: #374151;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* 
+      [頂部標題區塊 .page-header]
+      - 灰底 + 下邊線，集中排版。
+    */
+    .page-header {
+      background: #f3f4f6;
+      border-bottom: 1px solid #d1d5db;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    .page-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #2563eb; /* 藍色主色 */
+    }
+
+    /*
+      [表單容器與卡片 .section]
+      - 設定表單寬度、左右留白與卡片風格（邊框、圓角、背景）。
+    */
+    form {
+      max-width: 800px;          /* 內容寬度限制，避免過長行寬 */
+      margin: 30px auto;         /* 置中顯示 */
+      padding: 0 20px;           /* 手機裝置左右內距 */
+    }
+    .section {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #f9fafb;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #2563eb;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    /*
+      [標籤與選項群組]
+      - label：標題粗體，與輸入/選項有間距。
+      - .radio-group / .checkbox-group：群組容器，提供群組間距與左內距。
+      - 內部 label：排成一列（inline-flex），利於圖文並排。
+    */
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 8px 0 5px;
+      color: #374151;
+    }
+    .radio-group, .checkbox-group {
+      margin: 10px 0;
+      padding-left: 10px;
+    }
+    .radio-group label, .checkbox-group label {
+      display: flex;             /* 讓文字與小圖示同排 */
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: normal;       /* 選項本身不再加粗，避免太搶眼 */
+      color: #374151;
+    }
+    .radio-group img {
+      width: 120px;
+      margin-left: 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+
+    /*
+      [說明圖片 .note-img]
+      - 例如「變形金剛系列」示意圖。
+    */
+    .note-img {
+      margin: 10px 0;
+      text-align: left;
+      padding-left: 10px;
+    }
+    .note-img img {
+      width: 60%;
+      max-width: 350px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+    }
+
+    /*
+      [隱藏輸入框 .hidden-input]
+      - 預設 display: none，待使用者勾選特定選項（如「5台以上」「5樓以上」）時顯示。
+      - 內部 input 使用一般寬度、圓角、邊框。
+    */
+    .hidden-input {
+      display: none;
+      margin: 10px;
+    }
+    .hidden-input input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    /*
+      [底部按鈕 .btn-group]
+      - 左右並排：回首頁 / 下一步。
+      - 使用主色按鈕，hover 有深色過渡。
+    */
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      margin: 30px auto;
+      max-width: 800px;
+      gap: 12px;
+    }
+    .btn-group a, .btn-group button {
+      flex: 1;
+      padding: 14px;
+      background: #2563eb;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-group a:hover, .btn-group button:hover {
+      background: #1e40af;
+    }
+
+    /* 必填符號樣式（紅色星號） */
+    .required {
+      color: red;
+      margin-left: 3px;
+    }
+
+    /*
+      [深色模式]
+      - 由外部 theme.js 切換 <body> 的 .dark-mode 類名來生效。
+      - 各元件在深色下的顏色、邊框、背景調整。
+    */
+    body.dark-mode { background: #111827; color: #ffffff; }
+    body.dark-mode .page-header { background: #1f2937; border-bottom: 1px solid #374151; }
+    body.dark-mode .page-header h1 { color: #3b82f6; }
+    body.dark-mode .section { border: 1px solid #374151; background: #1f2937; }
+    body.dark-mode .section h2 { color: #3b82f6; }
+    body.dark-mode label,
+    body.dark-mode .radio-group label,
+    body.dark-mode .checkbox-group label { color: #ffffff; }
+    body.dark-mode .hidden-input input { background: #374151; color: #fff; border: 1px solid #555; }
+
+    /*
+      [手機優化]
+      - 在小螢幕降低字級、縮小 padding，圖片寬度滿版。
+    */
+    @media (max-width: 600px) {
+      .page-header h1 { font-size: 1.5rem; }
+      .note-img img { width: 100%; }
+      .btn-group a, .btn-group button {
+        font-size: 0.9rem;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+<!--
+    [頁首區塊說明]
+    - 顯示頁面主題名稱「冷氣清洗 預約表單」。
+    - 可視需求替換為企業 Logo + 標題。
+  -->
+<div class="page-header">
+<h1>冷氣清洗 預約表單</h1>
+</div>
+<!--
+    [表單說明]
+    - id="booking-form"：供 JS 綁定驗證。
+    - action="addon-service.html"：提交後導向下一步（加購服務頁）。
+    - method="get"：以 QueryString 方式提交（便於分享與除錯）；若含隱私資訊可改為 POST。
+  -->
+<form action="addon-service.html" id="booking-form" method="get">
+<!--
+      [區塊：冷氣類型（必填單選）]
+      - 使用 radio：使用者只能擇一。
+      - name="ac_type"：提交時的欄位名稱。
+      - required：至少必須選取一個選項（表單原生驗證）。
+      - 圖片示意：放在 label 內，點選圖片亦可觸發選取（提升可用性）。
+      - 圖片路徑僅為範例，請自行替換正確檔案路徑。
+    -->
+<div class="section">
+<h2>冷氣類型 <span class="required">*</span></h2>
+<div class="radio-group">
+<label>
+<input name="ac_type" required="" type="radio" value="分離式冷氣"/>
+          分離式冷氣
+          <img alt="分離式冷氣" src="imagessplit-ac.jpg"/>
+</label>
+<label>
+<input name="ac_type" type="radio" value="吊隱式冷氣"/>
+          吊隱式冷氣
+          <img alt="吊隱式冷氣" src="imagesceiling-ac.jpg"/>
+</label>
+</div>
+</div>
+<!--
+      [區塊：清洗數量（必填單選）]
+      - name="quantity"：單選，枚舉 1~5 台與「5台以上」。
+      - 「5台以上」勾選時顯示補充數量輸入（min=6），避免不合規的數字。
+      - #more-option：觸發者；#more-input：隱藏容器；name="quantity_more"：實際補充數值欄位。
+      - 注意：僅前端顯示/限制，後端仍需再次驗證（安全性與正確性）。
+    -->
+<div class="section">
+<h2>清洗數量 <span class="required">*</span></h2>
+<div class="radio-group">
+<label><input name="quantity" required="" type="radio" value="1台"/> 1 台</label>
+<label><input name="quantity" type="radio" value="2台"/> 2 台</label>
+<label><input name="quantity" type="radio" value="3台"/> 3 台</label>
+<label><input name="quantity" type="radio" value="4台"/> 4 台</label>
+<label><input name="quantity" type="radio" value="5台"/> 5 台</label>
+<label>
+<input id="more-option" name="quantity" type="radio" value="5台以上"/>
+          5 台以上
+        </label>
+<!-- 隱藏輸入：顯示在「5台以上」時 -->
+<div class="hidden-input" id="more-input">
+<input aria-label="清洗數量（6 台以上）" min="6" name="quantity_more" placeholder="請輸入清洗數量（6 台以上）" type="number"/>
+</div>
+</div>
+</div>
+<!--
+      [區塊：室內機所在樓層（改為可複選）]
+      - 改為 checkbox（可複選）：使用 name="floor[]"（方括號）讓同名欄位提交為陣列。
+      - 選項：1樓、2樓、3樓、4樓、5樓、5樓以上。
+      - 「5樓以上」勾選時展开補充輸入（與「5台以上」互動一致）。
+      - 原生 required 對 checkbox 群組支援度在舊版瀏覽器不一，故改由 JS 驗證（提交時若全未勾選則阻止）。
+      - #floor-more：觸發者；#floor-more-input：隱藏容器；name="floor_detail"：補充敘述欄位。
+    -->
+<div class="section">
+<h2>室內機所在樓層（可複選） <span class="required">*</span></h2>
+<div class="checkbox-group" id="floor-group">
+<label><input class="floor-item" name="floor[]" type="checkbox" value="1樓"/> 1 樓</label>
+<label><input class="floor-item" name="floor[]" type="checkbox" value="2樓"/> 2 樓</label>
+<label><input class="floor-item" name="floor[]" type="checkbox" value="3樓"/> 3 樓</label>
+<label><input class="floor-item" name="floor[]" type="checkbox" value="4樓"/> 4 樓</label>
+<label><input class="floor-item" name="floor[]" type="checkbox" value="5樓"/> 5 樓</label>
+<label>
+<input class="floor-item" id="floor-more" name="floor[]" type="checkbox" value="5樓以上"/>
+          5 樓以上
+        </label>
+<!-- 隱藏輸入：顯示在「5樓以上」時（例如：6樓、7樓、頂樓加蓋…） -->
+<div class="hidden-input" id="floor-more-input">
+<input aria-label="樓層補充說明" name="floor_detail" placeholder="請輸入具體樓層（如：6樓、7樓、頂樓加蓋…）" type="text"/>
+</div>
+</div>
+</div>
+<!--
+      [區塊：冷氣品牌（可複選）]
+      - 使用多個 checkbox，name="brand[]"：提交為陣列。
+      - 「其他」選項勾選時顯示文字輸入。
+      - 前端僅做顯示控制，後端仍須驗證字串長度/過濾特殊字元等安全性。
+    -->
+<div class="section">
+<h2>冷氣品牌（可複選） <span class="required">*</span></h2>
+<div class="checkbox-group">
+<label><input name="brand[]" type="checkbox" value="HITACHI日立冷氣"/>HITACHI日立冷氣</label>
+<label><input name="brand[]" type="checkbox" value="Panasonic 國際牌"/>Panasonic 國際牌</label>
+<label><input name="brand[]" type="checkbox" value="DAIKIN 大金冷氣"/>DAIKIN 大金冷氣</label>
+<label><input name="brand[]" type="checkbox" value="MITSUBISHI 三菱"/>MITSUBISHI 三菱</label>
+<label><input name="brand[]" type="checkbox" value="FUJITSU 富士通"/>FUJITSU 富士通</label>
+<label><input name="brand[]" type="checkbox" value="LG"/>LG</label>
+<label><input name="brand[]" type="checkbox" value="TECO 東元"/>TECO 東元</label>
+<label><input name="brand[]" type="checkbox" value="SANLUX 三洋"/>SANLUX 三洋</label>
+<label><input name="brand[]" type="checkbox" value="SAMPO 聲寶"/>SAMPO 聲寶</label>
+<label><input name="brand[]" type="checkbox" value="Heran 禾聯"/>Heran 禾聯</label>
+<label><input name="brand[]" type="checkbox" value="Kolin 歌林"/>Kolin 歌林</label>
+<label><input name="brand[]" type="checkbox" value="TATUNG 大同"/>TATUNG 大同</label>
+<label>
+<input id="brand-other" name="brand[]" type="checkbox" value="其他"/>
+          其他
+        </label>
+<!-- 隱藏輸入：顯示在「其他」勾選時 -->
+<div class="hidden-input" id="brand-input">
+<input aria-label="其他品牌名稱" name="brand_detail" placeholder="請輸入品牌名稱" type="text"/>
+</div>
+</div>
+</div>
+<!--
+      [區塊：是否為「變形金剛系列」冷氣（必填單選）]
+      - 提供參考圖片（.note-img），利於使用者判斷。
+      - name="special"：三選一（是 / 否 / 不清楚）。
+      - 「不清楚」選項讓現場人員判斷，降低表單放棄率。
+    -->
+<div class="section">
+<h2>是否為「變形金剛系列」冷氣機型？ <span class="required">*</span></h2>
+<div class="note-img">
+<p>常見「變形金剛系列」機型參考：</p>
+<!-- 圖片路徑為示意，請換成實際檔案 -->
+<img alt="變形金剛系列冷氣範例" src="imagestransformer-ac.jpg"/>
+</div>
+<div class="radio-group">
+<label><input name="ac_transformer_series" required="" type="radio" value="是"/> 是</label>
+<label><input name="ac_transformer_series" type="radio" value="否"/> 否</label>
+<label><input name="ac_transformer_series" type="radio" value="不清楚（現場由人員判斷）"/> 不清楚（現場由人員判斷）</label>
+</div>
+</div><div></div>
+<!--
+      [導覽按鈕]
+      - 回首頁：連回 index.html（可改為實際首頁路徑）。
+      - 下一步：送出表單，進入「防霉・消毒【加購服務專區】」。
+      - 若需防止重複提交，可在 JS submit 期間短暫 disable 按鈕。
+    -->
+<div class="btn-group">
+<a href="index.html">回首頁</a>
+<button type="submit">下一步 ➜ 防霉・消毒【加購服務專區】</button>
+</div>
+</form>
+<!--
+    [功能腳本]
+    - 監聽勾選/切換事件，控制隱藏輸入顯示。
+    - 進行基本前端驗證（樓層至少勾選 1 個）。
+    - 注意：前端驗證僅為提升使用體驗，後端仍需做嚴格驗證。
+  -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // -------------------------------
+      // A. 「清洗數量」：5台以上 → 顯示數量輸入
+      // -------------------------------
+      const moreOption = document.getElementById("more-option"); // 5台以上（radio）
+      const moreInput  = document.getElementById("more-input");  // 隱藏容器
+      const quantityRadios = document.querySelectorAll("input[name='quantity']");
+
+      // 初始化：若頁面返回或有預設值（例如瀏覽器回上一頁保留狀態）
+      moreInput.style.display = moreOption && moreOption.checked ? "block" : "none";
+
+      // 事件：任一數量選項變更時，判斷是否為「5台以上」
+      quantityRadios.forEach(radio => {
+        radio.addEventListener("change", () => {
+          moreInput.style.display = moreOption.checked ? "block" : "none";
+        });
+      });
+
+      // -------------------------------
+      // B. 「室內機樓層（可複選）」：5樓以上 → 顯示補充輸入
+      // -------------------------------
+      const floorMore      = document.getElementById("floor-more");       // 5樓以上（checkbox）
+      const floorMoreInput = document.getElementById("floor-more-input"); // 隱藏容器
+      const floorCheckboxes = document.querySelectorAll(".floor-item");   // 全部樓層選項（含 5樓以上）
+
+      // 初始化：若頁面返回或有預設值
+      floorMoreInput.style.display = floorMore && floorMore.checked ? "block" : "none";
+
+      // 事件：任一樓層選項勾選/取消時，根據「5樓以上」是否勾選來顯示/隱藏
+      floorCheckboxes.forEach(chk => {
+        chk.addEventListener("change", () => {
+          floorMoreInput.style.display = floorMore.checked ? "block" : "none";
+        });
+      });
+
+      // -------------------------------
+      // C. 「品牌（可複選）」：其他 → 顯示文字輸入
+      // -------------------------------
+      const brandOther = document.getElementById("brand-other"); // 其他（checkbox）
+      const brandInput = document.getElementById("brand-input"); // 隱藏容器
+
+      // 初始化顯示狀態
+      brandInput.style.display = brandOther && brandOther.checked ? "block" : "none";
+
+      // 事件：勾選/取消「其他」時切換顯示
+      brandOther.addEventListener("change", () => {
+        brandInput.style.display = brandOther.checked ? "block" : "none";
+      });
+
+      // -------------------------------
+      // D. 送出前驗證（客製）
+      // -------------------------------
+      const form = document.getElementById("booking-form");
+
+      form.addEventListener("submit", (e) => {
+        // 1) 驗證：室內機樓層至少勾選 1 個（因為 checkbox 原生 required 相容性不一，改自訂）
+        const anyFloorChecked = Array.from(floorCheckboxes).some(c => c.checked);
+        if (!anyFloorChecked) {
+          e.preventDefault();
+          alert("請至少勾選一個『室內機所在樓層』。");
+          return;
+        }
+
+        // 2) 驗證：若選擇「5台以上」，需檢查輸入數量是否為 ≥ 6 的有效數字
+        if (moreOption && moreOption.checked) {
+          const qtyInput = form.querySelector("input[name='quantity_more']");
+          const val = Number(qtyInput.value);
+          if (!Number.isFinite(val) || val < 6) {
+            e.preventDefault();
+            alert("請輸入正確的清洗數量（需為 6 台以上）。");
+            qtyInput.focus();
+            return;
+          }
+        }
+
+        // 3) 驗證：若勾選「5樓以上」且提供補充說明可提升準確度（非強制）
+        //    - 如需改為強制，將下方條件改為必填檢查（val.trim().length === 0）
+        if (floorMore && floorMore.checked) {
+          const detail = form.querySelector("input[name='floor_detail']");
+          // 目前僅示範：若使用者輸入了內容，則去除前後空白（清洗資料）
+          if (detail && typeof detail.value === "string") {
+            detail.value = detail.value.trim();
+          }
+        }
+
+        // 4) 安全性提醒：
+        //    - 前端驗證僅改善使用體驗；後端仍需重新檢查所有欄位（必填、型別、範圍、惡意字元等）。
+      });
+    });
+  </script>
+<!--
+    [深色模式腳本]
+    - theme.js 預期負責：
+      1) 依使用者偏好或按鈕切換 <body> 加上/移除 .dark-mode。
+      2) 可加上 localStorage 記錄使用者偏好。
+    - 若無此需求，可移除本行引用。
+  -->
+<script src="theme.js"></script>
+<script defer="True" src="/js/booking-submit.js?v=8"></script></body>
+</html>

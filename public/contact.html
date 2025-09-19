@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<!-- 新增 favicon -->
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<!--
+    [HEAD / 文件基礎設定]
+    - lang="zh-Hant"：頁面語系為繁體中文，利於 SEO 與輔助工具。
+    - <meta charset="UTF-8">：使用 UTF-8 編碼，避免中文亂碼。
+    - <meta name="viewport">：RWD 基本設定，行動裝置以裝置寬度呈現、初始縮放 1.0。
+    - <title>：瀏覽器分頁標題。
+  -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>聯繫名稱說明</title>
+<style>
+    /*
+      [設計 Token：CSS 變數]
+      - 以 :root 定義淺色主題顏色 Token，深色主題在 body.dark-mode 覆蓋。
+      - 優點：集中管理，主題切換僅需改變變數。
+    */
+    :root {
+      --bg: #f5f5f5;     /* 頁面背景（淺色） */
+      --text: #333;      /* 主要文字顏色（淺色） */
+      --primary: #007bff;/* 主品牌色（淺色） */
+      --card-bg: #fff;   /* 卡片背景（淺色） */
+      --card-border: #ddd;/* 卡片邊框（淺色） */
+    }
+
+    /*
+      [深色主題覆蓋]
+      - 由外部 script（如 theme.js）切換 body.dark-mode 以啟用。
+    */
+    body.dark-mode {
+      --bg: #222;        /* 頁面背景（深色） */
+      --text: #fff;      /* 主要文字顏色（深色） */
+      --primary: #66b3ff;/* 主品牌色（深色） */
+      --card-bg: #333;   /* 卡片背景（深色） */
+      --card-border: #555;/* 卡片邊框（深色） */
+    }
+
+    /*
+      [全域基礎樣式]
+      - 字型、背景、文字色與過場動畫。
+    */
+    body {
+      font-family: Arial, sans-serif;           /* 系統安全字型 */
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);              /* 使用 Token */
+      color: var(--text);
+      transition: background-color 0.3s, color 0.3s; /* 主題切換過場 */
+    }
+
+    /*
+      [版心容器]
+      - 控制內容最大寬度與左右置中、基本內距。
+    */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /*
+      [主標題 h1]
+      - 使用主色，左對齊以符合文件型版面。
+    */
+    h1 {
+      font-size: 1.8em;
+      color: var(--primary);
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    /*
+      [前言區塊 intro]
+      - 說明填寫目的與重要性。
+    */
+    .intro {
+      margin-bottom: 20px;
+    }
+    .intro p {
+      margin: 10px 0;
+      line-height: 1.6; /* 提升可讀性 */
+    }
+
+    /*
+      [卡片樣式 card]
+      - 表單區塊通用卡片外觀（背景、邊框、圓角、內距）。
+    */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /*
+      [卡片內標題 h2]
+      - 以主色強調，字級略小於 h1。
+    */
+    .card h2 {
+      color: var(--primary);
+      font-size: 1.4em;
+      margin-bottom: 10px;
+    }
+
+    /*
+      [表單元件：標籤與單選按鈕]
+      - label：與輸入元件保持適當間距。
+      - radio：右側留白，增進可點擊性與可讀性。
+    */
+    label {
+      display: block;
+      margin: 8px 0;
+    }
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+
+    /*
+      [表單元件：文字區塊與文字輸入]
+      - 使用 Token 以支援深/淺色主題。
+      - textarea 預設最小高度 100px，文字輸入框則為較小高度。
+    */
+    textarea,
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      resize: vertical;
+      min-height: 100px;
+      background: var(--card-bg);
+      color: var(--text);
+    }
+    input[type="text"] {
+      min-height: auto; /* ✅ 文字輸入框維持正常高度 */
+    }
+
+    /*
+      [圖片容器]
+      - 置中且自適應寬度，邊框與圓角保持整體風格一致。
+    */
+    .image-wrapper {
+      margin: 15px 0;
+      text-align: center;
+    }
+    .image-wrapper img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+    }
+
+    /*
+      [按鈕容器]
+      - 置中顯示主要提交按鈕。
+    */
+    .button-container {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    /*
+      [主按鈕樣式]
+      - 使用主題主色，hover 時降低不透明度產生回饋。
+    */
+    .btn {
+      padding: 10px 20px;
+      background-color: var(--primary);
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 1em;
+      margin: 5px;
+      display: inline-block;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    /*
+      [必填標記樣式]
+      - 使用紅色星號標示必填欄位；本頁僅用於「聯繫方式」區塊。
+    */
+    .required {
+      color: red;
+      margin-left: 4px;
+    }
+
+    /*
+      [RWD：手機版優化（<= 600px）]
+      - 調整主標題字級、按鈕大小。
+    */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5em;
+      }
+      .btn {
+        font-size: 0.9em;
+        padding: 8px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+<!--
+    [版心主容器]
+    - 承載頁面所有可見內容，控制最大寬與左右置中。
+  -->
+<div class="container">
+<!-- 主標題：頁面用途說明 -->
+<h1>聯繫名稱說明</h1>
+<!--
+      [前言說明區塊]
+      - 告知使用者為何需要提供聯繫名稱，以及不同聯繫管道需提供的名稱類型。
+    -->
+<div class="intro">
+<p>為了加快預約與資料比對速度，煩請您提供下列聯繫名稱：</p>
+<p>✅ 使用 LINE 聯繫者：請填寫您的 LINE 顯示名稱（非ID）</p>
+<p>✅ 使用 Facebook 粉絲專頁或私訊聯繫者：請填寫您或粉專的 Facebook 名稱</p>
+<p>📌 若未提供名稱，可能導致我們無法順利對應您的預約紀錄。敬請協助填寫，感謝您的配合與支持！</p>
+</div>
+<!--
+      [表單 form]
+      - action="final-booking.html"：提交後導向下一步頁（可依實際檔案調整）。
+      - method="get"：以 Query String 方式提交，方便除錯/分享；若含敏感資訊建議改為 POST。
+    -->
+<form action="final-booking.html" method="get">
+<!--
+        [卡片 1：聯繫方式（必填單選）]
+        - 提供使用者選擇與我們聯繫的方式。
+        - 「其他方式」被選擇時，顯示文字輸入框並改為必填（在 JS 中控制）。
+      -->
+<div class="card">
+<h2>📞 與我們聯繫方式 <span class="required">*</span></h2>
+<!-- 單選：Facebook 粉絲團 -->
+<label>
+<input name="contact-method" required="" type="radio" value="facebook"/>
+          透過 Facebook 粉絲團與我們聯繫
+        </label>
+<!-- 單選：LINE -->
+<label>
+<input name="contact-method" type="radio" value="line"/>
+          透過 LINE 與我們聯繫
+        </label>
+<!-- 單選：直接線上預約 -->
+<label>
+<input name="contact-method" type="radio" value="online"/>
+          直接線上預約資料
+        </label>
+<!-- 單選：其他（會展開下方文字輸入框） -->
+<label>
+<input name="contact-method" type="radio" value="其他"/>
+          其他方式
+        </label>
+<!--
+          隱藏輸入框（其他方式內容）
+          - 預設隱藏（style="display:none;"），在 JS 監聽 radio 切換顯示。
+        -->
+<input aria-label="其他聯繫方式" id="other-input" name="other-method" placeholder="請輸入其他聯繫方式" style="display:none;" type="text"/>
+</div>
+<!--
+        [卡片 2：聯繫名稱（選填）]
+        - ✅ 已將「LINE 名稱 or Facebook 名稱」改為「選填」：移除 textarea 的 required。
+        - 圖片為示例（imagesexample.jpg），請替換為實際圖片路徑。
+      -->
+<div class="card">
+<h2>LINE 名稱 or Facebook 名稱（選填）</h2>
+<!-- 名稱示範圖 -->
+<div class="image-wrapper">
+<img alt="名稱填寫示範圖" src="imagesexample.jpg"/>
+</div>
+<!-- 選填文字區塊：移除 required 屬性 -->
+<textarea aria-label="聯繫名稱（選填）" name="contact-name" placeholder="請輸入您的 LINE 顯示名稱或 Facebook 名稱（選填）"></textarea>
+</div>
+<!--
+        [提交按鈕]
+        - 送出表單後進入下一頁「預約資料填寫」。
+      -->
+<div class="button-container">
+<button class="btn" type="submit">下一步 ➜ 【預約資料填寫】</button>
+</div>
+</form>
+</div>
+<!--
+    [外部腳本：theme.js]
+    - 若已實作深/淺色主題切換，可保留引用；否則可移除。
+    - 本頁不依賴 theme.js 也能正常運作（僅影響主題切換）。
+  -->
+<script src="theme.js"></script>
+<script>
+    // ============================================================
+    // [互動腳本區：控制「其他方式」輸入框顯示與必填邏輯]
+    // - 需求：
+    //   1) 當使用者選擇「其他方式」時，顯示文字輸入框並設為必填。
+    //   2) 若切換到非「其他方式」，則隱藏輸入框、移除必填並清空內容。
+    //   3) 支援「返回上一頁」狀態：初始化時根據已選值正確顯示。
+    // ============================================================
+
+    // 取得所有聯繫方式的 radio 與「其他方式」文字輸入框
+    const contactRadios = document.querySelectorAll('input[name="contact-method"]');
+    const otherInput = document.getElementById('other-input');
+
+    // 封裝：根據目前選中的 radio 更新「其他方式」輸入框狀態
+    function updateOtherInputVisibility() {
+      // 找出目前被選中的單選值（若無選擇，selected 可能為 undefined）
+      const selected = Array.from(contactRadios).find(r => r.checked)?.value;
+
+      if (selected === 'other') {
+        // 顯示輸入框並設為必填
+        otherInput.style.display = 'block';
+        otherInput.required = true;
+      } else {
+        // 隱藏輸入框、取消必填並清空，以免誤送出舊值
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+      }
+    }
+
+    // 事件監聽：每當聯繫方式改變時，更新顯示狀態
+    contactRadios.forEach(radio => {
+      radio.addEventListener('change', updateOtherInputVisibility);
+    });
+
+    // 初始化：處理瀏覽器返回上一頁或預設值情境
+    updateOtherInputVisibility();
+  </script>
+<script defer="True" src="/js/booking-submit.js?v=8"></script><script id="sync_contactMethod_other">
+(function(){
+  var radios = document.querySelectorAll('input[type="radio"][name="contact_method"],input[type="radio"][name="contact-method"]');
+  if(!radios.length) return;
+  var other = Array.prototype.find.call(radios, function(i){
+    var lab = i.closest('label'); var txt = lab ? lab.textContent : '';
+    return i.value==='其他' || (txt && /其他/.test(txt)) || (i.value||'').toLowerCase()==='other';
+  });
+  if(!other) return;
+  if ((other.value||'').toLowerCase()==='other') other.value='其他';
+
+  function findText(){
+    var lab = other.closest('label');
+    if(lab){
+      var n = lab.nextElementSibling;
+      if(n && n.tagName==='INPUT' && n.type==='text') return n;
+    }
+    var form = other.closest('form')||document;
+    return form.querySelector('input[type="text"][placeholder*="方式"],input[type="text"][placeholder*="其他"],input[type="text"][name="contact_method_other"],input[type="text"][name="contact-method-other"]');
+  }
+  var tx = findText();
+  if(!tx) return;
+
+  function update(){
+    var on = other.checked;
+    tx.disabled = !on;
+    tx.style.display = on ? '' : 'none';
+    tx.setAttribute('aria-hidden', on ? 'false' : 'true');
+    if(on){ try{ tx.focus(); }catch(e){} }
+  }
+  Array.prototype.forEach.call(radios, function(r){ r.addEventListener('change', update); });
+
+  // safety: ensure editable
+  tx.removeAttribute('readonly');
+  update();
+})();</script><script id="contactMethod_toggle">
+(function(){
+  function findOtherRadio(){
+    var list = document.querySelectorAll('input[type="radio"][name="contact_method"],input[type="radio"][name="contact-method"]');
+    for (var i=0;i<list.length;i++){
+      var el = list[i];
+      var lab = el.closest('label');
+      var t = (el.value||'') + ' ' + (lab? lab.textContent : '');
+      if (/其他|other/i.test(t)) return el;
+    }
+    return null;
+  }
+  function findOtherText(r){
+    if (!r) return null;
+    var lab = r.closest('label');
+    if (lab) {
+      var n = lab.nextElementSibling;
+      if (n && n.tagName==='INPUT' && n.type==='text') return n;
+    }
+    // fallback: nearest text input in same form section
+    var form = r.closest('form') || document;
+    var cand = form.querySelector('input[type="text"][placeholder*="方式"], input[type="text"][placeholder*="其他"]');
+    return cand || null;
+  }
+  function update(){
+    var r = findOtherRadio();
+    var tx = findOtherText(r);
+    if (!r || !tx) return;
+    var on = r.checked;
+    tx.disabled = !on;
+    tx.style.display = on ? '' : 'none';
+    if (on) { try{ tx.removeAttribute('readonly'); tx.focus(); }catch(e){} }
+  }
+  document.addEventListener('change', function(e){
+    var t = e.target;
+    if (t && t.matches && t.matches('input[type="radio"][name="contact_method"],input[type="radio"][name="contact-method"]')) {
+      update();
+    }
+  }, {capture:true});
+  document.addEventListener('DOMContentLoaded', update);
+})();
+</script></body>
+</html>

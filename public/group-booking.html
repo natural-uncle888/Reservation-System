@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<!-- 新增 favicon -->
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<!--
+    [HEAD：基本設定與 RWD]
+    - lang="zh-Hant"：主要語系為繁體中文，有助 SEO 與輔助工具正確朗讀。
+    - <meta charset="UTF-8">：採用 UTF-8，避免中文亂碼。
+    - <meta name="viewport">：啟用響應式；以裝置寬度排版、初始縮放 1.0。
+    - <title>：瀏覽器分頁標題與搜尋結果標題。
+  -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>團購預約｜自然大叔 線上預約平台</title>
+<style>
+    /* =========================================================
+       主題設計 Token：淺色（預設）
+       - 以 CSS 變數集中管理顏色，深色主題用 body.dark-mode 覆蓋。
+       - 使用 var(--*) 的地方都會隨主題切換自動改色。
+       ========================================================= */
+    :root {
+      --bg-color: #ffffff;   /* 頁面背景（淺） */
+      --text-color: #333;    /* 主要文字（淺） */
+      --card-bg: #f8f9fa;    /* 卡片背景（淺） */
+      --card-border: #ddd;   /* 卡片邊框（淺） */
+      --title-color: #007BFF;/* 標題/連結主色（新版藍） */
+      --button-bg: #007BFF;  /* 主按鈕背景（淺） */
+      --button-hover: #0056b3;/* 主按鈕滑過（淺） */
+      --button-text: #fff;   /* 主按鈕文字色（淺/深共用） */
+    }
+
+    /* =========================================================
+       深色主題覆蓋（由 script 或 theme.js 在 <body> 加 .dark-mode）
+       ========================================================= */
+    body.dark-mode {
+      --bg-color: #121212;   /* 頁面背景（深） */
+      --text-color: #ffffff; /* 主要文字（深） */
+      --card-bg: #1e1e1e;    /* 卡片背景（深） */
+      --card-border: #444;   /* 卡片邊框（深） */
+      --title-color: #4da6ff;/* 標題主色（深） */
+      --button-bg: #4da6ff;  /* 主按鈕背景（深） */
+      --button-hover: #1a75d1;/* 主按鈕滑過（深） */
+      --button-text: #fff;   /* 主按鈕文字色 */
+    }
+
+    /* =========================================================
+       全域排版與色彩套用
+       - 採用 Noto Sans TC，中文字體顯示友好。
+       - 以主題 Token 套用背景與文字色，並加上過場動畫。
+       ========================================================= */
+    body {
+      font-family: "Noto Sans TC", sans-serif; /* 跨平台中文顯示佳 */
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);             /* 背景色（主題化） */
+      color: var(--text-color);                /* 文字色（主題化） */
+      transition: background 0.3s, color 0.3s; /* 主題切換過場 */
+      line-height: 1.6;                        /* 舒適閱讀行高 */
+    }
+
+    /* =========================================================
+       頁首（Header）
+       - 使用卡片底色與底線，置中顯示主標題。
+       ========================================================= */
+    header {
+      text-align: center;
+      padding: 20px;
+      background: var(--card-bg);              /* 卡片底色（主題化） */
+      border-bottom: 1px solid var(--card-border); /* 底線（主題化） */
+    }
+    header h1 {
+      color: var(--title-color);               /* 標題主色 */
+      margin: 0;                               /* 邊距歸零更緊湊 */
+    }
+
+    /* =========================================================
+       主要內容容器（Main）
+       - 控制可讀行寬、置中、保留上下間距。
+       ========================================================= */
+    main {
+      max-width: 900px;                        /* 內容最大寬度 */
+      margin: 20px auto;                       /* 上下外距 + 水平置中 */
+      padding: 20px;                           /* 內距 */
+    }
+
+    /* 小標題（H2）：使用主題主色 */
+    h2 {
+      color: var(--title-color);
+      margin-top: 0;                           /* 與上方容器貼齊 */
+    }
+
+    /* =========================================================
+       內容區塊（Section）
+       - 卡片風格：圓角 + 邊框 + 卡片底色。
+       ========================================================= */
+    section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;                     /* 與後續元素保留間距 */
+    }
+
+    /* =========================================================
+       多行輸入框（Textarea）
+       - 寬度 100% + box-sizing，與卡片內文左右齊平。
+       - 深色模式覆蓋背景/文字色以保可讀性。
+       ========================================================= */
+    textarea {
+      width: 100%;                             /* 滿版寬，受父層 padding 限制 */
+      min-height: 150px;                       /* 初始高度 */
+      padding: 10px;                           /* 內距避免文字貼邊 */
+      border: 1px solid var(--card-border);    /* 與卡片邊框一致 */
+      border-radius: 6px;
+      resize: vertical;                        /* 垂直縮放避免破版 */
+      background: #fff;                        /* 淺色輸入底 */
+      color: var(--text-color);                /* 主題文字色 */
+      box-sizing: border-box;                  /* 含內距與邊框，避免溢出 */
+    }
+    body.dark-mode textarea {
+      background: #2a2a2a;                     /* 深色輸入底 */
+      color: #fff;                              /* 深色文字 */
+    }
+
+    /* =========================================================
+       導覽按鈕（上一頁/下一步）
+       - 左右分散排列；按鈕使用主題色，hover 加深。
+       ========================================================= */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;          /* 兩端對齊 */
+      margin: 30px 0;
+    }
+    .nav-buttons a {
+      display: inline-block;                   /* 讓 padding 生效 */
+      padding: 10px 18px;
+      background: var(--button-bg);            /* 按鈕底色（主題化） */
+      color: var(--button-text);               /* 文字色（主題化） */
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.3s;             /* 滑過過場 */
+    }
+    .nav-buttons a:hover {
+      background: var(--button-hover);         /* 滑過變深 */
+    }
+  </style>
+</head>
+<body>
+<!--
+    [頁首區塊]
+    - 顯示本頁主題「團購預約」；與站內其他頁維持一致視覺風格。
+  -->
+<header>
+<h1>團購預約｜自然大叔</h1>
+</header>
+<!--
+    [主內容]
+    - 包含團購說明、適用條件、資料填寫區與導覽按鈕。
+  -->
+<main>
+<!-- 團購說明與適用情境 -->
+<h2>【團購預約與多台清洗優惠說明】</h2>
+<p>為了回饋鄰里與大量需求的客戶，我們提供團購優惠價格與專案清洗安排，詳細說明如下：</p>
+<!-- 說明小標與條列：清楚說明什麼是團購優惠 -->
+<p>　　<strong>什麼是團購優惠？</strong></p>
+<ul>
+<li>適用於左右鄰居、正對面鄰居</li>
+<li>大樓住戶：同棟內不同住戶皆可適用</li>
+<li>條件為清洗期間 <strong>清洗設備無需搬上車</strong> 即可享有團購優惠！</li>
+</ul>
+<!--
+      卡片式填寫區塊
+      - 引導使用者提供每戶機型/數量與其他加購需求，利於預估報價與排程。
+    -->
+<section>
+<h2>適用項目與預約資訊</h2>
+<p>請填寫以下資訊以利作業與報價估算：</p>
+<ul>
+<li>每戶冷氣數量（分離式／吊隱式／特殊機型請註明）</li>
+<li>洗衣機數量（限直立式）</li>
+<li>水塔清洗需求（如有）</li>
+</ul>
+<!-- 多行敘述輸入：與卡片左右齊平（受 section padding 控制） -->
+<textarea data-key="group_notes" placeholder="請輸入您的需求..."></textarea>
+</section>
+<!--
+      導覽按鈕
+      - 回首頁：index.html
+      - 下一步：前往「聯繫名稱說明」（contact.html）
+      - 若未來改為「多步驟表單」，此處可改成 <button> 或以 JS 控制流程。
+    -->
+<div class="nav-buttons">
+<a href="index.html">回首頁</a>
+<a href="contact.html">下一步 ➜ 【聯繫名稱說明】</a>
+</div>
+</main>
+<!--
+    外部主題切換腳本（選用）
+    - 若 theme.js 會為 <body> 加上/移除 .dark-mode，以切換深/淺色主題，保留本引用即可。
+    - 若未使用主題切換，本行可刪除，頁面仍能正常顯示。
+  -->
+<script src="theme.js"></script>
+<script>
+    // =========================================================
+    // [頁面腳本預留區]
+    // - 目前本頁無需額外 JS 即可運作。
+    // - 若未來需要：
+    //   1) 自動儲存使用者輸入（localStorage）
+    //   2) 表單送出前檢核（必填欄位、格式驗證）
+    //   3) 與後端 API 串接（fetch）
+    //   建議在 DOMContentLoaded 後進行事件綁定。
+    // =========================================================
+
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   const ta = document.querySelector('textarea');
+    //   const KEY = 'group-booking-notes';
+    //   // 載入暫存
+    //   ta.value = localStorage.getItem(KEY) || '';
+    //   // 變更即時儲存
+    //   ta.addEventListener('input', () => localStorage.setItem(KEY, ta.value));
+    // });
+  </script>
+<script defer="True" src="/js/booking-submit.js?v=8"></script></body>
+</html>

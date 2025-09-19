@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<!-- 新增 favicon -->
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<!--
+    [HEAD：基本設定與 RWD]
+    - lang="zh-Hant"：主要語系為繁體中文，有助 SEO 與輔助工具正確語音。
+    - <meta charset="UTF-8">：採用 UTF-8，避免中文亂碼。
+    - <meta name="viewport">：啟用響應式；以裝置寬度排版、初始縮放 1.0。
+    - <title>：瀏覽器分頁標題、搜尋結果顯示標題。
+  -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>防霉・消毒【加購服務專區】｜自然大叔</title>
+<style>
+    /* =========================================================
+       全域樣式（以 CSS 變數驅動的主題系統）
+       - body 與 :root 定義主題色票；body.dark-mode 可覆蓋為深色主題。
+       - 以 var(--bg/--text/--primary) 貫穿全站，降低日後改版成本。
+       ========================================================= */
+
+    /* 基礎排版與顏色：繫結到 CSS 變數，支援主題切換過場 */
+    body {
+      font-family: Arial, sans-serif;  /* 輕量系統字體，載入快 */
+      line-height: 1.6;                /* 舒適行高 */
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);     /* 由主題變數控制背景色 */
+      color: var(--text);              /* 由主題變數控制文字色 */
+      transition: background 0.3s, color 0.3s; /* 主題切換動畫 */
+    }
+
+    /* 淺色主題 Token（預設） */
+    :root {
+      --bg: #ffffff;      /* 頁面背景（淺） */
+      --text: #000000;    /* 主要文字（淺） */
+      --primary: #2563eb; /* 標題與主按鈕藍色（Tailwind blue-600 同系） */
+    }
+
+    /* 深色主題覆蓋：為 body 加上 .dark-mode 後生效（由 theme.js 或其他程式切換） */
+    body.dark-mode {
+      --bg: #121212;      /* 頁面背景（深） */
+      --text: #f5f5f5;    /* 主要文字（深） */
+      --primary: #2563eb; /* 也可改成 #3b82f6（blue-500/600 系） */
+    }
+
+    /* =========================================================
+       版芯容器 .container
+       - 控制可讀行寬、左右置中、保留上下邊距。
+       ========================================================= */
+    .container {
+      padding: 20px;        /* 內距：避免內容貼邊 */
+      max-width: 900px;     /* 可讀行寬上限 */
+      margin: auto;         /* 水平置中 */
+    }
+
+    /* 章節標題：使用主色增強視覺層次 */
+    h2 {
+      color: var(--primary);
+      margin-top: 20px;
+    }
+
+    /* 表單 label：整行可點，提高可用性（點文本也能切換 input） */
+    label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    /* =========================================================
+       導覽按鈕列 .nav-buttons
+       - 左右分散排列：返回 / 下一步
+       - 採用 <a> 連結；若改為送出表單，可替換成 <button type="submit">。
+       ========================================================= */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between; /* 兩端對齊 */
+      margin-top: 30px;
+    }
+    .nav-buttons a {
+      padding: 10px 18px;
+      background: var(--primary);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: 0.3s;     /* hover 過場 */
+    }
+    .nav-buttons a:hover {
+      opacity: 0.85;        /* 滑過微弱回饋 */
+    }
+
+    /* =========================================================
+       服務卡片 .service-box
+       - 邊框 + 圓角 + 淡底：讓各加購選項有清楚區隔。
+       - 深色模式下以白色透明度做輕底，並加深邊框。
+       ========================================================= */
+    .service-box {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      background: rgba(0,0,0,0.02); /* 超淡灰底（淺色模式） */
+    }
+    .service-box h3 {
+      margin-top: 0;              /* 與卡片上緣貼齊更緊湊 */
+      color: var(--primary);
+    }
+    body.dark-mode .service-box {
+      background: rgba(255,255,255,0.05); /* 深色模式：淡白底 */
+      border-color: #444;                 /* 深色模式：較深邊框 */
+    }
+  </style>
+</head>
+<body>
+<!--
+    [主內容容器 .container]
+    - 包覆整個頁面內容，維持一致行寬與左右留白。
+  -->
+<div class="container">
+<!--
+      頁面主標題（H2）
+      - 說明此頁用途：提供「防霉抗菌」與「臭氧消毒」兩項可加購服務。
+    -->
+<h2>防霉・消毒【加購服務專區】</h2>
+<!-- 說明段落：為何存在此頁、使用者可獲得的價值 -->
+<p>為提升清洗效果與環境品質，我們提供以下兩項可選擇加購服務：</p>
+<!--
+      服務卡片 #1：冷氣防霉抗菌處理
+      - 內含簡要賣點、價格與選項（需要 / 不需要）。
+      - 使用 radio：單選之一；未選則代表尚未決定（可由後端定義預設值）。
+    -->
+<div class="service-box">
+<h3>🟢 冷氣防霉抗菌處理</h3>
+<p><strong>💰 每台 300 元｜5台以上優惠 每台 250 元</strong></p>
+<ul>
+<li>奈米級抗菌技術</li>
+<li>日本納豆菌淨化專利</li>
+<li>無香料、無化學添加，純水性原料</li>
+</ul>
+<p>噴塗於冷氣鰭片、風鼓、風道，形成抗菌保護膜，延緩黴菌與灰塵附著，提升空氣品質！</p>
+<!-- 單選：是否需要加購防霉抗菌 -->
+<label><input name="antibacterial" type="radio" value="需要"/> 需要</label>
+<label><input name="antibacterial" type="radio" value="不需要"/> 不需要</label>
+<!--
+        備註：
+        - name="antibacterial" 採單選；若需「每台台數的勾選」，建議在前一步或此卡片新增數量欄位。
+        - 後端接收值為 '需要' 或 '不需要'（可依需求改成 boolean / 1/0）。
+      -->
+</div>
+<!--
+      服務卡片 #2：臭氧空間全面消毒（房間）
+      - 以房間為單位計價；提供優點清單與單選選項。
+      - 若需要「房間數量」，可額外加上數字輸入/階梯式選擇。
+    -->
+<div class="service-box">
+<h3>🟢 臭氧空間全面消毒（房間用）</h3>
+<p><strong>💰 每間房間 200 元</strong></p>
+<ul>
+<li>消除黴菌、塵蟎、真菌</li>
+<li>去除香菸、雪茄異味</li>
+<li>減少寵物異味與揮發性污染物</li>
+<li>分解地毯、家具、油漆等釋放的污染源</li>
+</ul>
+<p>臭氧殺菌力為氯的 3000 倍，能有效破壞病菌 DNA 與蛋白質結構，達到深層消毒！</p>
+<!-- 單選：是否需要加購臭氧消毒 -->
+<label><input name="ozone" type="radio" value="需要"/> 需要</label>
+<label><input name="ozone" type="radio" value="不需要"/> 不需要</label>
+<!--
+        備註：
+        - name="ozone" 同樣為單選；建議後端將未選視為「尚未選擇」或預設為「不需要」。
+      -->
+</div>
+<!--
+      導覽按鈕列
+      - 「返回上一步」回到冷氣清洗主頁（ac-booking.html）
+      - 「下一步」前往其他清洗服務（other-service.html）
+      - 若改為多步驟表單，可把這兩個 <a> 改為 <button> 搭配 JS 控制步驟。
+    -->
+<div class="nav-buttons">
+<a href="ac-booking.html">← 返回上一步</a>
+<a href="other-service.html">下一步 ➜ 【其他清洗服務】</a>
+</div>
+</div>
+<!--
+    外部主題切換腳本（選用）
+    - 若 theme.js 內含「深/淺色切換」邏輯（切換 body.dark-mode），可保留本引用。
+    - 若未使用主題切換，本行可移除，頁面仍可正常工作。
+  -->
+<script src="theme.js"></script>
+<script>
+    // =========================================================
+    // [頁面腳本區 - 空白預留]
+    // - 本頁目前僅依賴 CSS 呈現，無需 JS 即可運作。
+    // - 若未來需要「條件驗證（例如：勾選某項才允許下一步）」
+    //   或「數量/金額即時計算」，可在此區塊擴充。
+    // - 建議在 DOMContentLoaded 後綁定事件，避免查詢不到節點。
+    // =========================================================
+
+    // document.addEventListener('DOMContentLoaded', () => {
+    //   // 這裡可以綁定單選/多選的事件、統計金額、或將選擇儲存到 localStorage。
+    // });
+  </script>
+<script defer="True" src="/js/booking-submit.js?v=8"></script></body>
+</html>

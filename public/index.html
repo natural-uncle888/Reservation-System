@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<!-- 新增 favicon -->
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<!--
+    [HEAD：基本資訊與響應式設定]
+    - lang="zh-Hant"：宣告頁面主要語系為繁體中文，利於 SEO 與助讀工具。
+    - <meta charset="UTF-8">：使用 UTF-8 避免中文亂碼。
+    - <meta name="viewport">：RWD，讓手機以裝置寬度呈現並初始縮放 1.0。
+    - <title>：瀏覽器分頁標題與搜尋結果標題。
+  -->
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>自然大叔 線上預約平台</title>
+<style>
+    /* =========================================================
+       設計 Token（淺色主題）
+       - 以 CSS 變數集中管理顏色與主題，方便維護與套用深色模式。
+       ========================================================= */
+    :root {
+      --bg-color: #ffffff;   /* 全站背景（淺） */
+      --text-color: #333;    /* 主要文字（淺） */
+      --card-bg: #f0f2f5;    /* 卡片背景（淺） */
+      --card-border: #ddd;   /* 卡片邊框（淺） */
+      --title-color: #007BFF;/* 標題/連結主色（新版藍） */
+      --button-bg: #007BFF;  /* 按鈕主色（淺） */
+      --button-hover: #0056b3;/* 按鈕滑過色（淺） */
+      --button-text: #fff;   /* 按鈕文字顏色 */
+    }
+
+    /* =========================================================
+       深色主題覆蓋（由 body.dark-mode 觸發）
+       - 僅覆蓋需要變更的 Token，其他樣式沿用預設。
+       ========================================================= */
+    body.dark-mode {
+      --bg-color: #121212;    /* 全站背景（深） */
+      --text-color: #ffffff;  /* 主要文字（深） */
+      --card-bg: #1e1e1e;     /* 卡片背景（深） */
+      --card-border: #444;    /* 卡片邊框（深） */
+      --title-color: #4da6ff; /* 標題/連結主色（深） */
+      --button-bg: #4da6ff;   /* 按鈕主色（深） */
+      --button-hover: #1a75d1;/* 按鈕滑過色（深） */
+      --button-text: #fff;    /* 按鈕文字顏色 */
+    }
+
+    /* =========================================================
+       強調導引區塊（首頁 CTA）
+       - 置頂的行動呼籲卡片，吸引使用者前往預約流程。
+       ========================================================= */
+    .highlight-section {
+      background: #e9f5ff;                     /* 淡藍底呼應品牌藍 */
+      border: 2px solid #007BFF;               /* 主色邊框 */
+      border-radius: 12px;                     /* 柔和圓角 */
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2); /* 藍色調陰影 */
+      padding: 25px 20px;
+      margin: 30px auto;
+      max-width: 900px;                        /* 與內容主欄一致 */
+      text-align: center;
+    }
+    .highlight-banner {
+      background: #007BFF;   /* 主色條 */
+      color: #fff;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    /* =========================================================
+       服務導流卡片
+       - 用 CSS Grid 自適應欄數，按鈕型卡片具備移入上浮效果。
+       ========================================================= */
+    .service-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 視寬自動分欄 */
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .service-links a {
+      display: block;
+      padding: 18px;
+      background: #007BFF;   /* 主色背景 */
+      color: #fff;
+      border-radius: 10px;
+      font-size: 1.5rem;     /* 卡片主標字級 */
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      transition: transform 0.2s, background 0.3s; /* 平滑互動 */
+    }
+    .service-links a small {
+      display: block;
+      font-weight: normal;
+      font-size: 1rem;
+      margin-top: 6px;
+      color: #e0e0e0;        /* 次要資訊低對比 */
+    }
+    .service-links a:hover {
+      background: #0056b3;   /* hover 加深 */
+      transform: translateY(-3px); /* 輕微上浮 */
+    }
+
+    /* =========================================================
+       全域排版
+       - 內容主欄卡片化；字型、行高與主題色使用變數。
+       ========================================================= */
+    body {
+      font-family: "Noto Sans TC", sans-serif;    /* 中文閱讀友善字型 */
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;    /* 主題切換過場 */
+    }
+    header {
+      position: relative; /* 若需在 header 內放絕對定位元素，可作為定位參考 */
+      text-align: center;
+    }
+    header img {
+      max-width: 950px; /* 與內容區塊一致 */
+      width: 100%;      /* 在小螢幕可自適應縮小 */
+      height: auto;     /* 保持比例 */
+      display: block;
+      margin: 0 auto;   /* 置中 */
+      border-radius: 12px;/* 與其他區塊一致的圓角 */
+    }
+    section {
+      padding: 25px 20px;
+      max-width: 900px;                     /* 限制行寬提升可讀性 */
+      margin: 20px auto;                    /* 置中 */
+      background: var(--card-bg);           /* 卡片背景 */
+      border: 1px solid var(--card-border); /* 卡片邊框 */
+      border-radius: 12px;
+      transition: background 0.3s, border 0.3s; /* 主題切換過場 */
+      position: relative; /* 若區塊內需定位子元素可用 */
+    }
+    h2, h3 {
+      color: var(--title-color); /* 標題使用主色 */
+      margin-top: 0;             /* 與卡片上緣貼齊更整潔 */
+    }
+    ul { padding-left: 20px; }   /* 保持清單縮排 */
+    a  { color: var(--title-color); text-decoration: none; } /* 超連結以主色呈現 */
+
+    /* =========================================================
+       16:9 影片容器（若改嵌入 iframe）
+       - 使用 padding-bottom 比例盒維持響應式 16:9。
+       ========================================================= */
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+    /* =========================================================
+       頁腳
+       - 與卡片視覺一致，提供聯絡與外部平台連結。
+       ========================================================= */
+    footer {
+      background: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      transition: background 0.3s, border 0.3s;
+    }
+    footer a { color: var(--title-color); text-decoration: none; }
+
+    /* =========================================================
+       浮動主題切換按鈕（隨捲動固定）
+       - 固定於視窗右下角；桌機時以 clamp 智慧靠齊內容右緣。
+       - 使用 Token 控制顏色以支援深/淺色。
+       ========================================================= */
+    .theme-toggle {
+      right: clamp(16px, (100vw - 900px)/2, 48px);
+      /* 右邊距說明：
+         - 手機至少 16px；
+         - 桌機時 (100vw - 900px)/2 會貼近內容區；
+         - 上限 48px，避免過內縮。 */
+      bottom: 20px;
+      z-index: 999;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 999px; /* 膠囊形狀 */
+      background: var(--button-bg);
+      color: var(--button-text);
+      box-shadow: 0 6px 18px rgba(0,0,0,.18);
+      cursor: pointer;
+      transition: background .25s, transform .2s, box-shadow .25s, opacity .25s;
+      opacity: 0.95; /* 微透明降低干擾感 */
+    }
+    .theme-toggle:hover {
+      background: var(--button-hover);
+      transform: translateY(-2px);          /* 微上浮 */
+      box-shadow: 0 10px 22px rgba(0,0,0,.22);
+    }
+    .theme-toggle:active { transform: translateY(0); }
+
+    /* =========================================================
+       手機優化
+       - 降低 section padding 與按鈕大小，提升可視資訊密度。
+       ========================================================= */
+    @media (max-width: 768px) {
+      section { padding: 20px 15px; }
+      .theme-toggle {
+        right: 16px;
+        bottom: 16px;
+        font-size: 0.9rem;
+        padding: 9px 12px;
+      }
+    }
+
+    /* =========================================================
+       無障礙：偏好減少動效
+       - 當使用者系統偏好減少動態時，移除多餘過場動畫。
+       ========================================================= */
+    @media (prefers-reduced-motion: reduce) {
+      .theme-toggle { transition: none; }
+    }
+  
+    .contact-links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .contact-links .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 999px; /* 圓角膠囊 */
+      font-weight: bold;
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .contact-links .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    .contact-links .line { background: #06c755; }
+    .contact-links .website { background: #ff9800; }
+    .contact-links .facebook { background: #1877f2; }
+
+  
+    .contact { text-align: center; margin-top: 20px; }
+    .social-buttons { display: flex; justify-content: center; gap: 14px; margin-top: 12px; }
+    .social-buttons .btn { display: flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: 999px; font-weight: bold; color: #fff; text-decoration: none; font-size: 1rem; transition: transform 0.2s, opacity 0.2s; }
+    .social-buttons .btn svg { width: 18px; height: 18px; }
+    .social-buttons .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-line { background: #06c755; }
+    .btn-web  { background: #ff9800; }
+    .btn-fb   { background: #1877f2; }
+
+  
+    /* 允許拖曳：滑鼠提示 */
+    
+
+  
+    /* 變化型深淺色切換按鈕：圖示動畫 */
+    .theme-toggle {
+      border: none;
+      border-radius: 999px;
+      padding: 12px;
+      font-size: 1.2rem;
+      transition: background .25s, transform .3s ease;
+    }
+    .theme-toggle:hover { transform: rotate(20deg) scale(1.06); }
+    .theme-toggle .icon { display: inline-block; transition: transform .5s ease; }
+    body.dark-mode .theme-toggle .icon { transform: rotate(360deg); }
+
+  
+    /* 將切換按鈕固定在「關於我們」區塊右上角 */
+    #about { position: relative; }
+    #about .theme-toggle {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+    }
+
+  
+    /* 將切換按鈕固定在「關於我們」區塊右上角 */
+    #about { position: relative; }
+    #about .theme-toggle {
+      position: absolute !important;
+      top: 12px;
+      right: 12px;
+      left: auto !important;
+      bottom: auto !important;
+      z-index: 10;
+    }
+
+  
+    /* Replaced by Variant C */
+    .highlight-section { 
+      background:#121212; 
+      border-color:#4da6ff; 
+    }
+    .highlight-banner  { 
+      background:#1e1e1e; 
+      color:#4da6ff; 
+      box-shadow:0 6px 18px rgba(0,0,0,.35); 
+    }
+    body.dark-mode .highlight-section { 
+      background:#0d1b2a; 
+      border-color:#4da6ff; 
+    }
+
+  
+    /* Highlight 區塊：方案 C 品牌藍漸層，按鈕深藍，Banner 白字 */
+    .highlight-section { 
+      background:linear-gradient(135deg,#e9f5ff 0%,#cfe8ff 100%); 
+      border:0; 
+    }
+    .highlight-banner  { 
+      background:linear-gradient(135deg,#007BFF 0%,#0056b3 100%); 
+      color:#fff; 
+    }
+    .service-links a   { 
+      background:#0056b3; 
+    }
+
+  
+    
+    
+  
+    .highlight-banner {
+      text-align:center;
+      justify-content:center;
+    }
+
+  
+    .highlight-banner {
+      font-size:1.5rem !important;
+      font-weight:700 !important;
+      line-height:1.4;
+    }
+
+  
+    /* Highlight 區塊：淡藍色訊息風格 */
+    .highlight-section {
+      background:#e6f7ff;
+      border:1px solid #91d5ff;
+      border-radius:12px;
+      padding:20px;
+      margin:30px auto;
+      max-width:900px;
+      text-align:center;
+    }
+    .highlight-banner {
+      background:none;
+      color:#096dd9 !important;
+      font-size:1.5rem !important;
+      font-weight:700 !important;
+      line-height:1.4;
+      text-align:center;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+
+  </style>
+</head>
+<body>
+<!--
+    頁首 Banner
+    - 建議將檔名避免空白（如 "chatgpt-image.jpg"），以降低伺服器或 CDN 編碼問題。
+    - alt 提供替代文字，提升無障礙與 SEO。
+  -->
+<header>
+<img alt="自然大叔 線上預約系統 Banner" src="ChatGPT Image.jpg"/>
+</header>
+<!--
+    關於我們
+    - 品牌理念與三大賣點摘要，快速建立信任感。
+  -->
+<section id="about">
+<button aria-label="切換 深色／淺色" class="theme-toggle" id="theme-toggle" title="切換 深色／淺色" type="button"><span class="icon">🌙</span></button>
+<h2>關於我們</h2>
+<p>我們堅持「讓每一位顧客都能乾淨地使用家電」，以專業細膩的清洗服務，守護您與家人的健康。我們了解家電清洗的每個細節對您來說都是重要的，因此從藥劑到清洗手法，我們都秉持著高標準，給您最安心的選擇。</p>
+<ul>
+<li>使用環保配方藥劑，延長冷氣壽命。</li>
+<li>洗淨力強，對人體與環境更加友善。</li>
+<li>圍籬式防護設計，減少清洗現場髒亂。</li>
+</ul>
+</section>
+<!--
+    清洗流程影片
+    - 目前為「縮圖 + 連結新分頁」：載入快、相容性佳。
+    - 若要嵌入播放，建議改為 .video-container + <iframe>。
+  -->
+<section id="about">
+<h2>清洗流程影片</h2>
+<a href="https://youtu.be/ogInCGKJipM?feature=shared" rel="noopener" target="_blank">
+<img alt="清洗流程影片" src="https://img.youtube.com/vi/ogInCGKJipM/0.jpg" width="100%"/>
+</a>
+</section>
+<!--
+    服務項目與價格
+    - 以文字呈現價目；若要「自動計價」，可把價目改為 JSON 由 JS 渲染。
+    - 特殊機型以清單列出，避免溝通落差。
+  -->
+<section>
+<h2>服務項目與價格</h2>
+<h3>🔆 冷氣室內機專業保養清洗</h3>
+<p><strong>✳️ 環保藥洗：</strong><br/>
+      分離式冷氣：每台 💲1800 元，滿三台優惠 💲1500 元
+    </p>
+<p><strong>【特殊機型加收】</strong></p>
+<ul>
+<li>室內機長度大於 182 cm：加收 💲300 元／台</li>
+<li>變形金剛系列：加收 💲500 元／台</li>
+<li>富士通 一體式水盤 機型：加收 💲500 元／台</li>
+<li>富士通 Z 系列：暫無提供清洗服務</li>
+</ul>
+<p>🟢 吊隱式冷氣：每台 💲2800 元</p>
+<p><strong>✳️ 選配項目：</strong></p>
+<ul>
+<li>冷氣防黴處理：每台 💲300 元，滿五台優惠 💲250 元／台</li>
+<li>臭氧全面消毒（密閉空間）：每間房 💲200 元</li>
+</ul>
+<h3>🔆 自來水管清洗服務</h3>
+<ul>
+<li>無廚一衛 → 💲3200</li>
+<li>一廚一衛 → 💲4200</li>
+<li>一廚兩衛 → 💲5200</li>
+<li>一廚三衛 → 💲6200</li>
+<li>一廚四衛 → 💲6700</li>
+<li>一廚五衛 → 💲7200</li>
+</ul>
+<h3>🔆 其他清洗服務</h3>
+<p><strong>✳️ 直立式洗衣機清洗</strong>：每台 💲2000<br/>同時清洗冷氣再優惠 💲200</p>
+<p><strong>✳️ 家用水塔（兩頓內）清洗</strong>：每顆 💲1000<br/>同時清洗自來水管再優惠 💲200</p>
+</section>
+<!--
+    首頁導流／分流入口
+    - 以圖文卡片引導到不同預約流程頁面（請確認檔案存在）。
+  -->
+<section class="highlight-section" data-field="service_category">
+<p class="highlight-banner">👉 請選擇您的清洗需求，系統將引導您進入專屬預約流程</p>
+<h2>🛠️ 服務項目選擇</h2>
+<div class="service-links">
+<a href="ac-booking.html">❄️ 冷氣清洗<br/><small>（可加購 洗衣機 / 水塔）</small></a>
+<a href="other-service.html">🧺 其他保養清洗<br/><small>（自來水管、洗衣機、水塔）</small></a>
+<a href="group-booking.html">👨‍👩‍👧‍👦 團購預約清洗<br/><small>（鄰居、大樓同棟住戶）</small></a>
+<a href="bulk-booking.html">🏢 大量清洗需求<br/><small>（整棟大樓、民宿、10台以上）</small></a>
+</div>
+</section>
+<!--
+    頁腳 Footer
+    - 提供聯絡方式與外部平台連結；target="_blank" 另開分頁，rel="noopener" 增加安全性。
+  -->
+<footer>
+<div class="contact">
+<h3>📱 聯絡我們｜自然大叔</h3>
+<div aria-label="社群連結" class="social-buttons" role="group">
+<a aria-label="加入 LINE 官方帳號" class="btn btn-line" href="https://lin.ee/OHk6Rn7" rel="noopener noreferrer" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M19.667 3H4.333A3.333 3.333 0 0 0 1 6.333v7.334A3.333 3.333 0 0 0 4.333 17H7l3.478 3.2c.512.47 1.355.095 1.355-.589V17h7.834A3.333 3.333 0 0 0 23 13.667V6.333A3.333 3.333 0 0 0 19.667 3z" fill="currentColor"></path></svg>
+<span class="label">加入 LINE</span>
+</a>
+<a aria-label="前往自然大叔官方網站" class="btn btn-web" href="https://uncleofficialwebsite.netlify.app/" rel="noopener noreferrer" target="_blank">
+<img alt="自然大叔 LOGO" src="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" style="width:18px;height:18px;flex:0 0 auto"/>
+<span class="label">官方網站</span>
+</a>
+<a aria-label="前往 Facebook 粉絲專頁" class="btn btn-fb" href="https://www.facebook.com/naturaluncle" rel="noopener noreferrer" target="_blank">
+<svg aria-hidden="true" viewbox="0 0 24 24"><path d="M22 12.07C22 6.49 17.52 2 11.93 2S2 6.49 2 12.07c0 5 3.66 9.15 8.44 9.93v-7.02H7.9V12.1h2.54V9.86c0-2.5 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.91h2.78l-.44 2.88h-2.34V22c4.78-.78 8.44-4.93 8.44-9.93z" fill="currentColor"></path></svg>
+<span class="label">追蹤 Facebook</span>
+</a>
+</div>
+</div>
+</footer>
+<!--
+    浮動深淺色切換按鈕
+    - 全站唯一一顆，固定在視窗右下，隨捲動可見。
+    - aria-label/title：提升無障礙可用性與工具提示。
+  -->
+<!--
+    主題切換初始化腳本
+    - 功能：
+      1) 首次載入依 localStorage 或系統偏好設定主題；
+      2) 若外部未定義 window.toggleTheme()，在此提供；
+      3) 綁定按鈕點擊切換主題；
+      4) 捲動快速時暫時淡出按鈕，停止捲動後恢復（降低干擾）。
+    - 注意：此段可與外部 theme.js 共存；若已有更進階邏輯，可保留或替換。
+  -->
+<script>
+    // 變化型按鈕：依主題狀態切換圖示
+    (function() {
+      const btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      const icon = btn.querySelector('.icon');
+      if (!icon) return;
+
+      function syncIcon() {
+        if (document.body.classList.contains('dark-mode')) {
+          icon.textContent = '☀️'; // 深色→顯示太陽
+        } else {
+          icon.textContent = '🌙'; // 淺色→顯示月亮
+        }
+      }
+
+      // 初始同步
+      syncIcon();
+
+      // 點擊後稍晚同步，避免與既有切換邏輯衝突
+      btn.addEventListener('click', () => {
+        setTimeout(syncIcon, 0);
+      });
+
+      // 當從其他腳本變更主題時也能同步（可選）
+      const obs = new MutationObserver(syncIcon);
+      obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    })();
+  </script>
+<script>
+(function () {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+
+  // 初始化：讀取 localStorage 或系統偏好
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark-mode');
+  } else if (saved === 'light') {
+    document.body.classList.remove('dark-mode');
+  } else {
+    const prefersDark = window.matchMedia &&
+                        window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) document.body.classList.add('dark-mode');
+  }
+
+  // 按下按鈕切換主題
+  btn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem(
+      'theme',
+      document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+    );
+  });
+})();
+</script>
+<script defer="True" src="/js/booking-submit.js?v=8"></script></body>
+</html>
