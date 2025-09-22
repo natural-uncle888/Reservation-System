@@ -1,10 +1,10 @@
 // netlify/functions/submit.js
-// 寄信 + 產生 PDF 上傳 Cloudinary（raw）
+// 寄信 + 以 pdf-lib 產生 PDF 並上傳 Cloudinary（raw）
 // 需要環境變數：BREVO_API_KEY, EMAIL_TO, (EMAIL_FROM 或 BREVO_SENDER_ID),
 // 以及 CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 
 const crypto = require("crypto");
-const PDFDocument = require("pdfkit");
+const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
 
 // ---------- 共用小工具 ----------
 const nb = v => (v == null ? "" : String(v)).trim();
@@ -46,6 +46,17 @@ function parseBody(event) {
 const tr = (k, v) => { if (v == null) return ""; const t = Array.isArray(v) ? v.join("、") : nb(v); if (!t) return ""; return `<tr><th style="text-align:left;width:160px;padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;white-space:nowrap;">${k}</th><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;">${t}</td></tr>`; };
 const section = (title, rows) => { if (!rows || !nb(rows)) return ""; return `<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;"><h3 style="margin:0 0 10px;font-size:16px;color:#2563eb;">${title}</h3><table style="border-collapse:collapse;width:100%;">${rows}</table></div>`; };
 
+function sortKnownFirst(list, known){
+  const arr = toArr(list).map(nb).filter(Boolean);
+  const seen=new Set(); const uniq=arr.filter(x=>{if(seen.has(x))return false; seen.add(x); return true;});
+  const customs=uniq.filter(x=>/^其他/.test(x));
+  const normals=uniq.filter(x=>!/^其他/.test(x));
+  const ordered=[]; for(const k of known) if (normals.includes(k)) ordered.push(k);
+  for(const x of normals) if(!known.includes(x)) ordered.push(x);
+  ordered.push(...customs);
+  return ordered.length===1?ordered[0]:ordered;
+}
+
 // ---------- Email HTML ----------
 function buildEmailHtml(p){
   const indoorArr=dedupMerge(p.indoor_floor,p.indoor_floor_other).map(fmtFloor).filter(Boolean);
@@ -63,20 +74,10 @@ function buildEmailHtml(p){
   const house = houseDisplay.length===1?houseDisplay[0]:houseDisplay;
 
   const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
-  const sortKnownFirst=(list)=>{
-    const arr = toArr(list).map(nb).filter(Boolean);
-    const seen=new Set(); const uniq=arr.filter(x=>{if(seen.has(x))return false; seen.add(x); return true;});
-    const customs=uniq.filter(x=>/^其他/.test(x));
-    const normals=uniq.filter(x=>!/^其他/.test(x));
-    const ordered=[]; for(const k of KNOWN) if (normals.includes(k)) ordered.push(k);
-    for(const x of normals) if(!KNOWN.includes(x)) ordered.push(x);
-    ordered.push(...customs);
-    return ordered.length===1?ordered[0]:ordered;
-  };
   const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
-  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]));
+  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
   const contactCustom = nb(p.contact_time_preference_other);
-  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]));
+  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
 
   const service=[
     tr("服務類別",p.service_category),
@@ -98,51 +99,52 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 產生 PDF ----------
-function buildPdfBuffer(p){
-  return new Promise((resolve, reject)=>{
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
-    const chunks = [];
-    doc.on('data', d => chunks.push(d));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
+// ---------- 產生 PDF（pdf-lib，無系統字型依賴） ----------
+async function buildPdfBuffer(p){
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595.28, 841.89]); // A4
+  const { height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  let y = height - 50;
 
-    const addRow = (k, v) => {
-      if (v == null || v === "" || (Array.isArray(v) && v.length===0)) return;
-      const text = Array.isArray(v) ? v.join("、") : String(v);
-      doc.fontSize(11).fillColor('#111').text(`${k}：${text}`);
-    };
+  const draw = (txt, opts={}) => {
+    page.drawText(txt, Object.assign({ x: 50, y, size: 12, font, color: rgb(0,0,0) }, opts));
+    y -= 18;
+    if (y < 60) { y = height - 50; pdfDoc.addPage(); }
+  };
+  const addRow = (k, v) => {
+    if (v == null || v === "" || (Array.isArray(v) && v.length===0)) return;
+    const text = Array.isArray(v) ? v.join("、") : String(v);
+    draw(`${k}：${text}`);
+  };
 
-    doc.fontSize(16).fillColor('#2563eb').text('新預約單', { align: 'left' });
-    doc.moveDown(0.5);
-    doc.fontSize(10).fillColor('#6b7280').text(new Date().toISOString());
-    doc.moveDown(1);
+  draw("新預約單", { size: 16, color: rgb(0.15,0.39,0.92) });
+  draw(new Date().toISOString(), { size: 10, color: rgb(0.4,0.45,0.5) }); y -= 6;
 
-    addRow('服務類別', p.service_category);
-    addRow('冷氣類型', p.ac_type);
-    addRow('清洗數量', p.ac_count || "");
-    addRow('室內機所在樓層', p.indoor_floor || "");
-    addRow('冷氣品牌', p.ac_brand || "");
-    addRow('防霉抗菌', p.anti_mold ? '需要' : '');
-    addRow('臭氧消毒', p.ozone ? '需要' : '');
-    addRow('洗衣機台數', p.washer_count);
-    addRow('洗衣機樓層', p.washer_floor);
-    addRow('自來水管清洗', p.pipe_service);
-    addRow('水管清洗原因', p.pipe_reason);
-    addRow('水塔清洗台數', p.tank_count);
-    doc.moveDown(0.5);
-    addRow('與我們聯繫方式', p.contact_method);
-    addRow('LINE/FB 名稱', p.line_or_fb);
-    addRow('可安排時段', p.timeslot);
-    addRow('方便聯繫時間', p.contact_time_preference);
-    addRow('顧客姓名', p.customer_name);
-    addRow('聯繫電話', p.phone);
-    addRow('清洗保養地址', p.address);
-    addRow('居住地型態', p.house_type || p.housing_type);
-    addRow('其他備註說明', p.note);
+  addRow("服務類別", p.service_category);
+  addRow("冷氣類型", p.ac_type);
+  addRow("清洗數量", p.ac_count);
+  addRow("室內機所在樓層", p.indoor_floor);
+  addRow("冷氣品牌", p.ac_brand);
+  addRow("防霉抗菌", p.anti_mold ? "需要" : "");
+  addRow("臭氧消毒", p.ozone ? "需要" : "");
+  addRow("洗衣機台數", p.washer_count);
+  addRow("洗衣機樓層", p.washer_floor);
+  addRow("自來水管清洗", p.pipe_service);
+  addRow("水管清洗原因", p.pipe_reason);
+  addRow("水塔清洗台數", p.tank_count);
+  addRow("與我們聯繫方式", p.contact_method);
+  addRow("LINE/FB 名稱", p.line_or_fb);
+  addRow("可安排時段", p.timeslot);
+  addRow("方便聯繫時間", p.contact_time_preference);
+  addRow("顧客姓名", p.customer_name);
+  addRow("聯繫電話", p.phone);
+  addRow("清洗保養地址", p.address);
+  addRow("居住地型態", p.house_type || p.housing_type);
+  addRow("其他備註說明", p.note);
 
-    doc.end();
-  });
+  const pdfBytes = await pdfDoc.save();
+  return Buffer.from(pdfBytes);
 }
 
 // ---------- Cloudinary 輔助 ----------
@@ -167,10 +169,12 @@ exports.handler = async (event) => {
     p.line_or_fb    = p.line_or_fb    || p.social_name;
     p.house_type    = p.house_type    || p.housing_type;
 
+    // 僅接受最終頁送出
     const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
     const isFinal = p._final === true || path.includes("final-booking");
     if (!isFinal) return { statusCode: 200, body: JSON.stringify({ ok:true, stage:"ignored_non_final" }) };
 
+    // ---- Email ----
     const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
     const html = buildEmailHtml(p);
 
@@ -182,7 +186,6 @@ exports.handler = async (event) => {
     if (!senderEmail && !senderId) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
     const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
 
-    // 發信
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: { "api-key": nb(process.env.BREVO_API_KEY), "content-type":"application/json" },
@@ -190,7 +193,7 @@ exports.handler = async (event) => {
     });
     if (!res.ok) throw new Error(`Brevo ${res.status}: ${await res.text()}`);
 
-    // 產生 PDF 並上傳到 Cloudinary（raw）
+    // ---- PDF + Cloudinary ----
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
