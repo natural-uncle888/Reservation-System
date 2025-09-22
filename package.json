@@ -1,9 +1,0 @@
-{
-  "name": "uncle-booking",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "sib-api-v3-sdk": "^8.5.0",
-    "cloudinary": "^1.41.1"
-  }
-}
