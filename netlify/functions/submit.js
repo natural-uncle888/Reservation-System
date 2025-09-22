@@ -1,6 +1,6 @@
 // netlify/functions/submit.js
 // Brevo 發信 + 可選 Cloudinary 備份
-// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正
+// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正、美化版面
 
 const crypto = require("crypto");
 
@@ -56,15 +56,25 @@ function fmtFloor(s){
   if (m2) return `${m2[1]}樓`;
   return t.toUpperCase();
 }
+// 表格列
 const tr = (k, v) => {
   if (v == null) return "";
   const t = Array.isArray(v) ? v.join("、") : nb(v);
   if (!t) return "";
-  return `<tr><th style="padding:6px 10px;border-bottom:1px solid #eee;white-space:nowrap;">${k}</th><td style="padding:6px 10px;border-bottom:1px solid #eee;">${t}</td></tr>`;
+  return `
+  <tr>
+    <th style="text-align:left;width:160px;padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;white-space:nowrap;">${k}</th>
+    <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;">${t}</td>
+  </tr>`;
 };
+// 區塊
 const section = (title, rows) => {
   if (!rows || !nb(rows)) return "";
-  return `<h3 style="margin:14px 0 8px;color:#2563eb;">${title}</h3><table style="border-collapse:collapse;width:100%;">${rows}</table>`;
+  return `
+  <div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;">
+    <h3 style="margin:0 0 10px;font-size:16px;color:#2563eb;">${title}</h3>
+    <table style="border-collapse:collapse;width:100%;">${rows}</table>
+  </div>`;
 };
 
 // ---------- Email HTML ----------
@@ -120,13 +130,14 @@ function buildEmailHtml(p) {
   if (isGroup && p.group_notes) { freeTitle = "團購自由填寫"; freeRows = tr("團購自由填寫", p.group_notes); }
   if (isBulk  && p.bulk_notes ) { freeTitle = "大量清洗需求"; freeRows = tr("大量清洗需求", p.bulk_notes ); }
 
-  return `<div style="font-family:system-ui,Segoe UI,Arial,sans-serif;color:#111827;">
-${freeTitle ? section(freeTitle, freeRows) : ""}
-${section("服務資訊", service)}
-${addon.trim()    ? section("防霉・消毒｜加購服務專區", addon) : ""}
-${otherSvc.trim() ? section("其他清洗服務", otherSvc) : ""}
-${section("聯繫名稱說明", contact)}
-${section("預約資料填寫", booking)}
+  return `
+<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">
+  ${freeTitle ? section(freeTitle, freeRows) : ""}
+  ${section("服務資訊", service)}
+  ${addon.trim()    ? section("防霉・消毒｜加購服務專區", addon) : ""}
+  ${otherSvc.trim() ? section("其他清洗服務", otherSvc) : ""}
+  ${section("聯繫名稱說明", contact)}
+  ${section("預約資料填寫", booking)}
 </div>`;
 }
 
