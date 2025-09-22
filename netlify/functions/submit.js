@@ -146,7 +146,7 @@ exports.handler = async (event) => {
     if (!toList.length) throw new Error("EMAIL_TO not set");
 
     const sender = process.env.EMAIL_FROM
-      ? { email: process.env.EMAIL_FROM, name: "Booking System" }
+      ? { email: process.env.EMAIL_FROM, name: "自然大叔" }
       : (process.env.BREVO_SENDER_ID ? { id: Number(process.env.BREVO_SENDER_ID) } : null);
     if (!sender || (!sender.id && !sender.email)) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
 
