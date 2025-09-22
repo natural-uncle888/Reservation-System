@@ -5,6 +5,6 @@
     "node": "18.x"
   },
   "dependencies": {
-    "pdfkit": "^0.13.0"
+    "pdf-lib": "^1.17.1"
   }
 }
