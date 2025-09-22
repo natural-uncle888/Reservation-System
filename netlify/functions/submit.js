@@ -137,7 +137,7 @@ ${section('預約資料填寫', booking)}
 // 共用寄信
 async function sendMail(html, subject = MAIL_SUBJECT) {
   return api.sendTransacEmail({
-    sender: { email: MAIL_FROM, name: "Booking System" },
+    sender: { email: MAIL_FROM, name: "自然大叔" },
     to: [{ email: MAIL_TO }],
     subject,
     htmlContent: html,
