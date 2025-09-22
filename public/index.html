@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>自然大叔｜預約清洗服務</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+  <style>
+    :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
+    *{box-sizing:border-box}
+    body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
+    a{text-decoration:none;color:inherit}
+    .hero{padding:28px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff, #f6faff)}
+    .hero .wrap{max-width:1024px;margin:0 auto;display:grid;gap:12px}
+    .hero h1{margin:0;color:var(--brand);font-size:1.6rem;letter-spacing:.2px}
+    .hero p{margin:0;color:var(--muted)}
+    .grid{max-width:1024px;margin:18px auto;padding:0 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s ease, transform .02s linear}
+    .card:hover{box-shadow:0 6px 24px rgba(0,0,0,.08)}
+    .card h3{margin:0;color:var(--ink);font-size:1.1rem}
+    .card p{margin:0;color:var(--muted);font-size:.95rem;line-height:1.5}
+    .go{margin-top:8px;align-self:flex-start;background:var(--brand);color:#fff;padding:10px 14px;border-radius:10px;font-weight:700}
+    .notes{max-width:1024px;margin:8px auto 18px;padding:0 16px;color:var(--muted);font-size:.92rem}
+    .notes h4{margin:0 0 6px;color:var(--ink);font-size:1rem}
+    footer{border-top:1px solid var(--line);padding:14px 16px;color:var(--muted);font-size:.9rem;text-align:center}
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <h1>自然大叔｜預約清洗服務</h1>
+      <p>請先選擇類別，後續頁面會帶出對應的問題。所有欄位皆可於最終頁再次確認。</p>
+    </div>
+  </header>
+
+  <main class="grid service-links">
+    <a href="ac-booking.html" class="card service-link" data-service="冷氣清洗" role="button" aria-label="選擇 冷氣清洗">
+      <h3>❄️ 冷氣清洗</h3>
+      <p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
+      <span class="go">開始</span>
+    </a>
+
+    <a href="other-service.html" class="card service-link" data-service="其他保養清洗" role="button" aria-label="選擇 其他保養清洗">
+      <h3>🧺 其他保養清洗</h3>
+      <p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
+      <span class="go">開始</span>
+    </a>
+
+    <a href="group-booking.html" class="card service-link" data-service="團購預約清洗" role="button" aria-label="選擇 團購預約清洗">
+      <h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
+      <p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
+      <span class="go">開始</span>
+    </a>
+
+    <a href="bulk-booking.html" class="card service-link" data-service="大量清洗需求" role="button" aria-label="選擇 大量清洗需求">
+      <h3>🏢 大量清洗需求</h3>
+      <p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
+      <span class="go">開始</span>
+    </a>
+  </main>
+
+  <div class="notes">
+    <h4>流程說明</h4>
+    <ol>
+      <li>依序填寫各頁問題並點下一步。</li>
+      <li>最終頁可預覽與備註。按送出後將寄出通知信。</li>
+      <li>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</li>
+    </ol>
+  </div>
+
+  <footer>© 自然大叔 預約系統</footer>
+
+  <script>
+  /* home-service.v1 — 將首頁的服務選擇存入 localStorage.BOOKING_DATA.service_category */
+  (function(){
+    const KEY='BOOKING_DATA';
+    function save(k,v){
+      try{
+        const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+        prev[k]=v;
+        localStorage.setItem(KEY, JSON.stringify(prev));
+      }catch(e){/* ignore */}
+    }
+    document.querySelectorAll('.service-links a[data-service]').forEach(a => {
+      a.addEventListener('click', function(){
+        save('service_category', this.dataset.service);
+      }, {capture:true});
+    });
+    window.debugHome = () => JSON.parse(localStorage.getItem(KEY)||'{}');
+  })();
+  </script>
+</body>
+</html>
