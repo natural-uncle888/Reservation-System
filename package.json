@@ -1,0 +1,7 @@
+{
+  "name": "booking-netlify-brevo",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  }
+}
