@@ -1,39 +1,19 @@
 // netlify/functions/submit.js
-// 寄信 + 以 pdf-lib 產生 PDF 並上傳 Cloudinary（raw）
-// 修正：內嵌可顯示中文的字型。優先用環境變數 PDF_FONT_BASE64，其次讀取 ./fonts/NotoSansTC-Regular.otf
+// pdf-lib + Cloudinary，強化字型尋找：PDF_FONT_BASE64 > 多候選路徑
 
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { PDFDocument, rgb } = require("pdf-lib");
 
-// ---------- 共用小工具 ----------
 const nb = v => (v == null ? "" : String(v)).trim();
 const nk = v => nb(v).replace(/\s+/g, "");
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
-const splitVals = v => Array.isArray(v) ? v : nb(v) ? nb(v).split(/[、,\s]+/) : [];
-const isPH = v => { const t = nb(v).toLowerCase(); return t === "其他" || t === "other" || t === "請輸入" || t === "自填" || t === "自行填寫"; };
-function dedupMerge() { const seen = new Set(), out = []; for (let x of Array.from(arguments).flatMap(splitVals)) { if (!x || isPH(x)) continue; x = String(x).replace(/^(其他|other)\s*[:：]\s*/i, "").trim(); const key = nk(x).replace(/[樓層f台]/gi, ""); if (key && !seen.has(key)) { seen.add(key); out.push(x); } } return out; }
-const nInt = s => { const m = nb(s).match(/[0-9]+/); return m ? parseInt(m[0], 10) : NaN; };
-const fmtCount = s => { const n = nInt(s); if (!Number.isFinite(n)) return nb(s); if (/以上|含/.test(nb(s))) return `${n}台以上`; return `${n}台`; };
-function fmtFloor(s){ const t = nb(s).replace(/\s+/g,''); const m1=t.match(/^(?:5樓以上)[:：]?([0-9]+)$/i); if(m1) return `${m1[1]}樓`; const m2=t.match(/^([0-9]+)(?:樓|F)?$/i); if(m2) return `${m2[1]}樓`; return t.toUpperCase(); }
 
-function parseBody(event) {
-  const headers = event.headers || {};
-  const ct = (headers["content-type"] || headers["Content-Type"] || "")
-    .split(";")[0].trim().toLowerCase();
-  if (ct === "application/json" || !ct) {
-    try { return JSON.parse(event.body || "{}"); } catch { return {}; }
-  }
-  if (ct === "application/x-www-form-urlencoded") {
-    const params = new URLSearchParams(event.body || ""); const obj = {};
-    for (const [k, v] of params.entries()) obj[k] = v; return obj;
-  }
-  return {};
-}
+function parseBody(event){const h=event.headers||{};const ct=(h["content-type"]||h["Content-Type"]||"").split(";")[0].trim().toLowerCase();if(ct==="application/json"||!ct){try{return JSON.parse(event.body||"{}");}catch{return{};}}if(ct==="application/x-www-form-urlencoded"){const params=new URLSearchParams(event.body||"");const obj={};for(const[k,v]of params.entries())obj[k]=v;return obj;}return{};}
 
-const tr = (k, v) => { if (v == null) return ""; const t = Array.isArray(v) ? v.join("、") : nb(v); if (!t) return ""; return `<tr><th style="text-align:left;width:160px;padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;white-space:nowrap;">${k}</th><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;">${t}</td></tr>`; };
-const section = (title, rows) => { if (!rows || !nb(rows)) return ""; return `<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;"><h3 style="margin:0 0 10px;font-size:16px;color:#2563eb;">${title}</h3><table style="border-collapse:collapse;width:100%;">${rows}</table></div>`; };
+const tr=(k,v)=>{if(v==null)return"";const t=Array.isArray(v)?v.join("、"):nb(v);if(!t)return"";return`<tr><th style="text-align:left;width:160px;padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;white-space:nowrap;">${k}</th><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;">${t}</td></tr>`;};
+const section=(title,rows)=>{if(!rows||!nb(rows))return"";return`<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;"><h3 style="margin:0 0 10px;font-size:16px;color:#2563eb;">${title}</h3><table style="border-collapse:collapse;width:100%;">${rows}</table></div>`;};
 
 function sortKnownFirst(list, known){
   const arr = toArr(list).map(nb).filter(Boolean);
@@ -46,55 +26,35 @@ function sortKnownFirst(list, known){
   return ordered.length===1?ordered[0]:ordered;
 }
 
-// ---------- 內嵌中文字型 ----------
-async function loadChineseFontBytes() {
-  const b64 = process.env.PDF_FONT_BASE64;
-  if (b64 && b64.length > 1000) { // 粗略判斷
-    return Buffer.from(b64, 'base64');
-  }
-  const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
-  try {
-    return fs.readFileSync(fontPath);
-  } catch (e) {
-    throw new Error("找不到可用字型。請在環境變數 PDF_FONT_BASE64 放入 Base64 的 .otf 檔，或將 NotoSansTC-Regular.otf 放在 netlify/functions/fonts/ 目錄中。");
-  }
-}
-
-// ---------- Email HTML ----------
 function buildEmailHtml(p){
-  const indoorArr=dedupMerge(p.indoor_floor,p.indoor_floor_other).map(fmtFloor).filter(Boolean);
-  const indoor=[...new Set(indoorArr)].join("、");
-  const brand=dedupMerge(p.ac_brand,p.ac_brand_other).join("、");
-  const countA=dedupMerge(p.ac_count,p.ac_count_other).map(fmtCount);
-  const count=countA.length?countA.join("、"):(p.ac_count||"");
-
-  const houseArr = toArr(p.house_type).concat(toArr(p.housing_type));
-  const extraHouse = nb(p.housing_type_other) || nb(p.house_type_other);
-  if (extraHouse) houseArr.push(extraHouse);
-  const normHouse = s => nb(s).replace(/^其他\s*[:：]\s*/i,"");
-  const houseSeen=new Set();
-  const houseDisplay = houseArr.map(normHouse).filter(x=>{const k=nk(x); if(!k) return false; if(houseSeen.has(k)) return false; houseSeen.add(k); return true;});
-  const house = houseDisplay.length===1?houseDisplay[0]:houseDisplay;
-
-  const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
-  const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
-  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
-  const contactCustom = nb(p.contact_time_preference_other);
-  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
-
   const service=[
     tr("服務類別",p.service_category),
     tr("冷氣類型",p.ac_type),
-    tr("清洗數量",count),
-    tr("室內機所在樓層",indoor),
-    tr("冷氣品牌",brand),
+    tr("清洗數量",p.ac_count),
+    tr("室內機所在樓層",p.indoor_floor),
+    tr("冷氣品牌",p.ac_brand),
     tr("是否為變形金剛系列",p.ac_transformer_series)
   ].join("");
 
   const addon=[ tr("冷氣防霉抗菌處理",p.anti_mold?"需要":""), tr("臭氧空間消毒",p.ozone?"需要":"") ].join("");
   const otherSvc=[ tr("直立式洗衣機台數",p.washer_count), tr("洗衣機樓層",Array.isArray(p.washer_floor)?p.washer_floor.join("、"):p.washer_floor), tr("自來水管清洗",p.pipe_service), tr("水管清洗原因",p.pipe_reason), tr("水塔清洗台數",p.tank_count) ].join("");
   const contact=[ tr("與我們聯繫方式",p.contact_method), tr("LINE 名稱 or Facebook 名稱",p.line_or_fb) ].join("");
-  const booking=[ tr("可安排時段",timeslot), tr("方便聯繫時間",contactPref), tr("顧客姓名",p.customer_name), tr("聯繫電話",p.phone), tr("清洗保養地址",p.address), tr("居住地型態",house), tr("其他備註說明",p.note) ].join("");
+
+  const KNOWN=["平日","假日","上午","下午","晚上","皆可"];
+  const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
+  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
+  const contactCustom = nb(p.contact_time_preference_other);
+  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
+
+  const booking=[
+    tr("可安排時段",timeslot),
+    tr("方便聯繫時間",contactPref),
+    tr("顧客姓名",p.customer_name),
+    tr("聯繫電話",p.phone),
+    tr("清洗保養地址",p.address),
+    tr("居住地型態",p.house_type||p.housing_type),
+    tr("其他備註說明",p.note)
+  ].join("");
 
   const svc=String(p.service_category||""); const isGroup=/團購/.test(svc),isBulk=/大量清洗/.test(svc);
   let freeTitle="",freeRows=""; if(isGroup&&p.group_notes){freeTitle="團購自由填寫";freeRows=tr("團購自由填寫",p.group_notes);} if(isBulk&&p.bulk_notes){freeTitle="大量清洗需求";freeRows=tr("大量清洗需求",p.bulk_notes);}
@@ -102,11 +62,32 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 產生 PDF（pdf-lib + 中文字型） ----------
+// ---------- 字型載入（多路徑） ----------
+async function loadChineseFontBytes() {
+  const tried = [];
+  const b64 = process.env.PDF_FONT_BASE64;
+  if (b64 && b64.length > 1000) {
+    try { return Buffer.from(b64, 'base64'); } catch {}
+  }
+  const candidates = [
+    path.join(__dirname, "fonts", "NotoSansTC-Regular.otf"),
+    path.join(__dirname, "..", "fonts", "NotoSansTC-Regular.otf"),
+    path.join(process.cwd(), "netlify", "functions", "fonts", "NotoSansTC-Regular.otf"),
+    path.join(process.cwd(), "functions", "fonts", "NotoSansTC-Regular.otf")
+  ];
+  for (const p of candidates) {
+    tried.push(p);
+    try { if (fs.existsSync(p)) return fs.readFileSync(p); } catch {}
+  }
+  const msg = "找不到可用字型。已嘗試路徑：\n" + tried.join("\n");
+  throw new Error(msg);
+}
+
+// ---------- 產生 PDF ----------
 async function buildPdfBuffer(p){
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([595.28, 841.89]); // A4
-  const { height } = page.getSize();
+  let page = pdfDoc.addPage([595.28, 841.89]); // A4
+  let { height } = page.getSize();
   const fontBytes = await loadChineseFontBytes();
   const font = await pdfDoc.embedFont(fontBytes, { subset: true });
   let y = height - 50;
@@ -114,7 +95,7 @@ async function buildPdfBuffer(p){
   const draw = (txt, opts={}) => {
     page.drawText(txt, Object.assign({ x: 50, y, size: 12, font, color: rgb(0,0,0) }, opts));
     y -= 18;
-    if (y < 60) { y = height - 50; pdfDoc.addPage(); }
+    if (y < 60) { page = pdfDoc.addPage([595.28, 841.89]); height = page.getSize().height; y = height - 50; }
   };
   const addRow = (k, v) => {
     if (v == null || v === "" || (Array.isArray(v) && v.length===0)) return;
@@ -152,19 +133,11 @@ async function buildPdfBuffer(p){
 }
 
 // ---------- Cloudinary 簽名 ----------
-function makePublicId(p){
-  if (p.public_id) return String(p.public_id);
-  if (p._id) return String(p._id);
+function makePublicId(p){ if (p.public_id) return String(p.public_id); if (p._id) return String(p._id);
   const seed = [p.customer_name||"", p.phone||"", p.address||"", p.service_category||"", Date.now()].join("|");
-  const h = crypto.createHash("sha1").update(seed).digest("hex").slice(0,12);
-  return `booking_${h}`;
-}
-function cloudinarySign(params, apiSecret){
-  const toSign = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&") + apiSecret;
-  return crypto.createHash("sha1").update(toSign).digest("hex");
-}
+  const h = crypto.createHash("sha1").update(seed).digest("hex").slice(0,12); return `booking_${h}`; }
+function cloudinarySign(params, apiSecret){ const toSign = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&") + apiSecret; return crypto.createHash("sha1").update(toSign).digest("hex"); }
 
-// ---------- Handler ----------
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
   try{
@@ -173,12 +146,10 @@ exports.handler = async (event) => {
     p.line_or_fb    = p.line_or_fb    || p.social_name;
     p.house_type    = p.house_type    || p.housing_type;
 
-    // 僅接受最終頁送出
-    const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
-    const isFinal = p._final === true || path.includes("final-booking");
+    const pathStr = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
+    const isFinal = p._final === true || pathStr.includes("final-booking");
     if (!isFinal) return { statusCode: 200, body: JSON.stringify({ ok:true, stage:"ignored_non_final" }) };
 
-    // ---- Email ----
     const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
     const html = buildEmailHtml(p);
 
@@ -197,7 +168,7 @@ exports.handler = async (event) => {
     });
     if (!res.ok) throw new Error(`Brevo ${res.status}: ${await res.text()}`);
 
-    // ---- PDF + Cloudinary ----
+    // 上傳 Cloudinary（如有設定）
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
@@ -209,10 +180,8 @@ exports.handler = async (event) => {
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
       const signature = cloudinarySign({ public_id, timestamp, tags }, apiSecret);
       const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
-
       const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags })
       });
       cloudinaryUpload = await up.text();
