@@ -1,6 +1,6 @@
 // netlify/functions/submit.js
 // Brevo 發信 + 可選 Cloudinary 備份
-// 功能：欄位別名對齊、加購/其他清洗進信件、樓層格式化、美化版面、居住地型態去重、聯繫時間獨立顯示與排序
+// 聯繫與時段分離版：timeslot 與 contact_time_preference 各自顯示與排序
 
 const crypto = require("crypto");
 function parseBody(event){const h=event.headers||{};const ct=(h["content-type"]||h["Content-Type"]||"").split(";")[0].trim().toLowerCase();if(ct==="application/json"||!ct){try{return JSON.parse(event.body||"{}");}catch{return{};}}if(ct==="application/x-www-form-urlencoded"){const params=new URLSearchParams(event.body||"");const obj={};for(const[k,v]of params.entries())obj[k]=v;return obj;}return{};}
@@ -12,6 +12,17 @@ function fmtFloor(s){const t=nb(s).replace(/\s+/g,"");const m1=t.match(/^(?:5樓
 const tr=(k,v)=>{if(v==null)return"";const t=Array.isArray(v)?v.join("、"):nb(v);if(!t)return"";return`<tr><th style="text-align:left;width:160px;padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#374151;white-space:nowrap;">${k}</th><td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;color:#111827;">${t}</td></tr>`;};
 const section=(title,rows)=>{if(!rows||!nb(rows))return"";return`<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb;"><h3 style="margin:0 0 10px;font-size:16px;color:#2563eb;">${title}</h3><table style="border-collapse:collapse;width:100%;">${rows}</table></div>`;};
 
+function sortKnownFirst(list, known){
+  const arr = toArr(list).map(nb).filter(Boolean);
+  const seen=new Set(); const uniq=arr.filter(x=>{if(seen.has(x))return false; seen.add(x); return true;});
+  const customs=uniq.filter(x=>/^其他/.test(x));
+  const normals=uniq.filter(x=>!/^其他/.test(x));
+  const ordered=[]; for(const k of known) if (normals.includes(k)) ordered.push(k);
+  for(const x of normals) if(!known.includes(x)) ordered.push(x);
+  ordered.push(...customs);
+  return ordered.length===1?ordered[0]:ordered;
+}
+
 function buildEmailHtml(p){
   const indoorArr=dedupMerge(p.indoor_floor,p.indoor_floor_other).map(fmtFloor).filter(Boolean);
   const indoor=Array.from(new Set(indoorArr)).join("、");
@@ -19,35 +30,19 @@ function buildEmailHtml(p){
   const countA=dedupMerge(p.ac_count,p.ac_count_other).map(fmtCount);
   const count=countA.length?countA.join("、"):(p.ac_count||"");
 
-  // 居住地型態 display
-  (function(){
-    const arr=toArr(p.house_type).concat(toArr(p.housing_type));
-    const extra=nb(p.housing_type_other)||nb(p.house_type_other);
-    if(extra)arr.push(extra);
-    const norm=s=>nb(s).replace(/^其他\s*[:：]\s*/i,"");
-    const seen=new Set();
-    p._house_type_display=arr.map(norm).filter(x=>{const k=nk(x);if(!k)return false;if(seen.has(k))return false;seen.add(k);return true;});
-    if(p._house_type_display.length===1)p._house_type_display=p._house_type_display[0];
-  })();
+  const houseArr = toArr(p.house_type).concat(toArr(p.housing_type));
+  const extraHouse = nb(p.housing_type_other) || nb(p.house_type_other);
+  if (extraHouse) houseArr.push(extraHouse);
+  const normHouse = s => nb(s).replace(/^其他\s*[:：]\s*/i,"");
+  const houseSeen=new Set();
+  const houseDisplay = houseArr.map(normHouse).filter(x=>{const k=nk(x); if(!k) return false; if(houseSeen.has(k)) return false; houseSeen.add(k); return true;});
+  const house = houseDisplay.length===1?houseDisplay[0]:houseDisplay;
 
-  // 聯繫時間 display + timeslot 併入排序
-  (function(){
-    const KNOWN=["平日","假日","上午","下午","晚上","皆可"];
-    let pref=toArr(p.contact_time_preference);
-    const custom=nb(p.contact_time_preference_other)||nb(p.timeslot_other)||nb(p.time_other);
-    if(custom)pref.push(`其他指定時間：${custom}`);
-    const norm=s=>nb(s);
-    const seen=new Set();
-    pref=pref.map(norm).filter(x=>x).filter(x=>{const k=x;if(seen.has(k))return false;seen.add(k);return true;});
-    const isCustom=x=>x.startsWith("其他指定時間：");
-    const customs=pref.filter(isCustom);
-    const rest=pref.filter(x=>!isCustom(x)&&!KNOWN.includes(x));
-    const ordered=[];for(const k of KNOWN)if(pref.includes(k))ordered.push(k);ordered.push(...rest,...customs);
-    p._contact_time_display=ordered.length===1?ordered[0]:ordered;
-    // 合併到 timeslot 顯示
-    let ts=toArr(p.timeslot);const inTs=new Set(ts.map(norm));for(const x of ordered){const k=norm(x);if(!inTs.has(k))ts.push(k);}
-    p._timeslot_display=ts.length===1?ts[0]:ts;
-  })();
+  const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
+  const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
+  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
+  const contactCustom = nb(p.contact_time_preference_other);
+  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
 
   const service=[
     tr("服務類別",p.service_category),
@@ -77,12 +72,12 @@ function buildEmailHtml(p){
   ].join("");
 
   const booking=[
-    tr("可安排時段",p._timeslot_display??p.timeslot),
-    tr("方便聯繫時間",p._contact_time_display),
+    tr("可安排時段",timeslot),
+    tr("方便聯繫時間",contactPref),
     tr("顧客姓名",p.customer_name),
     tr("聯繫電話",p.phone),
     tr("清洗保養地址",p.address),
-    tr("居住地型態",p._house_type_display??p.house_type),
+    tr("居住地型態",house),
     tr("其他備註說明",p.note)
   ].join("");
 
