@@ -1,6 +1,6 @@
 // netlify/functions/submit.js
 // Brevo 發信 + 可選 Cloudinary 備份
-// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正、美化版面、house_type/timeslot 容錯
+// 功能：欄位別名對齊、加購/其他清洗進信件、樓層格式化、美化版面、居住地型態聚合、聯繫時間合併排序
 
 const crypto = require("crypto");
 
@@ -25,6 +25,7 @@ function parseBody(event) {
 // ---------- 小工具 ----------
 const nb = v => (v == null ? "" : String(v)).trim();
 const nk = v => nb(v).replace(/\s+/g, "");
+const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
 const splitVals = v => Array.isArray(v) ? v : nb(v) ? nb(v).split(/[、,\s]+/) : [];
 const isPH = v => {
   const t = nb(v).toLowerCase();
@@ -164,36 +165,43 @@ exports.handler = async (event) => {
     // 別名對齊
     p.customer_name = p.customer_name || p.name;        // 顧客姓名
     p.line_or_fb    = p.line_or_fb    || p.social_name; // LINE/FB 名稱
-    p.house_type    = p.house_type    || p.housing_type; // 居住地型態別名
+    p.house_type    = p.house_type    || p.housing_type;// 居住地型態別名
 
     // 居住地型態聚合（支援多選 + 自填）
     if (Array.isArray(p.house_type)) {
-      if (nb(p.house_type_other)) p.house_type.push(nb(p.house_type_other));
-    } else if (nb(p.house_type_other)) {
-      p.house_type = nb(p.house_type) ? [p.house_type, nb(p.house_type_other)] : [nb(p.house_type_other)];
+      if (nb(p.housing_type_other) || nb(p.house_type_other)) {
+        p.house_type.push(nb(p.housing_type_other) || nb(p.house_type_other));
+      }
+    } else {
+      const extra = nb(p.housing_type_other) || nb(p.house_type_other);
+      if (extra) p.house_type = nb(p.house_type) ? [p.house_type, extra] : [extra];
     }
 
-    // 方便聯繫時間容錯與合併：支援 contact_time_preference、time_other、timeslot_other
+    // 方便聯繫時間：合併 contact_time_preference + timeslot + 自訂，排序已知選項在前，其餘在後
     (function(){
-      const toArr = v => Array.isArray(v) ? v : (v==null || v==='') ? [] : [v];
-      let ts = toArr(p.timeslot);
-      const ctp = toArr(p.contact_time_preference);
-      ts = ts.concat(ctp);
-      const customTime = nb(p.timeslot_other) || nb(p.time_other);
-      if (customTime) {
-        const label = `其他指定時間：${customTime}`;
-        if (!ts.some(x => nb(x) === label)) ts.push(label);
-      }
-      // 去重
+      const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
+      let items = [];
+      items = items.concat(toArr(p.timeslot));
+      items = items.concat(toArr(p.contact_time_preference));
+      const custom = nb(p.timeslot_other) || nb(p.time_other);
+      if (custom) items.push(`其他指定時間：${custom}`);
+
+      // 標準化 + 去重
       const seen = new Set();
-      p.timeslot = ts.filter(x => {
-        const k = nb(x);
-        if (!k) return false;
-        if (seen.has(k)) return false;
-        seen.add(k);
-        return true;
-      });
-      if (p.timeslot.length === 1) p.timeslot = p.timeslot[0]; // 與原行為相容
+      const norm = s => nb(s);
+      items = items.map(norm).filter(x => x);
+      items = items.filter(x => { const k = x; if (seen.has(k)) return false; seen.add(k); return true; });
+
+      // 排序：KNOWN 依序，其它保持原相對順序，且自訂時間放在最後
+      const isCustom = x => x.startsWith("其他指定時間：");
+      const customs = items.filter(isCustom);
+      const rest = items.filter(x => !isCustom(x) && !KNOWN.includes(x));
+      const ordered = [];
+      for (const k of KNOWN) if (items.includes(k)) ordered.push(k);
+      ordered.push(...rest);
+      ordered.push(...customs);
+
+      p.timeslot = ordered.length === 1 ? ordered[0] : ordered;
     })();
 
     // 僅接受最終頁送出
