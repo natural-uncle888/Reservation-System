@@ -3,5 +3,8 @@
   "private": true,
   "engines": {
     "node": "18.x"
+  },
+  "dependencies": {
+    "pdfkit": "^0.13.0"
   }
 }
