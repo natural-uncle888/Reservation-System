@@ -173,13 +173,28 @@ exports.handler = async (event) => {
       p.house_type = nb(p.house_type) ? [p.house_type, nb(p.house_type_other)] : [nb(p.house_type_other)];
     }
 
-    // 方便聯繫時間容錯：若只填自訂時間也顯示；同時支援 time_other 或 timeslot_other
-    const customTime = nb(p.timeslot_other) || nb(p.time_other);
-    if (Array.isArray(p.timeslot)) {
-      if (customTime) p.timeslot = p.timeslot.concat([`其他指定時間：${customTime}`]);
-    } else if (!p.timeslot && customTime) {
-      p.timeslot = [`其他指定時間：${customTime}`];
-    }
+    // 方便聯繫時間容錯與合併：支援 contact_time_preference、time_other、timeslot_other
+    (function(){
+      const toArr = v => Array.isArray(v) ? v : (v==null || v==='') ? [] : [v];
+      let ts = toArr(p.timeslot);
+      const ctp = toArr(p.contact_time_preference);
+      ts = ts.concat(ctp);
+      const customTime = nb(p.timeslot_other) || nb(p.time_other);
+      if (customTime) {
+        const label = `其他指定時間：${customTime}`;
+        if (!ts.some(x => nb(x) === label)) ts.push(label);
+      }
+      // 去重
+      const seen = new Set();
+      p.timeslot = ts.filter(x => {
+        const k = nb(x);
+        if (!k) return false;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      if (p.timeslot.length === 1) p.timeslot = p.timeslot[0]; // 與原行為相容
+    })();
 
     // 僅接受最終頁送出
     const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
