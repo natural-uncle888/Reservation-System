@@ -1,6 +1,6 @@
 // netlify/functions/submit.js
 // Brevo 發信 + 可選 Cloudinary 備份
-// 重點：加入欄位別名對齊與「加購／其他清洗」兩區塊
+// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正
 
 const crypto = require("crypto");
 
@@ -35,7 +35,7 @@ function dedupMerge() {
   for (let x of Array.from(arguments).flatMap(splitVals)) {
     if (!x || isPH(x)) continue;
     x = String(x).replace(/^(其他|other)\s*[:：]\s*/i, "").trim();
-    const key = nk(x).replace(/[樓層f台]/g, "");
+    const key = nk(x).replace(/[樓層f台]/gi, "");
     if (key && !seen.has(key)) { seen.add(key); out.push(x); }
   }
   return out;
@@ -47,7 +47,15 @@ const fmtCount = s => {
   if (/以上|含/.test(nb(s))) return `${n}台以上`;
   return `${n}台`;
 };
-const fmtFloor = s => nb(s).toUpperCase().replace(/^([0-9]+)\s*F$/, "$1F");
+// 樓層：自動補「樓」，把「5樓以上：9」規整為「9樓」
+function fmtFloor(s){
+  const t = nb(s).replace(/\s+/g,'');
+  const m1 = t.match(/^(?:5樓以上)[:：]?([0-9]+)$/i);
+  if (m1) return `${m1[1]}樓`;
+  const m2 = t.match(/^([0-9]+)(?:樓|F)?$/i);
+  if (m2) return `${m2[1]}樓`;
+  return t.toUpperCase();
+}
 const tr = (k, v) => {
   if (v == null) return "";
   const t = Array.isArray(v) ? v.join("、") : nb(v);
@@ -61,8 +69,10 @@ const section = (title, rows) => {
 
 // ---------- Email HTML ----------
 function buildEmailHtml(p) {
-  // 基本資料整理
-  const indoor = dedupMerge(p.indoor_floor, p.indoor_floor_other).map(fmtFloor).join("、");
+  // 樓層：先格式化再去重
+  const indoorArr = dedupMerge(p.indoor_floor, p.indoor_floor_other).map(fmtFloor).filter(Boolean);
+  const indoor = Array.from(new Set(indoorArr)).join("、");
+
   const brand  = dedupMerge(p.ac_brand, p.ac_brand_other).join("、");
   const countA = dedupMerge(p.ac_count, p.ac_count_other).map(fmtCount);
   const count  = countA.length ? countA.join("、") : (p.ac_count || "");
@@ -140,10 +150,9 @@ exports.handler = async (event) => {
   try {
     const p = parseBody(event);
 
-    // ---- 欄位別名對齊（關鍵）----
-    p.customer_name = p.customer_name || p.name;          // 顧客姓名
-    p.line_or_fb    = p.line_or_fb    || p.social_name;   // LINE/FB 名稱
-    // timeslot 已相符；house_type 前端若未提供，信件將為空白列
+    // 別名對齊
+    p.customer_name = p.customer_name || p.name;        // 顧客姓名
+    p.line_or_fb    = p.line_or_fb    || p.social_name; // LINE/FB 名稱
 
     // 僅接受最終頁送出
     const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
@@ -162,10 +171,9 @@ exports.handler = async (event) => {
     const senderEmail = nb(process.env.EMAIL_FROM);
     const senderId = nb(process.env.BREVO_SENDER_ID);
     if (!senderEmail && !senderId) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
-
     const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
 
-    // 發信（Brevo）
+    // 發信
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
