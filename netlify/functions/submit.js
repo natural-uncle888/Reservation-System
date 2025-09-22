@@ -1,26 +1,46 @@
 // netlify/functions/submit.js
-// 使用 Brevo API 發信（EMAIL_FROM 或 BREVO_SENDER_ID 必須其一存在）
+// Brevo API 發信＋Cloudinary 備份；寄件者以 EMAIL_FROM 優先（缺少時用 BREVO_SENDER_ID）
 
-// ===== 共用 HTML 產生工具 =====
-function fw2hw(s){ return String(s).replace(/[\uFF10-\uFF19]/g, d => String.fromCharCode(d.charCodeAt(0)-0xFF10+0x30)); }
-function nb(s){ return fw2hw(String(s)).replace(/\u3000/g," ").trim(); }
-function nk(s){ return nb(s).toLowerCase().replace(/\s+/g," "); }
+const crypto = require("crypto");
+
+// ===== 解析請求 =====
+function parseBody(event){
+  const headers = event.headers || {};
+  const ct = (headers["content-type"] || headers["Content-Type"] || "").split(";")[0].trim().toLowerCase();
+  if (ct === "application/json" || !ct) {
+    try { return JSON.parse(event.body || "{}"); } catch { return {}; }
+  }
+  if (ct === "application/x-www-form-urlencoded") {
+    const params = new URLSearchParams(event.body || "");
+    const obj = {};
+    for (const [k, v] of params.entries()) {
+      if (obj[k] === undefined) obj[k] = v;
+      else if (Array.isArray(obj[k])) obj[k].push(v);
+      else obj[k] = [obj[k], v];
+    }
+    return obj;
+  }
+  // 其他類型：嘗試 JSON
+  try { return JSON.parse(event.body || "{}"); } catch { return {}; }
+}
+
+// ===== HTML 工具 =====
+function fw2hw(s){ return String(s).replace(/[\\uFF10-\\uFF19]/g, d => String.fromCharCode(d.charCodeAt(0)-0xFF10+0x30)); }
+function nb(s){ return fw2hw(String(s)).replace(/\\u3000/g," ").trim(); }
+function nk(s){ return nb(s).toLowerCase().replace(/\\s+/g," "); }
 function splitVals(v){
   if (v == null) return [];
   if (Array.isArray(v)) return v.flatMap(splitVals);
   const s = nb(v);
-  // 以頓號、逗號、分號、豎線、斜線、冒號（含全形）與連續空白切分
-  return s.split(/[、，,;|/:：]+|\s{2,}/).map(x=>x.trim()).filter(Boolean);
+  return s.split(/[、，,;|/:：]+|\\s{2,}/).map(x=>x.trim()).filter(Boolean);
 }
 function isPH(v){ const t = nb(v).toLowerCase(); return t==="其他"||t==="other"||t==="請輸入"||t==="自填"||t==="自行填寫"; }
 function dedupMerge(){
   const seen = new Set(), out = [];
   for (let x of Array.from(arguments).flatMap(splitVals)) {
     if (!x || isPH(x)) continue;
-    // 去掉「其他：」前綴
-    x = String(x).replace(/^(其他|other)\s*[:：]\s*/i,"").trim();
-    // 去單位後做 Key，避免「5F」「5 樓」重複
-    const key = nk(x).replace(/[樓層f台]/g,"");
+    x = String(x).replace(/^(其他|other)\\s*[:：]\\s*/i,"").trim(); // 去掉「其他：」
+    const key = nk(x).replace(/[樓層f台]/g,""); // 去單位後比對，避免 5F / 5 樓 重複
     if (key && !seen.has(key)) { seen.add(key); out.push(x); }
   }
   return out;
@@ -49,7 +69,7 @@ function section(title,rows){
 <table style="border-collapse:collapse;width:100%;margin:8px 0;">${rows}</table>`;
 }
 
-// ===== 根據你的規則產生信件 HTML =====
+// ===== 依規則產生 Email HTML =====
 function buildEmailHtml(p){
   // AC 多選 + 其他 合併與單位補齊
   const indoor = dedupMerge(p.indoor_floor, p.indoor_floor_other).map(fmtFloor).join("、");
@@ -68,7 +88,7 @@ function buildEmailHtml(p){
   const contact = [
     tr("與我們聯繫方式", p.contact_method),
     tr("LINE 名稱 or Facebook 名稱", p.line_or_fb),
-  ].join("");
+  ].join("";
 
   const booking = [
     tr("可安排時段", p.timeslot),
@@ -94,30 +114,49 @@ ${section("預約資料填寫", booking)}
 </div>`;
 }
 
-// ===== Netlify Function（Brevo API）=====
+// ===== 輔助：產生 public_id 與 Cloudinary 簽名 =====
+function makePublicId(p){
+  if (p.public_id) return String(p.public_id);
+  if (p._id) return String(p._id);
+  const seed = [
+    p.customer_name||"", p.phone||"", p.address||"", p.service_category||"", Date.now()
+  ].join("|");
+  const h = require("crypto").createHash("sha1").update(seed).digest("hex").slice(0,12);
+  return `booking_${h}`;
+}
+function cloudinarySign(params, apiSecret){
+  const toSign = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&") + apiSecret;
+  return require("crypto").createHash("sha1").update(toSign).digest("hex");
+}
+
+// ===== 主處理 =====
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST")
     return { statusCode: 405, body: "Method Not Allowed" };
 
   try {
-    const p = JSON.parse(event.body || "{}");
+    const p = parseBody(event);
+
+    const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
+    const isFinal = p._final === true || path.includes("final-booking");
+    if (!isFinal) {
+      return { statusCode: 200, body: JSON.stringify({ ok:true, stage:"ignored_non_final" }) };
+    }
+
     const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
     const html = buildEmailHtml(p);
 
-    // 收件人：EMAIL_TO > p.email > EMAIL_FROM
-    const toListRaw = (process.env.EMAIL_TO || p.email || process.env.EMAIL_FROM || "").toString();
-    const toList = toListRaw.split(",").map(e => e.trim()).filter(Boolean).map(email => ({ email }));
-    if (!toList.length) throw new Error("recipient not set");
+    const toList = String(process.env.EMAIL_TO || process.env.MAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
+    if (!toList.length) throw new Error("EMAIL_TO not set");
 
-    // 寄件者：優先使用 SENDER_ID，否則用 EMAIL_FROM
-    const sender = process.env.BREVO_SENDER_ID
-      ? { id: Number(process.env.BREVO_SENDER_ID) }
-      : (process.env.EMAIL_FROM ? { email: process.env.EMAIL_FROM, name: "Booking System" } : null);
-    if (!sender || (!sender.id && !sender.email)) {
-      throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
-    }
+    const sender = process.env.EMAIL_FROM
+      ? { email: process.env.EMAIL_FROM, name: "Booking System" }
+      : (process.env.BREVO_SENDER_ID ? { id: Number(process.env.BREVO_SENDER_ID) } : null);
+    if (!sender || (!sender.id && !sender.email)) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
 
-    // 呼叫 Brevo API
+    const replyTo = p.email ? [{ email: String(p.email) }] : undefined;
+    const tags = [ "booking", (p.service_category||"unknown") ].filter(Boolean);
+
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
@@ -129,13 +168,40 @@ exports.handler = async (event) => {
         sender,
         to: toList,
         subject,
-        htmlContent: `<!doctype html><html><body>${html}</body></html>`
+        htmlContent: `<!doctype html><html><body>${html}</body></html>`,
+        replyTo,
+        tags
       }),
     });
-
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`Brevo ${res.status}: ${text}`);
+    }
+
+    try {
+      const cloud = process.env.CLOUDINARY_CLOUD_NAME;
+      const apiKey = process.env.CLOUDINARY_API_KEY;
+      const apiSecret = process.env.CLOUDINARY_API_SECRET;
+      if (cloud && apiKey && apiSecret) {
+        const ts = Math.floor(Date.now()/1000);
+        const public_id = makePublicId(p);
+        const signature = cloudinarySign({ public_id, timestamp: ts }, apiSecret);
+        const endpoint = `https://api.cloudinary.com/v1_1/${cloud}/raw/upload`;
+        const fd = new FormData();
+        fd.append("file", new Blob([JSON.stringify(p, null, 2)], { type: "application/json" }), `${public_id}.json`);
+        fd.append("public_id", public_id);
+        fd.append("timestamp", String(ts));
+        fd.append("api_key", apiKey);
+        fd.append("signature", signature);
+        fd.append("overwrite", "false");
+        const up = await fetch(endpoint, { method:"POST", body: fd });
+        if (!up.ok) {
+          const t = await up.text();
+          if (!/already exists|409/.test(t)) console.warn("cloudinary upload warn:", t);
+        }
+      }
+    } catch (e) {
+      console.warn("cloudinary backup skipped:", String(e && e.message || e));
     }
 
     return { statusCode: 200, body: JSON.stringify({ ok: true }) };
