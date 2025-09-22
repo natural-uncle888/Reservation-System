@@ -104,13 +104,10 @@ exports.handler = async (event) => {
     const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
     const html = buildEmailHtml(p);
 
-    // 收件人
-    const toList = String(process.env.EMAIL_TO || "")
-      .split(",")
-      .map(e => e.trim())
-      .filter(Boolean)
-      .map(email => ({ email }));
-    if (!toList.length) throw new Error("EMAIL_TO not set");
+    // 收件人：EMAIL_TO > p.email > EMAIL_FROM
+    const toListRaw = (process.env.EMAIL_TO || p.email || process.env.EMAIL_FROM || "").toString();
+    const toList = toListRaw.split(",").map(e => e.trim()).filter(Boolean).map(email => ({ email }));
+    if (!toList.length) throw new Error("recipient not set");
 
     // 寄件者：優先使用 SENDER_ID，否則用 EMAIL_FROM
     const sender = process.env.BREVO_SENDER_ID
