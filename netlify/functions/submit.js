@@ -1,6 +1,6 @@
 // netlify/functions/submit.js
 // Brevo 發信 + 可選 Cloudinary 備份
-// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正、美化版面
+// 重點：欄位別名對齊、信件加入加購/其他清洗、樓層格式修正、美化版面、house_type/timeslot 容錯
 
 const crypto = require("crypto");
 
@@ -164,6 +164,21 @@ exports.handler = async (event) => {
     // 別名對齊
     p.customer_name = p.customer_name || p.name;        // 顧客姓名
     p.line_or_fb    = p.line_or_fb    || p.social_name; // LINE/FB 名稱
+
+    // 居住地型態聚合（支援多選 + 自填）
+    if (Array.isArray(p.house_type)) {
+      if (nb(p.house_type_other)) p.house_type.push(nb(p.house_type_other));
+    } else if (nb(p.house_type_other)) {
+      p.house_type = nb(p.house_type) ? [p.house_type, nb(p.house_type_other)] : [nb(p.house_type_other)];
+    }
+
+    // 方便聯繫時間容錯：若只填自訂時間也顯示；同時支援 time_other 或 timeslot_other
+    const customTime = nb(p.timeslot_other) || nb(p.time_other);
+    if (Array.isArray(p.timeslot)) {
+      if (customTime) p.timeslot = p.timeslot.concat([`其他指定時間：${customTime}`]);
+    } else if (!p.timeslot && customTime) {
+      p.timeslot = [`其他指定時間：${customTime}`];
+    }
 
     // 僅接受最終頁送出
     const path = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
