@@ -1,30 +1,19 @@
 // netlify/functions/submit.js
 // 寄信 + 以 pdf-lib 產生 PDF 並上傳 Cloudinary（raw）
-// 需要環境變數：BREVO_API_KEY, EMAIL_TO, (EMAIL_FROM 或 BREVO_SENDER_ID),
-// 以及 CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+// 修正：內嵌可顯示中文的字型。優先用環境變數 PDF_FONT_BASE64，其次讀取 ./fonts/NotoSansTC-Regular.otf
 
 const crypto = require("crypto");
-const { PDFDocument, StandardFonts, rgb } = require("pdf-lib");
+const fs = require("fs");
+const path = require("path");
+const { PDFDocument, rgb } = require("pdf-lib");
 
 // ---------- 共用小工具 ----------
 const nb = v => (v == null ? "" : String(v)).trim();
 const nk = v => nb(v).replace(/\s+/g, "");
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
 const splitVals = v => Array.isArray(v) ? v : nb(v) ? nb(v).split(/[、,\s]+/) : [];
-const isPH = v => {
-  const t = nb(v).toLowerCase();
-  return t === "其他" || t === "other" || t === "請輸入" || t === "自填" || t === "自行填寫";
-};
-function dedupMerge() {
-  const seen = new Set(), out = [];
-  for (let x of Array.from(arguments).flatMap(splitVals)) {
-    if (!x || isPH(x)) continue;
-    x = String(x).replace(/^(其他|other)\s*[:：]\s*/i, "").trim();
-    const key = nk(x).replace(/[樓層f台]/gi, "");
-    if (key && !seen.has(key)) { seen.add(key); out.push(x); }
-  }
-  return out;
-}
+const isPH = v => { const t = nb(v).toLowerCase(); return t === "其他" || t === "other" || t === "請輸入" || t === "自填" || t === "自行填寫"; };
+function dedupMerge() { const seen = new Set(), out = []; for (let x of Array.from(arguments).flatMap(splitVals)) { if (!x || isPH(x)) continue; x = String(x).replace(/^(其他|other)\s*[:：]\s*/i, "").trim(); const key = nk(x).replace(/[樓層f台]/gi, ""); if (key && !seen.has(key)) { seen.add(key); out.push(x); } } return out; }
 const nInt = s => { const m = nb(s).match(/[0-9]+/); return m ? parseInt(m[0], 10) : NaN; };
 const fmtCount = s => { const n = nInt(s); if (!Number.isFinite(n)) return nb(s); if (/以上|含/.test(nb(s))) return `${n}台以上`; return `${n}台`; };
 function fmtFloor(s){ const t = nb(s).replace(/\s+/g,''); const m1=t.match(/^(?:5樓以上)[:：]?([0-9]+)$/i); if(m1) return `${m1[1]}樓`; const m2=t.match(/^([0-9]+)(?:樓|F)?$/i); if(m2) return `${m2[1]}樓`; return t.toUpperCase(); }
@@ -55,6 +44,20 @@ function sortKnownFirst(list, known){
   for(const x of normals) if(!known.includes(x)) ordered.push(x);
   ordered.push(...customs);
   return ordered.length===1?ordered[0]:ordered;
+}
+
+// ---------- 內嵌中文字型 ----------
+async function loadChineseFontBytes() {
+  const b64 = process.env.PDF_FONT_BASE64;
+  if (b64 && b64.length > 1000) { // 粗略判斷
+    return Buffer.from(b64, 'base64');
+  }
+  const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
+  try {
+    return fs.readFileSync(fontPath);
+  } catch (e) {
+    throw new Error("找不到可用字型。請在環境變數 PDF_FONT_BASE64 放入 Base64 的 .otf 檔，或將 NotoSansTC-Regular.otf 放在 netlify/functions/fonts/ 目錄中。");
+  }
 }
 
 // ---------- Email HTML ----------
@@ -99,12 +102,13 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 產生 PDF（pdf-lib，無系統字型依賴） ----------
+// ---------- 產生 PDF（pdf-lib + 中文字型） ----------
 async function buildPdfBuffer(p){
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([595.28, 841.89]); // A4
   const { height } = page.getSize();
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBytes = await loadChineseFontBytes();
+  const font = await pdfDoc.embedFont(fontBytes, { subset: true });
   let y = height - 50;
 
   const draw = (txt, opts={}) => {
@@ -147,7 +151,7 @@ async function buildPdfBuffer(p){
   return Buffer.from(pdfBytes);
 }
 
-// ---------- Cloudinary 輔助 ----------
+// ---------- Cloudinary 簽名 ----------
 function makePublicId(p){
   if (p.public_id) return String(p.public_id);
   if (p._id) return String(p._id);
