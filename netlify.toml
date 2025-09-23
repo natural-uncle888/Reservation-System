@@ -1,19 +1,15 @@
 [build]
-  command = "npm run build"
-  publish = "dist"
+  publish = "public"
+  command = ""
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["netlify/functions/fonts/**"]
 
-# API 路由
 [[redirects]]
   from = "/submit"
   to = "/.netlify/functions/submit"
   status = 200
 
-# SPA 轉址（避免深連結 404）
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/fonts/**"]
