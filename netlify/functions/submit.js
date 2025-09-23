@@ -199,7 +199,7 @@ exports.handler = async (event) => {
     }
 
     // Email via Brevo
-    const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
+    const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "預約來囉！"}`;
     const html = buildEmailHtml(p, pdfUrl);
     const toList = String(process.env.EMAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
     if (!toList.length) throw new Error("EMAIL_TO 未設定");
