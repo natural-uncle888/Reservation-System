@@ -1,11 +1,11 @@
 // netlify/functions/submit.js
-// pdf-lib + fontkit + 本地字型 + Cloudinary（依你現有結構修補）
+// 寄信(Brevo) + 中文 PDF（pdf-lib + fontkit，本地字型）+ Cloudinary 上傳
 
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { PDFDocument, rgb } = require("pdf-lib");
-const fontkit = require("@pdf-lib/fontkit"); // 重要：註冊 fontkit 才能嵌入自訂字型
+const fontkit = require("@pdf-lib/fontkit");
 
 const nb = v => (v == null ? "" : String(v)).trim();
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
@@ -27,6 +27,12 @@ function sortKnownFirst(list, known){
 }
 
 function buildEmailHtml(p){
+  const KNOWN=["平日","假日","上午","下午","晚上","皆可"];
+  const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
+  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
+  const contactCustom = nb(p.contact_time_preference_other);
+  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
+
   const service=[
     tr("服務類別",p.service_category),
     tr("冷氣類型",p.ac_type),
@@ -39,12 +45,6 @@ function buildEmailHtml(p){
   const addon=[ tr("冷氣防霉抗菌處理",p.anti_mold?"需要":""), tr("臭氧空間消毒",p.ozone?"需要":"") ].join("");
   const otherSvc=[ tr("直立式洗衣機台數",p.washer_count), tr("洗衣機樓層",Array.isArray(p.washer_floor)?p.washer_floor.join("、"):p.washer_floor), tr("自來水管清洗",p.pipe_service), tr("水管清洗原因",p.pipe_reason), tr("水塔清洗台數",p.tank_count) ].join("");
   const contact=[ tr("與我們聯繫方式",p.contact_method), tr("LINE 名稱 or Facebook 名稱",p.line_or_fb) ].join("");
-
-  const KNOWN=["平日","假日","上午","下午","晚上","皆可"];
-  const timeslotCustom = nb(p.timeslot_other) || nb(p.time_other);
-  const timeslot = sortKnownFirst(toArr(p.timeslot).concat(timeslotCustom?[`其他指定時間：${timeslotCustom}`]:[]), KNOWN);
-  const contactCustom = nb(p.contact_time_preference_other);
-  const contactPref = sortKnownFirst(toArr(p.contact_time_preference).concat(contactCustom?[`其他指定時間：${contactCustom}`]:[]), KNOWN);
 
   const booking=[
     tr("可安排時段",timeslot),
@@ -62,11 +62,11 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 字型：僅讀本地 + 必須註冊 fontkit ----------
+// ---------- 字型：本地 + fontkit ----------
 async function loadChineseFontBytes() {
   const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
   if (!fs.existsSync(fontPath)) {
-    throw new Error(`字型檔不存在：${fontPath}。請確認 repo 內有 netlify/functions/fonts/NotoSansTC-Regular.otf 並於 netlify.toml included_files 指定打包。`);
+    throw new Error(`字型檔不存在：${fontPath}`);
   }
   return fs.readFileSync(fontPath);
 }
@@ -74,7 +74,7 @@ async function loadChineseFontBytes() {
 // ---------- 產生 PDF ----------
 async function buildPdfBuffer(p){
   const pdfDoc = await PDFDocument.create();
-  pdfDoc.registerFontkit(fontkit); // 重要
+  pdfDoc.registerFontkit(fontkit);
   let page = pdfDoc.addPage([595.28, 841.89]); // A4
   let { height } = page.getSize();
   const fontBytes = await loadChineseFontBytes();
@@ -101,7 +101,7 @@ async function buildPdfBuffer(p){
   addRow("防霉抗菌", p.anti_mold ? "需要" : "");
   addRow("臭氧消毒", p.ozone ? "需要" : "");
   addRow("洗衣機台數", p.washer_count);
-  addRow("洗衣機樓層", p.washer_floor);
+  addRow("洗衣機樓屯", p.washer_floor);
   addRow("自來水管清洗", p.pipe_service);
   addRow("水管清洗原因", p.pipe_reason);
   addRow("水塔清洗台數", p.tank_count);
@@ -119,17 +119,38 @@ async function buildPdfBuffer(p){
   return Buffer.from(pdfBytes);
 }
 
-// ---------- Cloudinary ----------
+// ---------- Cloudinary 簽名 ----------
 function makePublicId(p){ if (p.public_id) return String(p.public_id); if (p._id) return String(p._id);
   const seed = [p.customer_name||"", p.phone||"", p.address||"", p.service_category||"", Date.now()].join("|");
   const h = crypto.createHash("sha1").update(seed).digest("hex").slice(0,12); return `booking_${h}`; }
 function cloudinarySign(params, apiSecret){ const toSign = Object.keys(params).sort().map(k => `${k}=${params[k]}`).join("&") + apiSecret; return crypto.createHash("sha1").update(toSign).digest("hex"); }
 
+// ---------- Handler ----------
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
   try{
     const p = parseBody(event);
 
+    // ---- Email via Brevo ----
+    const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
+    const html = buildEmailHtml(p);
+
+    const toList = String(process.env.EMAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
+    if (!toList.length) throw new Error("EMAIL_TO 未設定");
+
+    const senderEmail = nb(process.env.EMAIL_FROM);
+    const senderId = nb(process.env.BREVO_SENDER_ID);
+    if (!senderEmail && !senderId) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
+    const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
+
+    const mailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": nb(process.env.BREVO_API_KEY), "content-type":"application/json" },
+      body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
+    });
+    if (!mailRes.ok) throw new Error(`Brevo ${mailRes.status}: ${await mailRes.text()}`);
+
+    // ---- PDF + Cloudinary (optional) ----
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
@@ -141,14 +162,16 @@ exports.handler = async (event) => {
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
       const signature = cloudinarySign({ public_id, timestamp, tags }, apiSecret);
       const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
+
       const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags })
       });
       cloudinaryUpload = await up.text();
     }
 
-    return { statusCode: 200, body: JSON.stringify({ ok:true, cloudinary: cloudinaryUpload ? "uploaded" : "skipped" }) };
+    return { statusCode: 200, body: JSON.stringify({ ok:true, email:"sent", cloudinary: cloudinaryUpload ? "uploaded" : "skipped" }) };
   }catch(err){
     return { statusCode: 500, body: JSON.stringify({ ok:false, error: String((err && err.message) || err) }) };
   }
