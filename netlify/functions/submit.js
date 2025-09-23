@@ -1,5 +1,6 @@
 // netlify/functions/submit.js
-// pdf-lib + Cloudinary，強化字型尋找：PDF_FONT_BASE64 > 多候選路徑
+// pdf-lib + Cloudinary（本地字型專用版）
+// 僅讀取 repo 內字型：netlify/functions/fonts/NotoSansTC-Regular.otf
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -7,7 +8,6 @@ const path = require("path");
 const { PDFDocument, rgb } = require("pdf-lib");
 
 const nb = v => (v == null ? "" : String(v)).trim();
-const nk = v => nb(v).replace(/\s+/g, "");
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
 
 function parseBody(event){const h=event.headers||{};const ct=(h["content-type"]||h["Content-Type"]||"").split(";")[0].trim().toLowerCase();if(ct==="application/json"||!ct){try{return JSON.parse(event.body||"{}");}catch{return{};}}if(ct==="application/x-www-form-urlencoded"){const params=new URLSearchParams(event.body||"");const obj={};for(const[k,v]of params.entries())obj[k]=v;return obj;}return{};}
@@ -62,25 +62,13 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 字型載入（多路徑） ----------
+// ---------- 字型：僅讀本地 ----------
 async function loadChineseFontBytes() {
-  const tried = [];
-  const b64 = process.env.PDF_FONT_BASE64;
-  if (b64 && b64.length > 1000) {
-    try { return Buffer.from(b64, 'base64'); } catch {}
+  const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
+  if (!fs.existsSync(fontPath)) {
+    throw new Error(`字型檔不存在：${fontPath}。請確認 repo 內有 netlify/functions/fonts/NotoSansTC-Regular.otf 並於 netlify.toml included_files 指定打包。`);
   }
-  const candidates = [
-    path.join(__dirname, "fonts", "NotoSansTC-Regular.otf"),
-    path.join(__dirname, "..", "fonts", "NotoSansTC-Regular.otf"),
-    path.join(process.cwd(), "netlify", "functions", "fonts", "NotoSansTC-Regular.otf"),
-    path.join(process.cwd(), "functions", "fonts", "NotoSansTC-Regular.otf")
-  ];
-  for (const p of candidates) {
-    tried.push(p);
-    try { if (fs.existsSync(p)) return fs.readFileSync(p); } catch {}
-  }
-  const msg = "找不到可用字型。已嘗試路徑：\n" + tried.join("\n");
-  throw new Error(msg);
+  return fs.readFileSync(fontPath);
 }
 
 // ---------- 產生 PDF ----------
@@ -132,7 +120,7 @@ async function buildPdfBuffer(p){
   return Buffer.from(pdfBytes);
 }
 
-// ---------- Cloudinary 簽名 ----------
+// ---------- Cloudinary ----------
 function makePublicId(p){ if (p.public_id) return String(p.public_id); if (p._id) return String(p._id);
   const seed = [p.customer_name||"", p.phone||"", p.address||"", p.service_category||"", Date.now()].join("|");
   const h = crypto.createHash("sha1").update(seed).digest("hex").slice(0,12); return `booking_${h}`; }
@@ -142,33 +130,8 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
   try{
     const p = parseBody(event);
-    p.customer_name = p.customer_name || p.name;
-    p.line_or_fb    = p.line_or_fb    || p.social_name;
-    p.house_type    = p.house_type    || p.housing_type;
 
-    const pathStr = (p._page && p._page.path ? String(p._page.path) : (event.rawUrl || "")).toLowerCase();
-    const isFinal = p._final === true || pathStr.includes("final-booking");
-    if (!isFinal) return { statusCode: 200, body: JSON.stringify({ ok:true, stage:"ignored_non_final" }) };
-
-    const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "新預約通知"}`;
-    const html = buildEmailHtml(p);
-
-    const toList = String(process.env.EMAIL_TO || process.env.MAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
-    if (!toList.length) throw new Error("EMAIL_TO 未設定");
-
-    const senderEmail = nb(process.env.EMAIL_FROM);
-    const senderId = nb(process.env.BREVO_SENDER_ID);
-    if (!senderEmail && !senderId) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
-    const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
-
-    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": nb(process.env.BREVO_API_KEY), "content-type":"application/json" },
-      body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
-    });
-    if (!res.ok) throw new Error(`Brevo ${res.status}: ${await res.text()}`);
-
-    // 上傳 Cloudinary（如有設定）
+    // 先做 PDF + Cloudinary，上游寄信邏輯若需要可再加回
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
