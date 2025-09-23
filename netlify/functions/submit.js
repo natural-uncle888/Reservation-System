@@ -1,11 +1,11 @@
 // netlify/functions/submit.js
-// pdf-lib + Cloudinary（本地字型專用版）
-// 僅讀取 repo 內字型：netlify/functions/fonts/NotoSansTC-Regular.otf
+// pdf-lib + fontkit + 本地字型 + Cloudinary（依你現有結構修補）
 
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { PDFDocument, rgb } = require("pdf-lib");
+const fontkit = require("@pdf-lib/fontkit"); // 重要：註冊 fontkit 才能嵌入自訂字型
 
 const nb = v => (v == null ? "" : String(v)).trim();
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
@@ -62,7 +62,7 @@ function buildEmailHtml(p){
   return `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">${freeTitle?section(freeTitle,freeRows):""}${section("服務資訊",service)}${addon.trim()?section("防霉・消毒｜加購服務專區",addon):""}${otherSvc.trim()?section("其他清洗服務",otherSvc):""}${section("聯繫名稱說明",contact)}${section("預約資料填寫",booking)}</div>`;
 }
 
-// ---------- 字型：僅讀本地 ----------
+// ---------- 字型：僅讀本地 + 必須註冊 fontkit ----------
 async function loadChineseFontBytes() {
   const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
   if (!fs.existsSync(fontPath)) {
@@ -74,6 +74,7 @@ async function loadChineseFontBytes() {
 // ---------- 產生 PDF ----------
 async function buildPdfBuffer(p){
   const pdfDoc = await PDFDocument.create();
+  pdfDoc.registerFontkit(fontkit); // 重要
   let page = pdfDoc.addPage([595.28, 841.89]); // A4
   let { height } = page.getSize();
   const fontBytes = await loadChineseFontBytes();
@@ -91,9 +92,7 @@ async function buildPdfBuffer(p){
     draw(`${k}：${text}`);
   };
 
-  draw("新預約單", { size: 16, color: rgb(0.15,0.39,0.92) });
-  draw(new Date().toISOString(), { size: 10, color: rgb(0.4,0.45,0.5) }); y -= 6;
-
+  draw("新預約單", { size: 16 });
   addRow("服務類別", p.service_category);
   addRow("冷氣類型", p.ac_type);
   addRow("清洗數量", p.ac_count);
@@ -131,7 +130,6 @@ exports.handler = async (event) => {
   try{
     const p = parseBody(event);
 
-    // 先做 PDF + Cloudinary，上游寄信邏輯若需要可再加回
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
