@@ -42,7 +42,7 @@
 <body>
   <header>
     <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
+    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」。</div>
   </header>
   <div class="wrap">
     <div class="row">
@@ -65,37 +65,22 @@
         <h3 id="dv-title">詳情</h3>
         <div id="preview" style="min-height:120px;"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnPaste" class="btn">貼上信件內容並回填</button>
-        </div>
+</div>
         <details style="margin-top:10px;">
           <summary>context / metadata</summary>
-          <pre id="ctxpre" style="background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px;overflow:auto;"></pre>
+          
         </details>
       </div>
     </div>
   </div>
-
-  <div id="emailModal" class="email-modal">
-    <div class="email-dialog">
-      <h3>貼上信件內容 → 解析並回填</h3>
-      <div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
-      <textarea id="emailPaste"></textarea>
-      <div class="actions">
-        <button id="emailCancel" class="btn">取消</button>
-        <button id="emailApply" class="btn primary">解析並回填</button>
-      </div>
-      <div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
-    </div>
-  </div>
-
 <script>
-const API_LIST = "/.netlify/functions/list-bookings";
+
 const API_LOGIN = "/.netlify/functions/auth-login";
 const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
 let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
 let CURRENT_ITEM = null;
 let CURRENT_LIST = [];
-const $ = (s)=>document.querySelector(s);
+const $ = (s)=>
 
 function needLogin(){ return !ADMIN_TOKEN; }
 async function login(){
@@ -188,22 +173,7 @@ $("#btnCsv").onclick = () => {
 };
 
 // paste-from-email modal
-$("#btnPaste").onclick = ()=>{
-  if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
-  $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
-};
-$("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
-$("#emailApply").onclick = async ()=>{
-  const text = $("#emailPaste").value;
-  const msg = $("#emailMsg");
-  const lines = String(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  const kvs = {};
-  for (const ln of lines){
-    let m = ln.match(/^(.+?)[:：]\s*(.+)$/);
-    if (!m) m = ln.match(/^(.+?)\s+(.+)$/);
-    if (m){ kvs[m[1].trim()] = m[2].trim(); }
-  }
-  const pick = (obj, keys)=>{ for(const k of keys){ if(obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; };
+
   const ctx = {
     name: pick(kvs, ["聯絡人","姓名","name"]),
     phone: pick(kvs, ["聯絡電話","電話","phone"]),
