@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>預約資料管理（Cloudinary）</title>
+  <link rel="stylesheet" href="/mobile.css" />
+  <style>
+    :root{--gap:12px}
+    body{background:#fafafa}
+    .wrap{max-width:1280px;margin:0 auto;padding:16px}
+    .toolbar{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:var(--gap);align-items:end}
+    .toolbar label{font-size:14px;color:#333}
+    .toolbar input,.toolbar select,.toolbar button{padding:8px 10px;font-size:14px}
+    .toolbar .actions{display:flex;gap:8px}
+    .toolbar .right{display:flex;gap:8px;justify-content:flex-end}
+    .flex{display:flex;gap:var(--gap)}
+    .grow{flex:1 1 auto}
+    .table{width:100%;border-collapse:collapse;margin-top:12px;background:white;border-radius:10px;overflow:hidden}
+    .table th,.table td{border-bottom:1px solid #eee;padding:10px 12px;font-size:14px;text-align:left}
+    .table th{background:#f7f7f7;font-weight:600}
+    .table tr:hover{background:#fbfbfb;cursor:pointer}
+    .muted{opacity:.75;font-size:12px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#f2f2f2}
+    .pager{display:flex;gap:8px;justify-content:space-between;margin-top:12px;align-items:center}
+    .pager .buttons{display:flex;gap:8px}
+    .drawer{position:fixed;top:0;right:0;height:100vh;width:min(520px,100vw);background:#fff;border-left:1px solid #e5e5e5;box-shadow:-8px 0 20px rgba(0,0,0,.06);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+    .drawer.open{transform:translateX(0)}
+    .drawer header{padding:14px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+    .drawer .content{padding:16px;overflow:auto}
+    .kv{display:grid;grid-template-columns:120px 1fr;gap:8px 16px}
+    .kv .k{color:#666}
+    .code{background:#0c1117;color:#e6edf3;padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px}
+    .buttons-row{display:flex;gap:8px;flex-wrap:wrap}
+    .nowrap{white-space:nowrap}
+    .w100{width:100%}
+    .btn{padding:8px 10px;border:1px solid #ddd;background:white;border-radius:8px}
+    .btn.primary{background:#111827;color:#fff;border-color:#111827}
+    .btn:disabled{opacity:.5}
+    @media (max-width: 900px){
+      .toolbar{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
+      .toolbar .right{justify-content:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>預約資料管理（Cloudinary）</h1>
+    <p class="muted">來源：Cloudinary <code>public_id</code> 以 <code>booking</code> 開頭的資產</p>
+
+    <div class="toolbar">
+      <label>關鍵字<br><input id="q" type="search" placeholder="姓名、電話、public_id…" /></label>
+      <label>起始日期<br><input id="from" type="date" /></label>
+      <label>結束日期<br><input id="to" type="date" /></label>
+      <label>每頁<br>
+        <select id="limit">
+          <option>20</option>
+          <option selected>30</option>
+          <option>50</option>
+          <option>100</option>
+        </select>
+      </label>
+      <div class="right">
+        <button id="btnSearch" class="btn primary">查詢</button>
+        <button id="btnReset" class="btn">清除</button>
+        <button id="btnExport" class="btn">匯出 CSV</button>
+      </div>
+    </div>
+
+    <table class="table" id="tbl" aria-label="Bookings table">
+      <thead>
+        <tr>
+          <th>public_id</th>
+          <th>建立時間</th>
+          <th>大小</th>
+          <th>類型</th>
+          <th>檔案</th>
+          <th>原檔</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="pager">
+      <div class="muted">共 <span id="count">0</span> 筆（本頁）</div>
+      <div class="buttons">
+        <button id="prev" class="btn" disabled>上一頁</button>
+        <span id="pageinfo" class="pill">第 <span id="page">1</span> 頁</span>
+        <button id="next" class="btn" disabled>下一頁</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登入畫面 -->
+  <div id="login" style="position:fixed;inset:0;background:rgba(0,0,0,.06);display:none;align-items:center;justify-content:center;padding:16px">
+    <div style="width:min(420px,100%);background:#fff;border:1px solid #e5e5e5;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:16px 16px 20px">
+      <h2 style="margin:0 0 8px">管理登入</h2>
+      <p class="muted" style="margin:0 0 12px">請輸入帳號密碼</p>
+      <div class="flex w100" style="flex-direction:column;gap:8px">
+        <input id="lg-user" placeholder="帳號" />
+        <input id="lg-pass" placeholder="密碼" type="password" />
+        <div class="buttons-row">
+          <button id="lg-submit" class="btn primary">登入</button>
+          <button id="lg-clear" class="btn">清除</button>
+        </div>
+        <div id="lg-msg" class="muted" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 詳情抽屜 -->
+  <aside id="drawer" class="drawer" aria-hidden="true">
+    <header>
+      <strong id="d-public-id">詳情</strong>
+      <button id="d-close" class="btn">關閉</button>
+    </header>
+    <div class="content">
+      <div class="kv" style="margin-bottom:12px">
+        <div class="k">建立時間</div><div id="d-created"></div>
+        <div class="k">大小</div><div id="d-size"></div>
+        <div class="k">類型</div><div id="d-type"></div>
+        <div class="k">檔案</div><div id="d-link"></div>
+      </div>
+      <div id="d-preview" style="margin-bottom:12px"></div>
+      <details>
+        <summary>context / metadata</summary>
+        <pre id="d-meta" class="code"></pre>
+      </details>
+      <details id="json-details" style="margin-top:12px; display:none;">
+        <summary>JSON 內容</summary>
+        <pre id="d-json" class="code"></pre>
+      </details>
+    </div>
+  </aside>
+
+  <script>
+    const API = "/.netlify/functions/list-bookings";
+    const LOGIN_API = "/.netlify/functions/auth-login";
+    let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
+    let cursor = null, prevStack = [], page = 1, lastItems = [];
+
+    function fmtBytes(b){
+      if(!b && b!==0) return "";
+      const u=['B','KB','MB','GB'];
+      let i=0, x=b;
+      while(x>=1024 && i<u.length-1){x/=1024;i++}
+      return `${x.toFixed(1)} ${u[i]}`;
+    }
+
+    function h(t){ return (t==null? "": String(t)); }
+
+    function row(item){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="nowrap"><code>${item.public_id}</code></td>
+        <td>${new Date(item.created_at).toLocaleString()}</td>
+        <td>${fmtBytes(item.bytes)}</td>
+        <td>${(item.resource_type || '')}${item.format? ' / '+item.format: ''}</td>
+        <td><a href="${item.secure_url || item.url}" target="_blank" onclick="event.stopPropagation()">預覽</a></td>
+        <td><a href="${item.secure_url || item.url}" target="_blank" onclick="event.stopPropagation()">下載/查看</a></td>
+      `;
+      tr.addEventListener('click', () => openDetails(item));
+      return tr;
+    }
+
+    async function search(next=null){
+      const q = document.getElementById('q').value.trim();
+      const from = document.getElementById('from').value || '';
+      const to = document.getElementById('to').value || '';
+      const limit = document.getElementById('limit').value;
+
+      const u = new URL(API, location.origin);
+      if(q) u.searchParams.set('q', q);
+      if(from) u.searchParams.set('from', from);
+      if(to) u.searchParams.set('to', to);
+      if(limit) u.searchParams.set('limit', limit);
+      if(next) u.searchParams.set('cursor', next);
+
+      const r = await fetch(u, { headers: { 'Accept': 'application/json', 'x-admin-token': ADMIN_TOKEN } });
+      if(!r.ok){
+        const t = await r.text();
+        alert('查詢失敗：' + t);
+        return { items: [], next_cursor: null, count: 0 };
+      }
+      return r.json();
+    }
+
+    async function render(next=null, pushPrev=false){
+      const data = await search(next);
+      const { items, next_cursor, count } = data;
+      lastItems = items || [];
+      const tbody = document.querySelector('#tbl tbody');
+      tbody.innerHTML = '';
+      lastItems.forEach(x=> tbody.appendChild(row(x)));
+
+      document.getElementById('count').textContent = count || lastItems.length;
+      document.getElementById('next').disabled = !next_cursor;
+      document.getElementById('prev').disabled = prevStack.length===0;
+      cursor = next_cursor || null;
+
+      if(pushPrev) page++; else if(next===null) page=1;
+      document.getElementById('page').textContent = page;
+    }
+
+    function toCSV(items){
+      const headers = ["public_id","created_at","bytes","resource_type","format","url","secure_url"];
+      const esc = v => {
+        if (v==null) return "";
+        const s = String(v).replace(/"/g,'""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      };
+      const lines = [headers.join(",")];
+      for (const it of items){
+        const row = headers.map(k => esc(it[k]));
+        lines.push(row.join(","));
+      }
+      return lines.join("\n");
+    }
+
+    function downloadCSV(){
+      const csv = toCSV(lastItems);
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+      a.download = `bookings-page-${page}-${ts}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    }
+
+    async function openDetails(item){
+      // Set basic fields
+      document.getElementById('d-public-id').textContent = item.public_id;
+      document.getElementById('d-created').textContent = new Date(item.created_at).toLocaleString();
+      document.getElementById('d-size').textContent = fmtBytes(item.bytes);
+      document.getElementById('d-type').textContent = (item.resource_type || '') + (item.format? ' / ' + item.format: '');
+      document.getElementById('d-link').innerHTML = `<a href="${item.secure_url || item.url}" target="_blank">開啟原檔</a>`;
+
+      // Metadata/Context
+      const meta = { context: item.context || null, metadata: item.metadata || null };
+      document.getElementById('d-meta').textContent = JSON.stringify(meta, null, 2);
+
+      // Preview
+      const pv = document.getElementById('d-preview');
+      pv.innerHTML = "";
+      const url = item.secure_url || item.url;
+      if (item.resource_type === "image" && /\.(png|jpe?g|gif|webp|svg)$/i.test(url)) {
+        const img = new Image();
+        img.src = url;
+        img.alt = item.public_id;
+        img.style.maxWidth = "100%";
+        pv.appendChild(img);
+      } else if (/\.(pdf)$/i.test(url)) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.textContent = "開啟 PDF";
+        a.target = "_blank";
+        pv.appendChild(a);
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.textContent = "開啟原檔";
+        a.target = "_blank";
+        pv.appendChild(a);
+      }
+
+      // Try fetch JSON if raw/json
+      const showJson = (item.resource_type === "raw" || /(?:^|\.)(json)$/i.test(item.format || "")) || /\.json$/i.test(url);
+      const jsonBox = document.getElementById('json-details');
+      const jsonPre = document.getElementById('d-json');
+      if (showJson && url) {
+        jsonBox.style.display = "";
+        try {
+          const r = await fetch(url, { mode: "cors" });
+          if (r.ok) {
+            const txt = await r.text();
+            try {
+              const obj = JSON.parse(txt);
+              jsonPre.textContent = JSON.stringify(obj, null, 2);
+            } catch {
+              jsonPre.textContent = txt;
+            }
+          } else {
+            jsonPre.textContent = `讀取失敗（HTTP ${r.status})`;
+          }
+        } catch (e) {
+          jsonPre.textContent = `讀取失敗：${e && e.message ? e.message : e}`;
+        }
+      } else {
+        jsonBox.style.display = "none";
+        jsonPre.textContent = "";
+      }
+
+      // Open drawer
+      const drawer = document.getElementById('drawer');
+      drawer.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeDetails(){
+      const drawer = document.getElementById('drawer');
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('btnSearch').addEventListener('click', ()=>{
+      prevStack = []; page = 1; render(null, false);
+    });
+    document.getElementById('btnReset').addEventListener('click', ()=>{
+      ['q','from','to'].forEach(id=> document.getElementById(id).value='');
+      prevStack = []; page = 1; render(null, false);
+    });
+    document.getElementById('btnExport').addEventListener('click', downloadCSV);
+
+    document.getElementById('next').addEventListener('click', ()=>{
+      if(!cursor) return;
+      prevStack.push(cursor);
+      render(cursor, true);
+    });
+    document.getElementById('prev').addEventListener('click', ()=>{
+      if(prevStack.length===0) return;
+      const prev = prevStack.length>1 ? prevStack[prevStack.length-2] : null;
+      prevStack.pop();
+      render(prev || null, false);
+      if(page>1) page--; document.getElementById('page').textContent = page;
+    });
+
+    document.getElementById('d-close').addEventListener('click', closeDetails);
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape') closeDetails();
+    });
+
+    
+    function showLogin(show=true){
+      document.getElementById('login').style.display = show ? 'flex' : 'none';
+    }
+    async function doLogin(){
+      const u = document.getElementById('lg-user').value.trim();
+      const p = document.getElementById('lg-pass').value;
+      const msg = document.getElementById('lg-msg');
+      msg.textContent = "";
+      try {
+        const r = await fetch(LOGIN_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        if(!r.ok){
+          const t = await r.text();
+          msg.textContent = "登入失敗：" + t; try { const j = JSON.parse(t); if (j && j.message) msg.textContent = j.message; } catch {}
+          return false;
+        }
+        const { token } = await r.json();
+        ADMIN_TOKEN = token;
+        localStorage.setItem("admin_token", token);
+        showLogin(false);
+        return true;
+      } catch(e){
+        msg.textContent = "登入失敗：" + (e && e.message ? e.message : e);
+        return false;
+      }
+    }
+
+    // 初次載入（需登入）
+    if (!ADMIN_TOKEN) { showLogin(true); } else { render(); }
+  
+    document.getElementById('lg-submit').addEventListener('click', async ()=>{
+      const ok = await doLogin();
+      if(ok) render();
+    });
+    document.getElementById('lg-clear').addEventListener('click', ()=>{
+      document.getElementById('lg-user').value = "";
+      document.getElementById('lg-pass').value = "";
+      document.getElementById('lg-msg').textContent = "";
+    });
+  </script>
+
+</body>
+</html>
