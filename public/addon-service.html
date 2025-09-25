@@ -1,249 +1,94 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>預約資料管理（Cloudinary）</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#2563eb"/>
+<title>加購服務專區</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
   <style>
-    :root{ --bg:#f8fafc; --card:#fff; --text:#0f172a; --muted:#6b7280; --border:#e5e7eb; --primary:#111827; --accent:#0ea5e9;}
-    *{ box-sizing:border-box; } body{ margin:0; font-family:Inter, system-ui, -apple-system, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; color:var(--text); background:var(--bg); }
-    header{ padding:28px 20px 8px; }
-    h1{ margin:0 0 6px; font-size:24px; font-weight:700; }
-    .sub{ color:var(--muted); font-size:13px; }
-    .wrap{ padding:10px 20px 40px; max-width:1100px; margin:0 auto; }
-    .row{ display:flex; gap:10px; align-items:end; flex-wrap:wrap; margin:12px 0 16px; }
-    .input{ display:flex; flex-direction:column; gap:6px; }
-    .input input{ height:38px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; background:#fff; min-width:220px; }
-    .btn{ height:38px; padding:0 14px; border-radius:10px; border:1px solid var(--border); background:#fff; cursor:pointer; }
-    .btn.primary{ background:#0f172a; color:#fff; border-color:#0f172a; }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; }
-    table{ width:100%; border-collapse:separate; border-spacing:0; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-    th,td{ padding:12px 14px; font-size:14px; border-bottom:1px solid var(--border); }
-    th{ text-align:left; color:#374151; background:#f9fafb; position:sticky; top:0; }
-    tr:hover{ background:#f6f9ff; cursor:pointer; }
-    .grid{ display:grid; grid-template-columns: 1fr 360px; gap:16px; align-items:start; }
-    .panel{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
-    .panel h3{ margin:0 0 10px; }
-    /* fullview cards */
-    .fullview-wrap{ display:flex; flex-direction:column; gap:12px; }
-    .card.fullview{ border:1px solid #e5e7eb; border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04); }
-    .card.fullview .card-h{ padding:10px 12px; font-weight:600; color:#3b82f6; }
-    .card.fullview .card-b{ padding:8px 12px 12px; }
-    .card.fullview .row{ display:grid; grid-template-columns: 160px 1fr; padding:6px 0; border-bottom:1px dotted #eef2f7; }
-    .card.fullview .row:last-child{ border-bottom:0; }
-    .card.fullview .k{ color:#6b7280; }
-    .card.fullview .v{ color:#111827; white-space:pre-wrap; }
-    /* login */
-    .modal{ position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; }
-    .dialog{ width:min(420px, 92vw); background:#fff; border-radius:14px; border:1px solid var(--border); padding:18px; }
-    .dialog h3{ margin:0 0 10px;font-size:18px; }
-    .dialog .g{ display:flex; flex-direction:column; gap:6px; margin:10px 0; }
-    .dialog input{ height:40px; padding:8px 10px; border:1px solid var(--border); border-radius:10px; }
-    .msg{ color:#b91c1c; font-size:13px; min-height:20px; }
+    body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;background:#fff;color:#111}
+    .container{max-width:900px;margin:0 auto;padding:20px}
+    h1{font-size:1.5rem;color:#2563eb;margin:8px 0 16px}
+    .section{border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin:14px 0;background:#fafafa}
+    .section h2{margin:0 0 10px;color:#2563eb;font-size:1.1rem}
+    .option{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .option input{width:18px;height:18px}
+    .nav{display:flex;gap:12px;margin-top:22px}
+    .nav a{flex:1;text-align:center;padding:12px 16px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none}
+    .nav a:hover{background:#1e40af}
   </style>
+<link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
-  <header>
-    <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">來源：Cloudinary 以 <code>booking*</code> 前綴搜尋；僅展示 <b>姓名 / 電話 / 服務 / 建立時間</b></div>
-  </header>
-  <div class="wrap">
-    <div class="row">
-      <label class="input">
-        <span>關鍵字</span>
-        <input id="q" placeholder="姓名、電話、public_id…">
-      </label>
-      <label class="input">
-        <span>起始日期</span>
-        <input id="start" placeholder="yyyy/mm/dd">
-      </label>
-      <label class="input">
-        <span>結束日期</span>
-        <input id="end" placeholder="yyyy/mm/dd">
-      </label>
-      <button id="btnSearch" class="btn primary">查詢</button>
+  <div class="container">
+    <h1>防霉・消毒｜加購服務專區</h1>
+    <p>為提升清洗效果與環境品質，我們提供以下兩項可選擇加購服務：</p>
+    <!-- 防霉抗菌處理（checkbox：勾選=需要；未勾=不需要） -->
+    <div class="section" id="sec-anti-mold">
+      <h2>🟢 冷氣防霉抗菌處理</h2>
+      <div class="option">
+        <input id="anti_mold" type="checkbox" name="anti_mold" value="防霉抗菌處理">
+        <label for="anti_mold">需要（每台 300 元，5 台以上每台 250 元）</label>
+      </div>
+      <ul>
+        <li>奈米級抗菌，無香料、無化學添加，純水性原料</li>
+        <li>噴塗鰭片／風鼓／風道，延緩黴菌灰塵附著</li>
+      </ul>
     </div>
 
-    <div class="grid">
-      <div>
-        <table id="tbl">
-          <thead>
-            <tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div style="margin-top:10px; color:#6b7280;" id="foot"></div>
+    <!-- 臭氧空間消毒（checkbox） -->
+    <div class="section" id="sec-ozone">
+      <h2>🟢 臭氧空間全面消毒（房間）</h2>
+      <div class="option">
+        <input id="ozone" type="checkbox" name="ozone" value="臭氧空間消毒">
+        <label for="ozone">需要（每間房間 200 元）</label>
       </div>
+      <ul>
+        <li>去除黴菌／異味，降低過敏源</li>
+        <li>減少異味、家具等釋放污染物</li>
+	<li>臭氧殺菌力為氯的 3000 倍，能有效達到深層消毒！</li>
+      </ul>
+    </div>
 
-      <div class="panel">
-        <h3 id="dv-title">詳情</h3>
-        <div id="preview"></div>
-        <details style="margin-top:10px;">
-          <summary>context / metadata</summary>
-          <pre id="ctxpre" style="background:#0f172a; color:#e5e7eb; padding:10px; border-radius:10px; overflow:auto;"></pre>
-        </details>
-      </div>
+    <div class="nav">
+      <a href="ac-booking.html" id="back">← 返回上一步</a>
+      <a href="other-service.html" id="next">下一步 ➜ 其他清洗服務</a>
     </div>
   </div>
 
-  <div id="login" class="modal" style="display:none;">
-    <div class="dialog">
-      <h3>管理登入</h3>
-      <div class="g"><label>帳號</label><input id="lg-u"></div>
-      <div class="g"><label>密碼</label><input id="lg-p" type="password"></div>
-      <div class="msg" id="lg-msg"></div>
-      <div style="display:flex; gap:8px; justify-content:flex-end">
-        <button id="lg-submit" class="btn primary">登入</button>
-      </div>
-    </div>
-  </div>
+  <script>
+  // addon-service（機器讀版）：只用表單值，不讀摘要、不會出現「一」
+  (function(){
+    const KEY='BOOKING_DATA';
+    const $ = s => document.querySelector(s);
 
-<script>
-// ==== util ====
-const $ = (sel)=>document.querySelector(sel);
-const API_LIST = "/.netlify/functions/list-bookings";
-const API_LOGIN = "/.netlify/functions/auth-login";
-let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
-
-function fmtDate(d){ return new Date(d).toLocaleString(); }
-
-function pick(obj, keys, fallback=""){
-  for (const k of keys){ if (obj && obj[k]!=null && String(obj[k]).trim()!=="") return obj[k]; }
-  return fallback;
-}
-function normalizeContext(item){
-  const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
-  const m = item.metadata || {};
-  const get = (names, fb="") => pick(c, names, pick(m, names, fb));
-  return {
-    name: get(["name","customer_name","fullname","姓名"]),
-    phone: get(["phone","phone_number","mobile","tel","電話"]),
-    service: get(["service","service_category","service_item","select_service","服務"]),
-    address: get(["address","地址"]),
-    brand: get(["brand","冷氣品牌"]),
-    ac_type: get(["ac_type","冷氣類型"]),
-    count: get(["count","quantity","清洗數量"]),
-    floor: get(["floor","樓層","室內機所在樓層"]),
-    is_inverter: get(["is_inverter","變頻","是否為變頻機型系列"]),
-    antifungus: get(["antifungus","冷氣防霉抗菌處理"]),
-    ozone: get(["ozone","臭氧殺菌消毒"]),
-    extra_service: get(["extra_service","其他清洗服務"]),
-    line_id: get(["line_id","line","LINE","聯絡Line"]),
-    fb_name: get(["fb_name","facebook","FB","LINE & Facebook 姓名"]),
-    timeslot: get(["timeslot","預約時段"]),
-    date: get(["date","預約日期"]),
-    note: get(["note","備註"]),
-  };
-}
-
-// Gmail-like renderer
-function kv(label, value){
-  const safe = (v)=> (v==null || String(v).trim()==="") ? "—" : String(v);
-  return `<div class="row"><div class="k">${label}</div><div class="v">${safe(value)}</div></div>`;
-}
-function sectionCard(title, rowsHtml){
-  return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`;
-}
-function renderFullContent(item, mount){
-  const data = normalizeContext(item);
-  const blocks = [];
-  blocks.push(sectionCard("服務資訊",
-    kv("服務類別", data.service) +
-    kv("冷氣類型", data.ac_type) +
-    kv("清洗數量", data.count) +
-    kv("室內機所在樓層", data.floor) +
-    kv("冷氣品牌", data.brand) +
-    kv("是否為變頻機型系列", data.is_inverter)
-  ));
-  blocks.push(sectionCard("防霉・消毒｜加購服務專區",
-    kv("冷氣防霉抗菌處理", data.antifungus) +
-    kv("臭氧殺菌消毒", data.ozone)
-  ));
-  blocks.push(sectionCard("其他清洗服務",
-    kv("其他清洗服務", data.extra_service || "無")
-  ));
-  blocks.push(sectionCard("聯繫資料",
-    kv("聯絡人", data.name) +
-    kv("聯絡電話", data.phone) +
-    kv("LINE / Facebook", (data.line_id || "") + (data.fb_name ? " / " + data.fb_name : "")) +
-    kv("地址", data.address) +
-    kv("備註", data.note)
-  ));
-  blocks.push(sectionCard("預約資訊",
-    kv("預約日期", data.date) +
-    kv("預約時段", data.timeslot) +
-    kv("建立時間", new Date(item.created_at).toLocaleString())
-  ));
-  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
-}
-
-// ==== login ====
-function needLogin(){ return !ADMIN_TOKEN; }
-function showLogin(v=true){ $("#login").style.display = v ? "flex" : "none"; }
-$("#lg-submit").onclick = async () => {
-  const u = $("#lg-u").value.trim();
-  const p = $("#lg-p").value;
-  const btn = $("#lg-submit");
-  const msg = $("#lg-msg");
-  btn.disabled = true; msg.textContent = "";
-  try {
-    const r = await fetch(API_LOGIN, {
-      method: "POST", headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({ username:u, password:p })
-    });
-    const t = await r.text();
-    if(!r.ok){
-      try{ const j = JSON.parse(t); msg.textContent = j.message || j.error || t; } catch{ msg.textContent = t; }
-      if (r.status === 423) { btn.disabled = true; }
-      return;
+    function collect(){
+      const out={};
+      const anti = $('#anti_mold'); if(anti && anti.checked){ out.anti_mold = anti.value; }
+      const oz = $('#ozone'); if(oz && oz.checked){ out.ozone = oz.value; }
+      return out;
     }
-    const j = JSON.parse(t);
-    ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
-    showLogin(false);
-    await doSearch();
-  } finally { btn.disabled = false; }
-};
+    function save(part){
+      try{
+        const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+        localStorage.setItem(KEY, JSON.stringify(Object.assign(prev, part)));
+      }catch(e){}
+    }
 
-// ==== list ====
-async function doSearch(pageToken=""){
-  const q = $("#q").value.trim();
-  const start = $("#start").value.trim();
-  const end = $("#end").value.trim();
-  const payload = { q, start, end, max: 50, page_token: pageToken };
-  const r = await fetch(API_LIST, {
-    method:"POST",
-    headers: { "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN },
-    body: JSON.stringify(payload)
-  });
-  if (r.status === 401) { ADMIN_TOKEN=""; localStorage.removeItem("admin_token"); showLogin(true); return; }
-  const data = await r.json();
-  const list = data.resources || data.items || [];
-  const tbody = $("#tbl tbody");
-  tbody.innerHTML = "";
-  for (const item of list){
-    const ctx = normalizeContext(item);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(item.created_at)}</td>`;
-    tr.onclick = ()=> openDetails(item);
-    tbody.appendChild(tr);
-  }
-  $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
-}
+    // 即時保存
+    document.addEventListener('change', ()=> save(collect()));
+    // 導覽前保存
+    ['back','next'].forEach(id=>{
+      const a=document.getElementById(id);
+      if(!a) return;
+      a.addEventListener('click', ()=> save(collect()), {capture:true});
+    });
 
-function openDetails(item){
-  $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("." + item.format) : "");
-  $("#ctxpre").textContent = JSON.stringify({ context: item.context ?? null, metadata: item.metadata ?? null }, null, 2);
-  const pv = $("#preview");
-  renderFullContent(item, pv);
-}
-
-$("#btnSearch").onclick = () => doSearch();
-window.addEventListener("load", () => {
-  if (needLogin()) showLogin(true); else doSearch();
-});
-</script>
-</body></html>
+    // 方便自測
+    window.debugAddon = ()=>collect();
+    window.debugLS = ()=>JSON.parse(localStorage.getItem(KEY)||'{}');
+  })();
+  </script>
+</body>
+</html>
