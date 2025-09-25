@@ -42,7 +42,7 @@
 <body>
   <header>
     <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「」。</div>
+    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
   </header>
   <div class="wrap">
     <div class="row">
@@ -155,21 +155,22 @@ async function doSearch(){
 
 function openDetails(item){
   
-  
   CURRENT_ITEM = item;
   const ctx = normalizeContext(item);
   $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
   $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
 
-  if (ctx.email_html_url) {
-    // Show the original email HTML within an iframe
-    $("#preview").innerHTML = `<div style="height:70vh;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
-      <iframe src="${ctx.email_html_url}" style="width:100%;height:100%;border:0"></iframe>
-    </div>`;
-    return;
+  { // Prefer showing original email HTML
+    const emailUrl = (ctx && ctx.email_html_url) || (String(item.format||"").toLowerCase()==="html" ? (item.secure_url||item.url||"") : "");
+    if (emailUrl) {
+      $("#preview").innerHTML = `<div style="height:70vh;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
+        <iframe src="${emailUrl}" style="width:100%;height:100%;border:0"></iframe>
+      </div>`;
+      return;
+    }
   }
 
-  // Fallback: Build Brevo-style preview from context (if no html stored)
+  // Fallback: build Brevo-style sections from context
   const tr = (label, val) => (val===undefined||val===null||String(val).trim()==="") ? "" : 
     `<tr><td style="padding:6px 10px;border:1px solid #e5e7eb;background:#f9fafb;width:36%">${label}</td>
          <td style="padding:6px 10px;border:1px solid #e5e7eb;">${Array.isArray(val)?val.join("、"):val}</td></tr>`;
@@ -227,7 +228,7 @@ function openDetails(item){
 
   const pdf = item.secure_url ? `<p style="margin:10px 0 0">PDF 檔案連結：<a href="${item.secure_url}" target="_blank" rel="noreferrer">${item.secure_url}</a></p>` : "";
 
-  const html = `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:880px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">
+  const outHtml = `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:880px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">
     ${section("基本資訊", base)}
     ${section("服務資訊", service)}
     ${section("防霉・消毒｜加購服務專區", addon)}
@@ -236,8 +237,7 @@ function openDetails(item){
     ${section("預約資訊", booking)}
     ${pdf}
   </div>`;
-
-  $("#preview").innerHTML = html;
+  $("#preview").innerHTML = outHtml;
 
 }
 
