@@ -4,272 +4,236 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>預約資料管理（Cloudinary）</title>
-  <link rel="stylesheet" href="/mobile.css" />
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
   <style>
-    :root{ --gap:12px; --radius:12px; --bg:#f5f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280; --line:#e5e7eb; }
-    *{ box-sizing:border-box; }
-    body{ margin:0; background:var(--bg); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;}
-    .wrap{max-width:1280px;margin:0 auto;padding:16px}
-    h1{font-size:22px;margin:0 0 8px}
-    .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
-    .toolbar{display:grid;grid-template-columns:1.5fr 1fr 1fr auto auto;gap:var(--gap);align-items:end;margin-bottom:16px}
-    .toolbar label{font-size:12px;color:#374151;margin-bottom:6px;display:block}
-    .toolbar input,.toolbar select,.toolbar button{padding:10px 12px;font-size:14px;border:1px solid var(--line);border-radius:10px;background:#fff}
-    .toolbar input::placeholder{color:#9ca3af}
-    .toolbar .actions{display:flex;gap:8px}
-    .layout{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 1px 0 rgba(0,0,0,.03)}
-    .table{width:100%;border-collapse:separate;border-spacing:0}
-    .thead{display:grid;grid-template-columns:2fr 1.6fr 1.6fr 1.3fr;gap:0}
-    .thead .th{padding:12px 14px;border-bottom:1px solid var(--line);font-weight:600;font-size:14px;color:#374151}
-    .tbody{max-height:62vh;overflow:auto;display:block}
-    .row{display:grid;grid-template-columns:2fr 1.6fr 1.6fr 1.3fr;border-bottom:1px solid var(--line);}
-    .row button{all:unset;display:contents}
-    .cell{padding:12px 14px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .empty{padding:24px 14px;color:var(--muted);font-size:14px}
-    .right{padding:12px}
-    .panel{padding:12px;border:1px dashed var(--line);border-radius:10px;background:#fafafa;height:62vh;overflow:auto}
-    .title{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-    .muted{color:var(--muted)}
-    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;border:1px solid #e0e7ff}
-    .kv{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:14px;margin:8px 0}
-    .kv .k{color:#374151}
-    .kv .v{color:#111827;word-break:break-all}
-    details{margin-top:10px}
-    summary{cursor:pointer;color:#2563eb}
-    .login{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:20px}
-    .login-inner{background:#fff;border-radius:14px;border:1px solid var(--line);width:min(420px,90vw);padding:18px}
-    .login h2{margin:0 0 8px;font-size:18px}
-    .login .row{display:block}
-    .login label{display:block;font-size:12px;color:#374151;margin-top:10px;margin-bottom:6px}
-    .login input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
-    .login .btns{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
-    .btn{background:#111827;color:#fff;border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
-    .btn.secondary{background:#fff;color:#111827;border:1px solid var(--line)}
-    .status{font-size:12px;color:#ef4444;margin-left:8px}
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
+    header{padding:26px 20px 8px}
+    h1{margin:0 0 4px;font-size:22px}
+    .sub{color:#64748b;font-size:13px}
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+    .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
+    .input{display:flex;flex-direction:column;gap:6px}
+    .input input{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:220px}
+    .btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
+    .btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
+    th,td{padding:12px 14px;font-size:14px;border-bottom:1px solid #e5e7eb}
+    th{background:#f9fafb;color:#374151;text-align:left;position:sticky;top:0}
+    tr:hover{background:#f6f9ff;cursor:pointer}
+    .grid{display:grid;grid-template-columns: 1fr 380px;gap:16px;align-items:start}
+    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}
+    .panel h3{margin:0 0 10px}
+    .fullview-wrap{display:flex;flex-direction:column;gap:12px}
+    .card.fullview{border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .card.fullview .card-h{padding:10px 12px;font-weight:600;color:#3b82f6}
+    .card.fullview .card-b{padding:8px 12px 12px}
+    .card.fullview .row{display:grid;grid-template-columns:160px 1fr;padding:6px 0;border-bottom:1px dotted #eef2f7}
+    .card.fullview .row:last-child{border-bottom:0}
+    .card.fullview .k{color:#6b7280}
+    .card.fullview .v{color:#111827;white-space:pre-wrap}
+    .email-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
+    .email-dialog{width:min(720px,92vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
+    .email-dialog h3{margin:0 0 10px}
+    .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+    .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <header>
     <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">檢索示例：姓名／電話／服務／建立時間；詳情面板可查看「context / metadata」。</div>
-
-    <div class="toolbar">
-      <div>
-        <label>關鍵字</label>
-        <input id="q" type="search" placeholder="姓名、電話、public_id…" />
-      </div>
-      <div>
-        <label>起始日期</label>
-        <input id="from" type="date" />
-      </div>
-      <div>
-        <label>結束日期</label>
-        <input id="to" type="date" />
-      </div>
-      <div class="actions">
-        <button class="btn" id="btn-search">查詢</button>
-        <button class="btn secondary" id="btn-csv">匯出 CSV</button>
-      </div>
-      <div class="actions">
-        <button class="btn secondary" id="btn-prev" disabled>上一頁</button>
-        <button class="btn secondary" id="btn-next" disabled>下一頁</button>
-      </div>
+    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
+  </header>
+  <div class="wrap">
+    <div class="row">
+      <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"></label>
+      <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"></label>
+      <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"></label>
+      <button id="btnSearch" class="btn primary">查詢</button>
+      <button id="btnCsv" class="btn">匯出 CSV</button>
     </div>
 
-    <div class="layout">
-      <div class="card">
-        <div class="thead">
-          <div class="th">姓名</div>
-          <div class="th">電話</div>
-          <div class="th">服務</div>
-          <div class="th">建立時間</div>
-        </div>
-        <div id="list" class="tbody">
-          <div class="empty">尚無資料，請先搜尋。</div>
-        </div>
+    <div class="grid">
+      <div>
+        <table id="tbl">
+          <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div id="foot" style="margin-top:8px;color:#6b7280"></div>
       </div>
-
-      <div class="card right">
-        <div class="panel">
-          <div class="title"><strong>詳情</strong><span class="badge" id="detail-type">—</span></div>
-          <div class="kv"><div class="k">姓名</div><div class="v" id="d-name">—</div></div>
-          <div class="kv"><div class="k">電話</div><div class="v" id="d-phone">—</div></div>
-          <div class="kv"><div class="k">服務</div><div class="v" id="d-service">—</div></div>
-          <div class="kv"><div class="k">建立時間</div><div class="v" id="d-time">—</div></div>
-          <div class="kv"><div class="k">大小</div><div class="v" id="d-bytes">—</div></div>
-          <div class="kv"><div class="k">連結</div><div class="v"><a id="d-url" href="#" target="_blank" rel="noreferrer">—</a></div></div>
-
-          <details>
-            <summary>context / metadata</summary>
-            <div id="d-raw" style="margin-top:8px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;font-size:12px;white-space:pre-wrap;"></div>
-          </details>
+      <div class="panel">
+        <h3 id="dv-title">詳情</h3>
+        <div id="preview" style="min-height:120px;"></div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="btnPaste" class="btn">貼上信件內容並回填</button>
         </div>
+        <details style="margin-top:10px;">
+          <summary>context / metadata</summary>
+          <pre id="ctxpre" style="background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px;overflow:auto;"></pre>
+        </details>
       </div>
     </div>
   </div>
 
-  <!-- Login Modal -->
-  <div class="login" id="login">
-    <div class="login-inner">
-      <h2>管理登入</h2>
-      <p class="muted" style="margin:0 0 6px">請輸入帳號與密碼以檢視資料。</p>
-      <label>帳號</label>
-      <input id="lg-user" autocomplete="username" placeholder="admin" />
-      <label>密碼</label>
-      <input id="lg-pass" type="password" autocomplete="current-password" placeholder="••••••••" />
-      <div class="btns">
-        <span class="status" id="lg-msg"></span>
-        <button class="btn secondary" id="lg-clear">清除</button>
-        <button class="btn" id="lg-submit">登入</button>
+  <div id="emailModal" class="email-modal">
+    <div class="email-dialog">
+      <h3>貼上信件內容 → 解析並回填</h3>
+      <div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
+      <textarea id="emailPaste"></textarea>
+      <div class="actions">
+        <button id="emailCancel" class="btn">取消</button>
+        <button id="emailApply" class="btn primary">解析並回填</button>
       </div>
+      <div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
     </div>
   </div>
 
 <script>
-const API = "/.netlify/functions/list-bookings";
-const LOGIN_API = "/.netlify/functions/auth-login";
-const LS_KEY = "ADMIN_TOKEN";
-let LAST_CURSOR = null;
-let PREV_STACK = []; // for prev
+const API_LIST = "/.netlify/functions/list-bookings";
+const API_LOGIN = "/.netlify/functions/auth-login";
+const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
+let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
+let CURRENT_ITEM = null;
+let CURRENT_LIST = [];
+const $ = (s)=>document.querySelector(s);
 
-function nb(v){ return (v==null?"":String(v)).trim(); }
-function bytes(x){ if(!x && x!==0) return "—"; const u=["B","KB","MB","GB"]; let i=0; let n=Number(x); while(n>=1024&&i<u.length-1){ n/=1024; i++; } return n.toFixed( (i?1:0) )+" "+u[i]; }
-function ctxGet(item, key){ try{ return (item.context && item.context.custom && item.context.custom[key]) || ""; }catch{ return ""; } }
-function csvEsc(s){ const t=String(s??""); return /[",\n]/.test(t) ? `"${t.replace(/"/g,'""')}"` : t; }
-
-function adminToken(){ return localStorage.getItem(LS_KEY)||""; }
-function needLogin(){ const t=adminToken(); return !t; }
-function showLogin(){ document.getElementById("login").style.display="flex"; }
-function hideLogin(){ document.getElementById("login").style.display="none"; }
-
-async function doLogin(){
-  const u=document.getElementById('lg-user').value.trim();
-  const p=document.getElementById('lg-pass').value.trim();
-  document.getElementById('lg-msg').textContent = "";
-  try{
-    const r = await fetch(LOGIN_API, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ username:u, password:p })
-    });
-    if(!r.ok){
-      const t = await r.text();
-      document.getElementById('lg-msg').textContent = (r.status===423 ? "嘗試次數過多，已鎖定。" : ("登入失敗："+t));
-      return false;
-    }
-    const j = await r.json();
-    localStorage.setItem(LS_KEY, j.token);
-    hideLogin();
-    return true;
-  }catch(e){
-    document.getElementById('lg-msg').textContent = "無法連線："+String(e);
-    return false;
-  }
-}
-
-function buildURL(cursor){
-  const q = document.getElementById('q').value.trim();
-  const from = document.getElementById('from').value.trim();
-  const to = document.getElementById('to').value.trim();
-  const params = new URLSearchParams();
-  if(q) params.set("q", q);
-  if(from) params.set("from", from);
-  if(to) params.set("to", to);
-  if(cursor) params.set("cursor", cursor); // list-bookings.js 支援 cursor；若實作為 next_cursor 也同時帶
-  if(cursor) params.set("next_cursor", cursor);
-  return API + "?" + params.toString();
-}
-
-async function search(cursor){
-  if(needLogin()){ showLogin(); return; }
-  const url = buildURL(cursor);
-  const r = await fetch(url, { headers:{ "Accept":"application/json", "x-admin-token": adminToken() } });
-  if(!r.ok){
-    const t = await r.text();
-    document.getElementById('list').innerHTML = `<div class="empty">讀取失敗：${t}</div>`;
-    document.getElementById('btn-next').disabled = true;
-    document.getElementById('btn-prev').disabled = PREV_STACK.length===0;
-    return;
-  }
+function needLogin(){ return !ADMIN_TOKEN; }
+async function login(){
+  const u = prompt("管理帳號：");
+  const p = prompt("管理密碼：");
+  if (!u || !p) return false;
+  const r = await fetch(API_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ username:u, password:p }) });
   const j = await r.json();
-  renderList(j.items||[]);
-  // pagination
-  if(cursor){ PREV_STACK.push(cursor); }
-  LAST_CURSOR = j.next_cursor || null;
-  document.getElementById('btn-next').disabled = !LAST_CURSOR;
-  document.getElementById('btn-prev').disabled = PREV_STACK.length===0;
+  if (!r.ok){ alert(j.message || j.error || "登入失敗"); return false; }
+  ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
+  return true;
 }
+function fmtDate(d){ return new Date(d).toLocaleString(); }
+function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
 
-function renderList(items){
-  const box = document.getElementById('list');
-  if(!items.length){ box.innerHTML = `<div class="empty">沒有符合的資料。</div>`; return; }
-  box.innerHTML = "";
-  for(const it of items){
-    const name = ctxGet(it, "customer") || "—";
-    const phone = ctxGet(it, "phone") || "—";
-    const service = ctxGet(it, "service") || "—";
-    const time = it.created_at ? new Date(it.created_at).toLocaleString() : "—";
-    const btn = document.createElement("button");
-    btn.className = "row";
-    btn.innerHTML = `
-      <div class="cell">${name}</div>
-      <div class="cell">${phone}</div>
-      <div class="cell">${service}</div>
-      <div class="cell">${time}</div>
-    `;
-    btn.addEventListener('click', ()=> openDetails(it));
-    box.appendChild(btn);
-  }
-}
-
-function openDetails(it){
-  document.getElementById('detail-type').textContent = it.format ? it.format : (it.resource_type || "raw");
-  document.getElementById('d-name').textContent = ctxGet(it,"customer") || "—";
-  document.getElementById('d-phone').textContent = ctxGet(it,"phone") || "—";
-  document.getElementById('d-service').textContent = ctxGet(it,"service") || "—";
-  document.getElementById('d-time').textContent = it.created_at ? new Date(it.created_at).toLocaleString() : "—";
-  document.getElementById('d-bytes').textContent = bytes(it.bytes);
-  const u = it.secure_url || it.url || "#";
-  const a = document.getElementById('d-url'); a.href = u; a.textContent = u ? "開啟檔案" : "—";
-  const raw = {
-    public_id: it.public_id,
-    context: it.context || null,
-    metadata: it.metadata || null,
-    width: it.width, height: it.height, format: it.format, resource_type: it.resource_type, bytes: it.bytes,
-    created_at: it.created_at, url: it.secure_url || it.url
+function normalizeContext(item){
+  const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
+  const m = item.metadata || {};
+  const get = (names, fb="") => pick(c, names, pick(m, names, fb));
+  return {
+    name: get(["name","customer_name","fullname","姓名"]),
+    phone: get(["phone","phone_number","mobile","tel","電話"]),
+    service: get(["service","service_category","service_item","select_service","服務"]),
+    address: get(["address","地址"]),
+    brand: get(["brand","冷氣品牌"]),
+    ac_type: get(["ac_type","冷氣類型"]),
+    count: get(["count","quantity","清洗數量"]),
+    floor: get(["floor","樓層","室內機所在樓層"]),
+    is_inverter: get(["is_inverter","變頻","是否為變頻機型系列"]),
+    antifungus: get(["antifungus","冷氣防霉抗菌處理"]),
+    ozone: get(["ozone","臭氧殺菌消毒"]),
+    extra_service: get(["extra_service","其他清洗服務"]),
+    line_id: get(["line_id","line","LINE","聯絡Line"]),
+    fb_name: get(["fb_name","facebook","FB","LINE & Facebook 姓名"]),
+    timeslot: get(["timeslot","預約時段"]),
+    date: get(["date","預約日期"]),
+    note: get(["note","備註"]),
   };
-  document.getElementById('d-raw').textContent = JSON.stringify(raw, null, 2);
 }
 
-function downloadCSV(){
-  if(needLogin()){ showLogin(); return; }
+function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
+function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
+function renderFullContent(item, mount){
+  const data = normalizeContext(item);
+  const blocks = [];
+  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
+  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
+  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
+  blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)));
+  blocks.push(sectionCard("預約資訊", kv("預約日期", data.date)+kv("預約時段", data.timeslot)+kv("建立時間", new Date(item.created_at).toLocaleString())));
+  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
+}
+
+async function doSearch(){
+  const payload = { q: $("#q").value.trim(), start: $("#start").value.trim(), end: $("#end").value.trim(), max: 50 };
+  const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
+  if (r.status === 401){ ADMIN_TOKEN=""; localStorage.removeItem("admin_token"); if(await login()) return doSearch(); return; }
+  const data = await r.json();
+  const list = data.resources || data.items || [];
+  CURRENT_LIST = list;
+  const tbody = $("#tbl tbody"); tbody.innerHTML = "";
+  for (const it of list){
+    const ctx = normalizeContext(it);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}</td>`;
+    tr.onclick = ()=> openDetails(it);
+    tbody.appendChild(tr);
+  }
+  $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
+}
+
+function openDetails(item){
+  CURRENT_ITEM = item;
+  $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
+  $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
+  renderFullContent(item, $("#preview"));
+}
+
+$("#btnSearch").onclick = () => doSearch();
+$("#btnCsv").onclick = () => {
   const rows = [["姓名","電話","服務","建立時間"]];
-  const list = document.querySelectorAll('#list .row');
-  if(!list.length){ alert("沒有資料可匯出，請先查詢。"); return; }
-  list.forEach(r=>{
-    const cells = Array.from(r.querySelectorAll('.cell')).map(td=>td.textContent.trim());
-    rows.push(cells);
-  });
-  const csv = rows.map(r=>r.map(csvEsc).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
+  for (const it of CURRENT_LIST){
+    const c = normalizeContext(it);
+    rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)]);
+  }
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
   const a = document.createElement("a");
-  a.href = url; a.download = "bookings.csv"; a.click();
-  URL.revokeObjectURL(url);
-}
+  a.href = URL.createObjectURL(blob); a.download = "bookings.csv"; a.click(); URL.revokeObjectURL(a.href);
+};
 
-document.getElementById('btn-search').addEventListener('click', ()=>{ PREV_STACK=[]; search(null); });
-document.getElementById('btn-next').addEventListener('click', ()=>{ if(LAST_CURSOR) search(LAST_CURSOR); });
-document.getElementById('btn-prev').addEventListener('click', ()=>{
-  if(PREV_STACK.length){ PREV_STACK.pop(); const prior = PREV_STACK.length ? PREV_STACK[PREV_STACK.length-1] : null; search(prior); }
-});
-document.getElementById('btn-csv').addEventListener('click', downloadCSV);
-document.getElementById('lg-submit').addEventListener('click', async ()=>{ const ok=await doLogin(); if(ok) search(null); });
-document.getElementById('lg-clear').addEventListener('click', ()=>{ document.getElementById('lg-user').value=""; document.getElementById('lg-pass').value=""; document.getElementById('lg-msg').textContent=""; });
+// paste-from-email modal
+$("#btnPaste").onclick = ()=>{
+  if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
+  $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
+};
+$("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
+$("#emailApply").onclick = async ()=>{
+  const text = $("#emailPaste").value;
+  const msg = $("#emailMsg");
+  const lines = String(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const kvs = {};
+  for (const ln of lines){
+    let m = ln.match(/^(.+?)[:：]\s*(.+)$/);
+    if (!m) m = ln.match(/^(.+?)\s+(.+)$/);
+    if (m){ kvs[m[1].trim()] = m[2].trim(); }
+  }
+  const pick = (obj, keys)=>{ for(const k of keys){ if(obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; };
+  const ctx = {
+    name: pick(kvs, ["聯絡人","姓名","name"]),
+    phone: pick(kvs, ["聯絡電話","電話","phone"]),
+    service: pick(kvs, ["服務類別","服務","service"]),
+    address: pick(kvs, ["地址","住址","address"]),
+    ac_type: pick(kvs, ["冷氣類型","ac_type"]),
+    count: pick(kvs, ["清洗數量","數量","count"]),
+    floor: pick(kvs, ["室內機所在樓層","樓層","floor"]),
+    brand: pick(kvs, ["冷氣品牌","brand"]),
+    is_inverter: pick(kvs, ["是否為變頻機型系列","變頻","is_inverter"]),
+    antifungus: pick(kvs, ["冷氣防霉抗菌處理","antifungus"]),
+    ozone: pick(kvs, ["臭氧殺菌消毒","ozone"]),
+    extra_service: pick(kvs, ["其他清洗服務","extra_service"]),
+    line_id: pick(kvs, ["LINE","LINE / Facebook","line_id"]),
+    fb_name: pick(kvs, ["LINE & Facebook 姓名","facebook","fb_name"]),
+    date: pick(kvs, ["預約日期","date"]),
+    timeslot: pick(kvs, ["預約時段","時段","timeslot"]),
+    note: pick(kvs, ["備註","note"]),
+    source: pick(kvs, ["來源","subject","page_title"]),
+  };
+  Object.keys(ctx).forEach(k=>{ if(!ctx[k]) delete ctx[k]; });
+  if (Object.keys(ctx).length===0){ msg.textContent="未解析到欄位，請確認貼上的是純文字內容"; return; }
+  msg.textContent="上傳中…";
+  const r = await fetch(API_UPDATE_CTX, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify({ public_id: CURRENT_ITEM.public_id, resource_type: CURRENT_ITEM.resource_type||"raw", type: CURRENT_ITEM.type||"upload", context: ctx }) });
+  const t = await r.text();
+  if (!r.ok){ try{ const j = JSON.parse(t); msg.textContent = "更新失敗：" + (j.error||t); } catch{ msg.textContent = "更新失敗：" + t; } return; }
+  msg.textContent="已更新！關閉此視窗後，重新查詢或點選此筆即可看到最新內容。";
+};
 
-// 初始：若沒有 token 先顯示登入；否則可直接查詢
-window.addEventListener('load', ()=>{ if(needLogin()) showLogin(); });
+(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 </script>
 </body>
 </html>
