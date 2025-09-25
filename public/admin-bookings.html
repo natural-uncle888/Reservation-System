@@ -206,19 +206,15 @@ function normalizeContext(item){
 
 function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
 function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
-
 function renderFullContent(item, mount){
-  // 直接顯示信件全文（優先取 context.custom.email_raw / email，再退回 metadata）
-  const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
-  const m = item.metadata || {};
-  const emailRaw = c.email_raw || c.email || m.email_raw || m.email || "";
-  let content = String(emailRaw||"").trim();
-  if (!content){
-    content = "（尚未有信件內容）
-
-提示：按下「貼上信件內容並回填」 → 貼上郵件文字後儲存，即可在此顯示全文。";
-  }
-  mount.innerHTML = `<div class="panel"><h3 id="dv-title">信件內容</h3><pre style="white-space:pre-wrap;background:#0f172a;color:#e5e7eb;padding:12px;border-radius:10px;border:1px solid #e5e7eb;min-height:200px">${content.replace(/[&<>]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]))}</pre></div>`;
+  const data = normalizeContext(item);
+  const blocks = [];
+  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
+  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
+  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
+  blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)));
+  blocks.push(sectionCard("預約資訊", kv("預約日期", data.date)+kv("預約時段", data.timeslot)+kv("建立時間", new Date(item.created_at).toLocaleString())));
+  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
 
 async function doSearch(){
@@ -295,8 +291,6 @@ $("#emailApply").onclick = async ()=>{
     timeslot: pick(kvs, ["預約時段","時段","timeslot"]),
     note: pick(kvs, ["備註","note"]),
     source: pick(kvs, ["來源","subject","page_title"]),
-  ,
-    email_raw: text
   };
   Object.keys(ctx).forEach(k=>{ if(!ctx[k]) delete ctx[k]; });
   if (Object.keys(ctx).length===0){ msg.textContent="未解析到欄位，請確認貼上的是純文字內容"; return; }
