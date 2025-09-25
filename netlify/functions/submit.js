@@ -185,12 +185,29 @@ exports.handler = async (event) => {
       const public_id = makePublicId(p) + "_booking.pdf";
       const timestamp = Math.floor(Date.now()/1000);
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
-      const signature = cloudinarySign({ public_id, timestamp, tags }, apiSecret);
-      const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
+
+// 構建 context（摘要欄位：name/phone/service/address/area/source）
+const ctxPairs = {
+  name: p.customer_name || p.name || "",
+  phone: p.phone || "",
+  service: p.service_category || p.service_item || p.select_service || "",
+  address: p.address || "",
+  area: p.area || p.city || p.region || "",
+  source: p.subject || p.page_title || p.page || ""
+};
+const context = Object.entries(ctxPairs)
+  .filter(([k,v]) => v && String(v).trim() !== "")
+  .map(([k,v]) => `${k}=${String(v).replace(/\|/g, "/")}`) // Cloudinary context 用 | 分隔，內容若含 | 先替換
+  .join("|");
+
+// 產生簽名（需包含 context）
+const signParams = context ? { public_id, timestamp, tags, context } : { public_id, timestamp, tags };
+const signature = cloudinarySign(signParams, apiSecret);
+const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
       const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags })
+        body: JSON.stringify(Object.assign({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags }, context ? { context } : {}))
       });
       if (up.ok){
         const result = await up.json();
