@@ -37,9 +37,46 @@
     .email-dialog h3{margin:0 0 10px}
     .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
     .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-  </style>
+  
+/* === Admin Login Modal === */
+.login-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:999}
+.login-dialog{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.18);width:min(520px,92vw);padding:18px 18px 16px;border:1px solid #e5e7eb}
+.login-h{margin:2px 4px 2px;font-size:20px;font-weight:700;color:#111827}
+.login-sub{margin:0 4px 14px;font-size:14px;color:#6b7280}
+.login-field{display:flex;flex-direction:column;gap:6px;margin:10px 4px}
+.login-label{font-size:13px;color:#374151}
+.login-input{height:40px;border-radius:12px;border:1px solid #e5e7eb;padding:8px 12px;background:#fff;outline:none}
+.login-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.login-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+.btn-secondary{background:#f3f4f6;border:1px solid #e5e7eb;color:#111827;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn-primary{background:#0f172a;color:#fff;border:1px solid #111827;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
+</style>
 </head>
 <body>
+
+  
+<div id="loginModal" class="login-backdrop" role="dialog" aria-modal="true">
+  <div class="login-dialog">
+    <div class="login-h">管理登入</div>
+    <div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
+    <div class="login-field">
+      <label class="login-label" for="login-username">帳號</label>
+      <input id="login-username" class="login-input" type="text" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label class="login-label" for="login-password">密碼</label>
+      <input id="login-password" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div id="login-error" class="login-error">登入失敗，請確認帳號密碼。</div>
+    <div class="login-actions">
+      <button id="login-clear" class="btn-secondary" type="button">清除</button>
+      <button id="login-submit" class="btn-primary" type="button">登入</button>
+    </div>
+  </div>
+</div>
+
   <header>
     <h1>預約資料管理（Cloudinary）</h1>
     <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
@@ -98,15 +135,46 @@ let CURRENT_LIST = [];
 const $ = (s)=>document.querySelector(s);
 
 function needLogin(){ return !ADMIN_TOKEN; }
+
 async function login(){
-  const u = prompt("管理帳號：");
-  const p = prompt("管理密碼：");
-  if (!u || !p) return false;
-  const r = await fetch(API_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ username:u, password:p }) });
-  const j = await r.json();
-  if (!r.ok){ alert(j.message || j.error || "登入失敗"); return false; }
-  ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
-  return true;
+  return new Promise((resolve)=>{
+    const modal = document.getElementById('loginModal');
+    const uEl = document.getElementById('login-username');
+    const pEl = document.getElementById('login-password');
+    const err = document.getElementById('login-error');
+    const btnSubmit = document.getElementById('login-submit');
+    const btnClear = document.getElementById('login-clear');
+    // init
+    err.style.display = 'none';
+    uEl.value = '';
+    pEl.value = '';
+    modal.style.display = 'flex';
+    uEl.focus();
+
+    const doSubmit = async ()=>{
+      btnSubmit.disabled = true;
+      err.style.display = 'none';
+      const u = uEl.value.trim();
+      const p = pEl.value;
+      if(!u || !p){ err.textContent = "請輸入帳號與密碼"; err.style.display='block'; btnSubmit.disabled=false; return; }
+      try{
+        const r = await fetch(API_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ username:u, password:p }) });
+        const j = await r.json();
+        if (!r.ok){ err.textContent = j.message || j.error || "登入失敗"; err.style.display='block'; btnSubmit.disabled=false; return; }
+        ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
+        modal.style.display = 'none';
+        resolve(true);
+      }catch(e){
+        err.textContent = "網路錯誤，請稍後重試"; err.style.display='block';
+        btnSubmit.disabled = false;
+      }
+    };
+
+    btnSubmit.onclick = doSubmit;
+    btnClear.onclick = ()=>{ uEl.value=''; pEl.value=''; uEl.focus(); };
+    pEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSubmit(); });
+    uEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pEl.focus(); });
+  });
 }
 function fmtDate(d){ return new Date(d).toLocaleString(); }
 function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
