@@ -150,10 +150,25 @@
 
     function row(item){
       const tr = document.createElement('tr');
-      const ctx = (item.context && item.context.custom) ? item.context.custom : {};
-      const name = ctx.name || '(未填)';
-      const phone = ctx.phone || '';
-      const service = ctx.service || '';
+      const c0 = (item.context && item.context.custom) ? item.context.custom : {};
+      const c1 = item.context || {};
+      const m0 = item.metadata || {};
+      // 盡可能從多個別名抓值（避免大小寫或不同欄位名）
+      const pick = (obj, keys, dflt='') => {
+        for (const k of keys) {
+          if (obj && obj[k] != null && String(obj[k]).trim() !== '') return String(obj[k]).trim();
+        }
+        return dflt;
+      };
+      const name = pick(c0, ['name','Name','customer_name','fullname'], null) ||
+                   pick(c1, ['name','Name','customer_name','fullname'], null) ||
+                   pick(m0, ['name','Name','customer_name','fullname'], '(未填)');
+      const phone = pick(c0, ['phone','Phone','phone_number','mobile','tel'], '') ||
+                    pick(c1, ['phone','Phone','phone_number','mobile','tel'], '') ||
+                    pick(m0, ['phone','Phone','phone_number','mobile','tel'], '');
+      const service = pick(c0, ['service','Service','service_category','service_item','select_service'], '') ||
+                      pick(c1, ['service','Service','service_category','service_item','select_service'], '') ||
+                      pick(m0, ['service','Service','service_category','service_item','select_service'], '');
       tr.innerHTML = `
         <td>${name}</td>
         <td>${phone}</td>
