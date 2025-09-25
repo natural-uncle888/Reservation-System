@@ -3,7 +3,6 @@
 function __pick(obj, keys){ for (const k of keys){ if (obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; }
 function buildContext(p){
   const ctxPairs = {
-  email_html_url: emailHtmlUrl,
     // 基本
     name: __pick(p, ["customer_name","name","姓名"]),
     phone: __pick(p, ["phone","phone_number","mobile","tel","電話"]),
@@ -226,47 +225,9 @@ exports.handler = async (event) => {
       const public_id = makePublicId(p) + "_booking.pdf";
       const timestamp = Math.floor(Date.now()/1000);
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
-      // === Upload Email HTML to Cloudinary (raw .html) ===
-      // Build HTML now (without PDF link), and upload it with basic context so Admin list won't be blank.
-      const ctxBasePairs = {
-        name: p.customer_name || p.name || "",
-        phone: p.phone || "",
-        service: p.service_category || p.service_item || p.select_service || "",
-        address: p.address || "",
-        area: p.area || p.city || p.region || "",
-        source: p.subject || p.page_title || p.page || ""
-      };
-      const htmlContext = Object.entries(ctxBasePairs)
-        .filter(([k,v]) => v && String(v).trim() !== "")
-        .map(([k,v]) => `${k}=${String(v).replace(/\|/g, "/")}`)
-        .join("|");
-
-      const emailHtmlForStore = buildEmailHtml(p, "");
-      const htmlPublicId = makePublicId(p) + "_booking.html";
-      const htmlTimestamp = Math.floor(Date.now()/1000);
-      const htmlSignParams = htmlContext ? { public_id: htmlPublicId, timestamp: htmlTimestamp, tags, context: htmlContext } : { public_id: htmlPublicId, timestamp: htmlTimestamp, tags };
-      const htmlSignature = cloudinarySign(htmlSignParams, apiSecret);
-      const htmlDataURI = `data:text/html;base64,${Buffer.from(emailHtmlForStore, "utf8").toString("base64")}`;
-      const htmlUp = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
-        method: "POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(Object.assign({
-          file: htmlDataURI,
-          public_id: htmlPublicId,
-          timestamp: htmlTimestamp,
-          api_key: apiKey,
-          signature: htmlSignature,
-          tags
-        }, htmlContext ? { context: htmlContext } : {}))
-      });
-      const htmlJ = await htmlUp.json();
-      if (!htmlUp.ok) throw new Error("Cloudinary HTML upload failed: " + JSON.stringify(htmlJ));
-      const emailHtmlUrl = htmlJ.secure_url || htmlJ.url || "";
-
 
 // 構建 context（摘要欄位：name/phone/service/address/area/source）
 const ctxPairs = {
-  email_html_url: emailHtmlUrl,
   name: p.customer_name || p.name || "",
   phone: p.phone || "",
   service: p.service_category || p.service_item || p.select_service || "",
