@@ -1,3 +1,43 @@
+
+// ==== Injected by automation: buildContext (expand all booking fields into Cloudinary context) ====
+function __pick(obj, keys){ for (const k of keys){ if (obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; }
+function buildContext(p){
+  const ctxPairs = {
+    // 基本
+    name: __pick(p, ["customer_name","name","姓名"]),
+    phone: __pick(p, ["phone","phone_number","mobile","tel","電話"]),
+    service: __pick(p, ["service","service_category","service_item","select_service","服務"]),
+    address: __pick(p, ["address","地址"]),
+    area: __pick(p, ["area","city","region","地區"]),
+    source: __pick(p, ["subject","page_title","page","來源"]),
+    // 服務細節
+    ac_type: __pick(p, ["ac_type","冷氣類型"]),
+    count: __pick(p, ["count","quantity","清洗數量","ac_count"]),
+    floor: __pick(p, ["floor","樓層","室內機所在樓層","indoor_floor"]),
+    brand: __pick(p, ["brand","冷氣品牌","ac_brand"]),
+    is_inverter: __pick(p, ["is_inverter","變頻","是否為變頻機型系列"]),
+    // 加購/其他
+    antifungus: __pick(p, ["antifungus","冷氣防霉抗菌處理","anti_mold"]),
+    ozone: __pick(p, ["ozone","臭氧殺菌消毒"]),
+    extra_service: __pick(p, ["extra_service","其他清洗服務"]),
+    // 聯絡
+    line_id: __pick(p, ["line_id","line","LINE","聯絡Line"]),
+    fb_name: __pick(p, ["fb_name","facebook","FB","LINE & Facebook 姓名"]),
+    // 預約資訊
+    date: __pick(p, ["date","預約日期"]),
+    timeslot: __pick(p, ["timeslot","預約時段"]),
+    note: __pick(p, ["note","備註"]),
+    contact_time_preference: __pick(p, ["contact_time_preference","聯絡時間"]),
+  };
+  // 轉為 Cloudinary context（key=value|...），避免 | 造成分隔錯誤
+  const context = Object.entries(ctxPairs)
+    .filter(([k,v]) => v && String(v).trim() !== "")
+    .map(([k,v]) => `${k}=${String(v).replace(/\|/g,'/')}`)
+    .join('|');
+  return context;
+}
+// ==== /Injected buildContext ====
+
 // netlify/functions/submit.js
 // Brevo 寄信 + 中文 PDF（pdf-lib + fontkit，本地字型）+ Cloudinary 上傳
 // 必填環境：BREVO_API_KEY, (EMAIL_FROM 或 BREVO_SENDER_ID), EMAIL_TO
