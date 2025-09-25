@@ -207,7 +207,7 @@ const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
       const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.assign({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags }, context ? { context } : {}))
+        body: JSON.stringify(Object.assign({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags, access_mode: 'public' }, context ? { context } : {}))
       });
       if (up.ok){
         const result = await up.json();
