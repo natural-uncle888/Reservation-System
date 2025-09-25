@@ -1,9 +1,10 @@
 // netlify/functions/signed-pdf.js
-// 產生短效簽名 URL 以開啟私有 PDF（raw/authenticated/private）
+// 強韌版：為私有 PDF 產生短效簽名 URL
 // 策略：
-// 1) 嘗試 private_download（public_id 無副檔名，format 單獨帶）
-// 2) 若失敗，再試 download（某些設定下可用）
-// 3) 若仍失敗，回傳完整錯誤與參數，方便排查
+//  - 先以 item.type（或 upload）呼叫 private_download
+//  - 若失敗，再依序嘗試 type=authenticated / private
+//  - 最後才嘗試 download 端點
+//  - 回傳詳細錯誤，方便定位
 const crypto = require("crypto");
 
 function verify(token, secret){
@@ -27,8 +28,8 @@ function signParams(obj, apiSecret){
   return crypto.createHash("sha1").update(toSign).digest("hex");
 }
 
-async function callPrivateDownload({ cloud, apiKey, apiSecret, public_id, format, resource_type, type }){
-  const timestamp = Math.floor(Date.now()/1000); // 使用當前時間（Cloudinary 建議）
+async function doPrivateDownload({ cloud, apiKey, apiSecret, public_id, format, resource_type, type }){
+  const timestamp = Math.floor(Date.now()/1000);
   const params = { public_id, format, resource_type, type, timestamp, api_key: apiKey };
   const signature = signParams(params, apiSecret);
   const form = new URLSearchParams();
@@ -37,11 +38,10 @@ async function callPrivateDownload({ cloud, apiKey, apiSecret, public_id, format
   const url = `https://api.cloudinary.com/v1_1/${cloud}/private_download`;
   const resp = await fetch(url, { method: "POST", headers: { "Content-Type":"application/x-www-form-urlencoded" }, body: form.toString() });
   const text = await resp.text();
-  return { ok: resp.ok, status: resp.status, text, url };
+  return { ok: resp.ok, status: resp.status, text, url, type };
 }
 
-async function callDownload({ cloud, apiKey, apiSecret, public_id, format, resource_type, type }){
-  // download API 偏向公開/私有檔案的下載網址生成；某些情況無效，但我們嘗試一次
+async function doDownload({ cloud, apiKey, apiSecret, public_id, format, resource_type, type }){
   const timestamp = Math.floor(Date.now()/1000);
   const params = { public_id, format, resource_type, type, timestamp, api_key: apiKey };
   const signature = signParams(params, apiSecret);
@@ -51,7 +51,7 @@ async function callDownload({ cloud, apiKey, apiSecret, public_id, format, resou
   const url = `https://api.cloudinary.com/v1_1/${cloud}/download`;
   const resp = await fetch(url, { method: "POST", headers: { "Content-Type":"application/x-www-form-urlencoded" }, body: form.toString() });
   const text = await resp.text();
-  return { ok: resp.ok, status: resp.status, text, url };
+  return { ok: resp.ok, status: resp.status, text, url, type };
 }
 
 exports.handler = async (event) => {
@@ -70,45 +70,41 @@ exports.handler = async (event) => {
     let public_id = String(body.public_id || "").trim();
     let format = body.format ? String(body.format).trim() : "";
     const resource_type = (body.resource_type ? String(body.resource_type) : "raw").trim();
-    const type = (body.type ? String(body.type) : "upload").trim();
+    let itemType = (body.type ? String(body.type) : "upload").trim();
 
     if (!public_id) {
       return { statusCode: 400, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ error: "public_id required" }) };
     }
-    // 若 public_id 含副檔名，拆開
+    // public_id 若含副檔名則拆開
     const m = public_id.match(/^(.*)\.([a-z0-9]+)$/i);
     if (m && !format) { public_id = m[1]; format = m[2]; }
     if (!format) format = "pdf";
 
-    const ctx = { cloud: CLOUDINARY_CLOUD_NAME, apiKey: CLOUDINARY_API_KEY, apiSecret: CLOUDINARY_API_SECRET, public_id, format, resource_type, type };
+    const ctx = { cloud: CLOUDINARY_CLOUD_NAME, apiKey: CLOUDINARY_API_KEY, apiSecret: CLOUDINARY_API_SECRET, public_id, format, resource_type };
 
-    // 1) private_download（推薦）
-    const a = await callPrivateDownload(ctx);
-    if (a.ok) {
-      try { const j = JSON.parse(a.text); if (j.url) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: j.url }) }; } catch {}
-      const m1 = a.text.match(/https?:\/\/\S+/); if (m1) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: m1[0] }) };
+    // 依序嘗試的 type
+    const typesToTry = Array.from(new Set([itemType, "authenticated", "private", "upload"])).filter(Boolean);
+    const attempts = [];
+    for (const tp of typesToTry) {
+      const a = await doPrivateDownload({ ...ctx, type: tp });
+      attempts.push({ step: `private_download:${tp}`, status: a.status, body: a.text.slice(0,300) });
+      if (a.ok) {
+        try { const j = JSON.parse(a.text); if (j.url) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: j.url }) }; } catch {}
+        const m1 = a.text.match(/https?:\/\/\S+/); if (m1) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: m1[0] }) };
+      }
     }
 
-    // 2) download（備援）
-    const b = await callDownload(ctx);
-    if (b.ok) {
-      try { const j = JSON.parse(b.text); if (j.url) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: j.url }) }; } catch {}
-      const m2 = b.text.match(/https?:\/\/\S+/); if (m2) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: m2[0] }) };
+    // 最後嘗試 download
+    for (const tp of typesToTry) {
+      const b = await doDownload({ ...ctx, type: tp });
+      attempts.push({ step: `download:${tp}`, status: b.status, body: b.text.slice(0,300) });
+      if (b.ok) {
+        try { const j = JSON.parse(b.text); if (j.url) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: j.url }) }; } catch {}
+        const m2 = b.text.match(/https?:\/\/\S+/); if (m2) return { statusCode: 200, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ url: m2[0] }) };
+      }
     }
 
-    // 都失敗 → 回傳詳細錯誤與參數，方便排查
-    return {
-      statusCode: 502,
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify({
-        error: "signed url failed",
-        tried: {
-          private_download: { status: a.status, body: a.text.slice(0,300) },
-          download: { status: b.status, body: b.text.slice(0,300) }
-        },
-        params: { public_id, format, resource_type, type }
-      })
-    };
+    return { statusCode: 502, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ error: "signed url failed", params: { public_id, format, resource_type, typesTried: typesToTry }, attempts }) };
   } catch (e) {
     return { statusCode: 500, headers: { "Content-Type":"application/json" }, body: JSON.stringify({ error: e && e.message ? e.message : String(e) }) };
   }
