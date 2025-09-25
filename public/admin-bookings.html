@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>預約資料管理（Cloudinary）</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
   <style>
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
     header{padding:26px 20px 8px}
@@ -42,7 +42,7 @@
 <body>
   <header>
     <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
+    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「」。</div>
   </header>
   <div class="wrap">
     <div class="row">
@@ -65,8 +65,7 @@
         <h3 id="dv-title">詳情</h3>
         <div id="preview" style="min-height:120px;"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnPaste" class="btn">貼上信件內容並回填</button>
-        </div>
+</div>
         <details style="margin-top:10px;">
           <summary>context / metadata</summary>
           <pre id="ctxpre" style="background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px;overflow:auto;"></pre>
@@ -75,20 +74,7 @@
     </div>
   </div>
 
-  <div id="emailModal" class="email-modal">
-    <div class="email-dialog">
-      <h3>貼上信件內容 → 解析並回填</h3>
-      <div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
-      <textarea id="emailPaste"></textarea>
-      <div class="actions">
-        <button id="emailCancel" class="btn">取消</button>
-        <button id="emailApply" class="btn primary">解析並回填</button>
-      </div>
-      <div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
-    </div>
-  </div>
-
-<script>
+  <script>
 const API_LIST = "/.netlify/functions/list-bookings";
 const API_LOGIN = "/.netlify/functions/auth-login";
 const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
@@ -168,10 +154,91 @@ async function doSearch(){
 }
 
 function openDetails(item){
+  
+  
   CURRENT_ITEM = item;
+  const ctx = normalizeContext(item);
   $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
   $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
-  renderFullContent(item, $("#preview"));
+
+  if (ctx.email_html_url) {
+    // Show the original email HTML within an iframe
+    $("#preview").innerHTML = `<div style="height:70vh;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
+      <iframe src="${ctx.email_html_url}" style="width:100%;height:100%;border:0"></iframe>
+    </div>`;
+    return;
+  }
+
+  // Fallback: Build Brevo-style preview from context (if no html stored)
+  const tr = (label, val) => (val===undefined||val===null||String(val).trim()==="") ? "" : 
+    `<tr><td style="padding:6px 10px;border:1px solid #e5e7eb;background:#f9fafb;width:36%">${label}</td>
+         <td style="padding:6px 10px;border:1px solid #e5e7eb;">${Array.isArray(val)?val.join("、"):val}</td></tr>`;
+
+  const section = (title, rowsHtml) => !rowsHtml.trim() ? "" :
+    `<div style="margin:16px 0 18px">
+       <div style="font-weight:600;margin:0 0 6px">${title}</div>
+       <table style="border-collapse:collapse;width:100%;font-size:14px">${rowsHtml}</table>
+     </div>`;
+
+  const base = [
+    tr("顧客姓名", ctx.name),
+    tr("聯繫電話", ctx.phone),
+    tr("清洗保養地址", ctx.address),
+    tr("地區/城市", ctx.area),
+    tr("來源頁面", ctx.source),
+  ].join("");
+
+  const service = [
+    tr("服務類別", ctx.service),
+    tr("冷氣類型", ctx.ac_type),
+    tr("清洗數量", ctx.count),
+    tr("室內機所在樓層", ctx.floor || ctx.indoor_floor),
+    tr("室外機所在樓層", ctx.outdoor_floor),
+    tr("品牌", ctx.brand),
+    tr("使用年限", ctx.years),
+    tr("異常症狀", ctx.symptom),
+  ].join("");
+
+  const addon = [
+    tr("防霉抗菌鍍膜", ctx.nano_shield || ctx.antimold || ctx.mold_proofing),
+    tr("室內機照護", ctx.indoor_service),
+    tr("風管/天花機加購項目", ctx.duct_service),
+  ].join("");
+
+  const otherSvc = [
+    tr("直立式洗衣機台數", ctx.washer_count),
+    tr("洗衣機樓層", ctx.washer_floor),
+    tr("自來水管清洗", ctx.pipe_service),
+    tr("水管清洗原因", ctx.pipe_reason),
+    tr("水塔清洗台數", ctx.tank_count),
+  ].join("");
+
+  const contact = [
+    tr("與我們聯繫方式", ctx.contact_method),
+    tr("LINE 或 Facebook 名稱", ctx.line_or_fb),
+  ].join("");
+
+  const booking = [
+    tr("可安排時段", ctx.timeslot),
+    tr("方便聯繫時間", ctx.contact_preference),
+    tr("居住地型態", ctx.house_type),
+    tr("其他備註說明", ctx.note),
+  ].join("");
+
+  const pdf = item.secure_url ? `<p style="margin:10px 0 0">PDF 檔案連結：<a href="${item.secure_url}" target="_blank" rel="noreferrer">${item.secure_url}</a></p>` : "";
+
+  const html = `<div style="font-family:Segoe UI,Arial,sans-serif;max-width:880px;margin:0 auto;padding:20px;background:#ffffff;color:#111827;">
+    ${section("基本資訊", base)}
+    ${section("服務資訊", service)}
+    ${section("防霉・消毒｜加購服務專區", addon)}
+    ${section("其他清洗服務", otherSvc)}
+    ${section("聯繫方式", contact)}
+    ${section("預約資訊", booking)}
+    ${pdf}
+  </div>`;
+
+  $("#preview").innerHTML = html;
+
 }
 
 $("#btnSearch").onclick = () => doSearch();
@@ -190,12 +257,7 @@ $("#btnCsv").onclick = () => {
 // paste-from-email modal
 $("#btnPaste").onclick = ()=>{
   if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
-  $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
 };
-$("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
-$("#emailApply").onclick = async ()=>{
-  const text = $("#emailPaste").value;
-  const msg = $("#emailMsg");
   const lines = String(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
   const kvs = {};
   for (const ln of lines){
