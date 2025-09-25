@@ -73,6 +73,7 @@ exports.handler = async (event, context) => {
       expression,
       max_results,
       sort_by: [{ created_at: "desc" }],
+      with_field: ["context","metadata"],
     };
     if (cursor) payload.next_cursor = cursor;
 
