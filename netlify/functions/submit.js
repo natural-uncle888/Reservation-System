@@ -178,7 +178,6 @@ exports.handler = async (event) => {
     // 先上傳 Cloudinary，取得 PDF URL
     let pdfUrl = "";
     const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
-    const access_mode = 'public';
     const apiKey = nb(process.env.CLOUDINARY_API_KEY);
     const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
     if (cloud && apiKey && apiSecret){
@@ -202,13 +201,13 @@ const context = Object.entries(ctxPairs)
   .join("|");
 
 // 產生簽名（需包含 context）
-const signParams = context ? { public_id, timestamp, tags, context, access_mode } : { public_id, timestamp, tags, access_mode };
+const signParams = context ? { public_id, timestamp, tags, context } : { public_id, timestamp, tags };
 const signature = cloudinarySign(signParams, apiSecret);
 const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
       const up = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.assign({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags, access_mode }, context ? { context } : {}))
+        body: JSON.stringify(Object.assign({ file: fileDataURI, public_id, api_key: apiKey, timestamp, signature, tags }, context ? { context } : {}))
       });
       if (up.ok){
         const result = await up.json();
