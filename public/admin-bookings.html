@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>預約資料管理（Cloudinary）</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
   <link rel="stylesheet" href="/mobile.css" />
   <style>
     :root{--gap:12px}
@@ -71,15 +71,10 @@
     <table class="table" id="tbl" aria-label="Bookings table">
       <thead>
         <tr>
-          <th>public_id</th>
-          <th>建立時間</th>
-          <th>大小</th>
-          <th>類型</th>
           <th>姓名</th>
           <th>電話</th>
           <th>服務</th>
-          <th>檔案</th>
-          <th>原檔</th>
+          <th>建立時間</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -156,19 +151,14 @@
     function row(item){
       const tr = document.createElement('tr');
       const ctx = (item.context && item.context.custom) ? item.context.custom : {};
-      const name = ctx.name || '';
+      const name = ctx.name || '(未填)';
       const phone = ctx.phone || '';
       const service = ctx.service || '';
       tr.innerHTML = `
-        <td class="nowrap"><code>${item.public_id}</code></td>
-        <td>${new Date(item.created_at).toLocaleString()}</td>
-        <td>${fmtBytes(item.bytes)}</td>
-        <td>${(item.resource_type || '')}${item.format? ' / '+item.format: ''}</td>
         <td>${name}</td>
         <td>${phone}</td>
         <td>${service}</td>
-        <td><a href="${item.secure_url || item.url}" target="_blank" onclick="event.stopPropagation()">預覽</a></td>
-        <td><a href="${item.secure_url || item.url}" target="_blank" onclick="event.stopPropagation()">下載/查看</a></td>
+        <td>${new Date(item.created_at).toLocaleString()}</td>
       `;
       tr.addEventListener('click', () => openDetails(item));
       return tr;
