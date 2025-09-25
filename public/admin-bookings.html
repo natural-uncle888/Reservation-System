@@ -138,6 +138,31 @@
     let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
     let cursor = null, prevStack = [], page = 1, lastItems = [];
 
+    
+    async function getSignedPdfUrl(item){
+      const payload = {
+        public_id: item.public_id,
+        format: item.format || "pdf",
+        resource_type: item.resource_type || "raw",
+        type: item.type || "upload",
+        ttl: 900
+      };
+      const r = await fetch("/.netlify/functions/signed-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": ADMIN_TOKEN
+        },
+        body: JSON.stringify(payload)
+      });
+      if(!r.ok){
+        const t = await r.text();
+        throw new Error(t);
+      }
+      const j = await r.json();
+      return j.url;
+    }
+
     function fmtBytes(b){
       if(!b && b!==0) return "";
       const u=['B','KB','MB','GB'];
@@ -269,11 +294,11 @@
         img.style.maxWidth = "100%";
         pv.appendChild(img);
       } else if (/\.(pdf)$/i.test(url)) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.textContent = "開啟 PDF";
-        a.target = "_blank";
-        pv.appendChild(a);
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.textContent = '開啟 PDF';
+        btn.onclick = (e)=>{ e.stopPropagation(); openPdfViaFunction(item); };
+        pv.appendChild(btn);
       } else {
         const a = document.createElement('a');
         a.href = url;
@@ -377,6 +402,34 @@
         msg.textContent = "登入失敗：" + (e && e.message ? e.message : e);
         return false;
       }
+    }
+
+    
+    async function openPdfViaFunction(item){
+      const publicId = item.public_id;
+      const u = new URL("/.netlify/functions/get-pdf-url", location.origin);
+      u.searchParams.set("public_id", publicId);
+      const r = await fetch(u, { headers: { "x-admin-token": ADMIN_TOKEN } });
+      if (!r.ok){
+        const t = await r.text();
+        alert("取得 PDF 連結失敗：" + t);
+        return;
+      }
+      const { url } = await r.json();
+      window.open(url, "_blank");
+    } 
+
+    
+    async function getPdfUrl(item){
+      const url = new URL("/.netlify/functions/pdf-url", location.origin);
+      url.searchParams.set("public_id", item.public_id);
+      url.searchParams.set("resource_type", item.resource_type || "raw");
+      if (item.format) url.searchParams.set("format", item.format);
+      if (item.type) url.searchParams.set("type", item.type);
+      const r = await fetch(url, { headers: { "x-admin-token": ADMIN_TOKEN } });
+      if(!r.ok){ throw new Error(await r.text()); }
+      const j = await r.json();
+      return j.url;
     }
 
     // 初次載入（需登入）
