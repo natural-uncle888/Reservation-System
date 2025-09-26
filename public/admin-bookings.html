@@ -235,42 +235,10 @@ async function doSearch(){
   $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
 }
 
-function openDetails(item) {
-  try {
-    CURRENT_ITEM = item;
-    $("#dv-title").textContent =
-      (item.public_id || "") + (item.format ? "." + item.format : "");
-    $("#ctxpre").textContent = JSON.stringify(
-      { context: item.context ?? null, metadata: item.metadata ?? null },
-      null,
-      2
-    );
-    // 原本的詳情渲染（依賴 #preview）
-    renderFullContent(item, $("#preview"));
-  } catch (e) {
-    console.warn("renderFullContent failed:", e);
-  }
-
-  try {
-    ensureEmailIframe();
-    var ctx = normalizeContext(item) || {};
-    var iframe = document.getElementById("emailPreview");
-    if (!iframe) return;
-
-    if (ctx.email_html_url) {
-      iframe.removeAttribute("srcdoc");
-      iframe.src = ctx.email_html_url;
-    } else if (ctx.email_html) {
-      renderEmailToRightPane(ctx.email_html);
-    } else if (item && item.context && (item.context.raw || item.context.email_text)) {
-      renderEmailToRightPane(item.context.raw || item.context.email_text);
-    } else {
-      renderEmailToRightPane("（此筆沒有 email 內容可預覽）");
-    }
-  } catch (e) {
-    console.warn("email preview failed:", e);
-  }
-}, null, 2);
+function openDetails(item){
+  CURRENT_ITEM = item;
+  $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
+  $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
   renderFullContent(item, $("#preview"));
 }
 
@@ -334,58 +302,6 @@ $("#emailApply").onclick = async ()=>{
 };
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
-
-
-// === Error overlay (debug) ===
-(function(){
-  if (window.__errorOverlayInstalled) return; window.__errorOverlayInstalled = true;
-  function show(msg){
-    try{
-      var el = document.getElementById("__err_overlay__");
-      if (!el){
-        el = document.createElement("div"); el.id="__err_overlay__";
-        el.style.cssText="position:fixed;left:10px;bottom:10px;right:10px;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font:13px/1.4 ui-sans-serif,system-ui;z-index:99999;max-height:30vh;overflow:auto;";
-        document.body.appendChild(el);
-      }
-      var p = document.createElement("div");
-      p.textContent = "[Error] " + msg;
-      el.appendChild(p);
-    }catch(e){}
-  }
-  window.addEventListener("error", function(e){ show(e.message || String(e.error||e)); });
-  window.addEventListener("unhandledrejection", function(e){ show((e.reason && (e.reason.message||e.reason)) || "unhandled rejection"); });
-})();
-
-// === Email preview helpers ===
-function ensureEmailIframe(){
-  var host = document.getElementById('emailPreviewHost');
-  if (!host) {
-    var prev = document.getElementById('preview');
-    if (prev && prev.insertAdjacentElement){
-      host = document.createElement('div');
-      host.id = 'emailPreviewHost';
-      host.className = 'panel';
-      host.innerHTML = '<iframe id="emailPreview" sandbox="" style="width:100%;height:70vh;border:0;border-radius:12px;background:#fff;"></iframe>';
-      prev.insertAdjacentElement('afterend', host);
-    }
-  }
-  return document.getElementById('emailPreview');
-}
-
-function renderEmailToRightPane(htmlOrText) {
-  try {
-    var iframe = document.getElementById('emailPreview');
-    if (!iframe) return;
-    iframe.removeAttribute('src');
-    var isHtml = /<\/?[a-z][\s\S]*>/i.test(htmlOrText || "");
-    var html = isHtml
-      ? String(htmlOrText||"")
-      : '<pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;padding:16px;margin:0;">' +
-        String(htmlOrText||"").replace(/[&<>]/g,function(s){return({"&":"&amp;","<":"&lt;",">":"&gt;"}[s];)}) +
-        '</pre>';
-    iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'</body></html>';
-  } catch(e){ console.warn("renderEmailToRightPane err", e); }
-}
 </script>
 </body>
 </html>
