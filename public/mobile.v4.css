@@ -385,3 +385,30 @@ body { padding-bottom: 88px; }
 .page-ac-booking .group > label {
   margin: 0 !important;
 }
+
+
+/* Force two-column for AC type options */
+#ac-type {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+#ac-type > label { margin: 0 !important; }
+
+
+/* === Mobile override: AC type stacks vertically on small screens === */
+@media (max-width: 640px){
+  #ac-type {
+    grid-template-columns: 1fr !important; /* revert to single column on phones */
+  }
+  #ac-type img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+  #ac-type > * {
+    min-width: 0; /* prevent overflow */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+}
