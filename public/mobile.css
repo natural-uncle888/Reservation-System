@@ -398,3 +398,16 @@ table {
 body * {
   margin-left: clamp(-0.01px, 0vw, 0px);
 }
+
+
+/* === Force two-column card layout for contact.html sections === */
+#contact-methods, #residence-type, #contact-time {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+#contact-methods > label,
+#residence-type > label,
+#contact-time > label {
+  margin: 0 !important;
+}
