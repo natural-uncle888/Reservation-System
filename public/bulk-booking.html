@@ -23,4 +23,5 @@ function save(part){try{const prev=JSON.parse(localStorage.getItem(KEY)||'{}');l
 function collect(root=document){const out={service_category:'大量清洗需求'};$$('input[name],textarea[name],select[name]',root).forEach(el=>{const n=el.name;if(!n)return;const v=(el.value||'').trim();if(v)out[n]=v;});return out;}
 document.addEventListener('input',()=>save(collect()));['back','next'].forEach(id=>{const a=document.getElementById(id);if(a)a.addEventListener('click',()=>save(collect()),{capture:true});});
 window.debugBulk=()=>collect();window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');})();</script>
+  <script src="ux.js"></script>
 </body></html>
