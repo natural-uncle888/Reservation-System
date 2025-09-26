@@ -339,3 +339,62 @@ body { padding-bottom: 88px; }
 html, body { margin:0; padding:0; overflow-x:hidden; }
 .wrap, .container, main { width:100%; max-width:1024px; margin:0 auto; box-sizing:border-box; }
 .grid, .section, .card { width:100%; box-sizing:border-box; }
+
+
+/* === Overflow & Right-Shift Fix (mobile-first) === */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; overflow-x: hidden; }
+
+.wrap, .container, main {
+  width: 100% !important;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box !important;
+}
+
+.grid, .section, .card {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+img, video, canvas, iframe {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+input, select, textarea, button {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Sticky bar should not cause horizontal overflow */
+.nav, .nav.sticky {
+  width: 100% !important;
+  max-width: 100% !important;
+  left: 0; right: 0;
+  box-sizing: border-box;
+}
+.nav > * {
+  min-width: 0; /* allow buttons to shrink within flex container */
+}
+
+/* Prevent accidental negative margins from pushing layout */
+body * {
+  margin-left: clamp(-0.01px, 0vw, 0px);
+}
