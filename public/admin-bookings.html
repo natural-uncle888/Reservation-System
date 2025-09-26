@@ -240,6 +240,8 @@ function openDetails(item){
   $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
   $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
   renderFullContent(item, $("#preview"));
+}, null, 2);
+  renderFullContent(item, $("#preview"));
 }
 
 $("#btnSearch").onclick = () => doSearch();
