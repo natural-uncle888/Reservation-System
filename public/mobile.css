@@ -411,3 +411,16 @@ body * {
 #contact-time > label {
   margin: 0 !important;
 }
+
+
+/* === Two-column cards on contact.html === */
+#contact-method, #residence-type, #contact-time {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+#contact-method > label,
+#residence-type > label,
+#contact-time > label {
+  margin: 0 !important;
+}
