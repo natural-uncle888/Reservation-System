@@ -272,6 +272,44 @@ const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
       body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
     });
     if (!mailRes.ok) throw new Error(`Brevo ${mailRes.status}: ${await mailRes.text()}`);
+    // Parse Brevo response JSON to capture messageId
+    let brevoJson = null;
+    try { brevoJson = await mailRes.json(); } catch(_e){}
+    const brevoMsgId = brevoJson && (brevoJson.messageId || brevoJson["message-id"]);
+    if (brevoJson) console.log("Brevo Response:", brevoJson);
+    if (brevoMsgId) console.log("Brevo Message ID:", brevoMsgId);
+
+    // Write messageId back into Cloudinary context (non-fatal if fails)
+    try {
+      if (brevoMsgId && cloud && apiKey && apiSecret && public_id) {
+        const ts_ctx = Math.floor(Date.now() / 1000);
+        const parts_ctx = (context || "").split("|").filter(Boolean);
+        for (let i = parts_ctx.length - 1; i >= 0; i--) {
+          if (parts_ctx[i].startsWith("brevo_msg_id=")) parts_ctx.splice(i, 1);
+        }
+        parts_ctx.push("brevo_msg_id=" + String(brevoMsgId).replace(/\|/g, "/"));
+        const newCtx = parts_ctx.join("|");
+        const signParamsCtx = { public_id, timestamp: ts_ctx, tags, context: newCtx };
+        const sigCtx = cloudinarySign(signParamsCtx, apiSecret);
+        await fetch(`https://api.cloudinary.com/v1_1/${cloud}/raw/upload`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            file: fileDataURI,
+            public_id,
+            api_key: apiKey,
+            timestamp: ts_ctx,
+            signature: sigCtx,
+            tags,
+            context: newCtx
+          })
+        });
+        console.log('Updated Cloudinary context with brevo_msg_id');
+      }
+    } catch (e) {
+      console.log('Failed to update brevo_msg_id to Cloudinary context:', e && e.message ? e.message : String(e));
+    }
+
 
     return { statusCode: 200, body: JSON.stringify({ ok:true, email:"sent", pdf_url: pdfUrl }) };
   }catch(err){
