@@ -159,8 +159,8 @@
     try{
       // makeProgress removed
       makeStickyCTA();
-      injectSaveBanner();
-      restoreFields();
+      // injectSaveBanner removed
+      // restoreFields removed
       attachValidation();
       // confirmBeforeSubmit removed
       datalists();

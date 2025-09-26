@@ -236,11 +236,7 @@ input:checked + label.option{background:var(--accent-strong);border-color:var(--
 input, select, textarea{min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
 label{display:block;margin:8px 0 4px 0;color:var(--ink-weak)}
 
-/* Save banner (optional) */
-.autosave-banner{
-  display:none;margin:6px 0;padding:8px 10px;border:1px solid #bbf7d0;background:#ecfccb;border-radius:10px;color:#166534
-}
-.autosave-banner.show{display:block}
+/* autosave banner removed */
 
 
 /* === Button Style Fix === */
