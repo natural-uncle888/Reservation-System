@@ -331,7 +331,44 @@ $("#emailApply").onclick = async ()=>{
         : '<pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;padding:16px;margin:0;">'
           + String(htmlOrText||"").replace(/[&<>]/g, function(s){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[s]; })
           + '</pre>';
-      iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'</body></html>';
+      iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'
+<script>
+function __buildEmailHtmlFromContext(ctx){
+  function nb(v){ return (v==null? "": String(v).trim()); }
+  function tr(k,v){ if(!nb(v)) return ""; return '<tr><th style="text-align:left;width:160px;padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+k+'</th><td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+nb(v)+'</td></tr>'; }
+  function section(title, rows){
+    if(!rows || !rows.trim()) return "";
+    return '<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">'
+      + '<div style="font-weight:700;margin-bottom:8px;color:#111827">'+title+'</div>'
+      + '<table style="width:100%;border-collapse:collapse">'+rows+'</table></div>';
+  }
+  var rowsBasic = [
+    tr("姓名", ctx.name||ctx.customer_name), tr("電話", ctx.phone||ctx.phone_number||ctx.tel),
+    tr("地址", ctx.address), tr("地區", ctx.area||ctx.city||ctx.region),
+    tr("來源", ctx.source||ctx.page_title||ctx.page),
+    tr("預約日期", ctx.date), tr("預約時段", ctx.timeslot||ctx.time)
+  ].join("");
+
+  var rowsSvc = [
+    tr("服務類別", ctx.service||ctx.service_category||ctx.service_item),
+    tr("冷氣類型", ctx.ac_type), tr("清洗數量", ctx.count||ctx.ac_count),
+    tr("室內機所在樓層", ctx.floor||ctx.indoor_floor), tr("冷氣品牌", ctx.ac_brand)
+  ].join("");
+
+  var rowsOther = [ tr("備註", ctx.note) ].join("");
+
+  var html = '<!doctype html><html><head><meta charset="utf-8"></head>'
+    + '<body style="background:#f8fafc;padding:16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">'
+    + '<h2 style="margin:0 0 10px;color:#111827">寄出內容預覽（依 context 組成）</h2>'
+    + section("基本資料", rowsBasic)
+    + section("服務內容", rowsSvc)
+    + section("其他", rowsOther)
+    + '</body></html>';
+  return html;
+}
+</script>
+
+</body></html>';
     }catch(e){ console.warn("renderEmailToRightPane err", e); }
   }
   var orig = window.openDetails;
@@ -340,7 +377,8 @@ $("#emailApply").onclick = async ()=>{
       try { orig(item); } catch(e){ console.warn("orig openDetails failed", e); }
       try {
         ensureEmailIframe();
-        var ctx = (typeof normalizeContext==="function") ? (normalizeContext(item) || {}) : (item && item.context) || {};
+        if (typeof window.CURRENT_ITEM === 'undefined' || !window.CURRENT_ITEM) { window.CURRENT_ITEM = item || null; }
+        var ctx = {}; try { ctx = (item && typeof normalizeContext==='function') ? (normalizeContext(item) || {}) : ((item && item.context) || {}); } catch(_e){ ctx = (item && item.context) || {}; }
         var iframe = document.getElementById('emailPreview');
         if (!iframe) return;
         if (ctx.email_html_url){
@@ -351,12 +389,51 @@ $("#emailApply").onclick = async ()=>{
         } else if (item && item.context && (item.context.raw || item.context.email_text)){
           renderEmailToRightPane(item.context.raw || item.context.email_text);
         } else {
-          renderEmailToRightPane('（此筆沒有 email 內容可預覽）');
+          var autoHtml = __buildEmailHtmlFromContext(ctx||{});
+          var iframe = document.getElementById('emailPreview');
+          if (iframe){ iframe.removeAttribute('src'); iframe.srcdoc = autoHtml; }
         }
       } catch(e){ console.warn("addon openDetails failed", e); }
     };
   }
 })();
+</script>
+
+
+<script>
+function __buildEmailHtmlFromContext(ctx){
+  function nb(v){ return (v==null? "": String(v).trim()); }
+  function tr(k,v){ if(!nb(v)) return ""; return '<tr><th style="text-align:left;width:160px;padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+k+'</th><td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+nb(v)+'</td></tr>'; }
+  function section(title, rows){
+    if(!rows || !rows.trim()) return "";
+    return '<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">'
+      + '<div style="font-weight:700;margin-bottom:8px;color:#111827">'+title+'</div>'
+      + '<table style="width:100%;border-collapse:collapse">'+rows+'</table></div>';
+  }
+  var rowsBasic = [
+    tr("姓名", ctx.name||ctx.customer_name), tr("電話", ctx.phone||ctx.phone_number||ctx.tel),
+    tr("地址", ctx.address), tr("地區", ctx.area||ctx.city||ctx.region),
+    tr("來源", ctx.source||ctx.page_title||ctx.page),
+    tr("預約日期", ctx.date), tr("預約時段", ctx.timeslot||ctx.time)
+  ].join("");
+
+  var rowsSvc = [
+    tr("服務類別", ctx.service||ctx.service_category||ctx.service_item),
+    tr("冷氣類型", ctx.ac_type), tr("清洗數量", ctx.count||ctx.ac_count),
+    tr("室內機所在樓層", ctx.floor||ctx.indoor_floor), tr("冷氣品牌", ctx.ac_brand)
+  ].join("");
+
+  var rowsOther = [ tr("備註", ctx.note) ].join("");
+
+  var html = '<!doctype html><html><head><meta charset="utf-8"></head>'
+    + '<body style="background:#f8fafc;padding:16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">'
+    + '<h2 style="margin:0 0 10px;color:#111827">寄出內容預覽（依 context 組成）</h2>'
+    + section("基本資料", rowsBasic)
+    + section("服務內容", rowsSvc)
+    + section("其他", rowsOther)
+    + '</body></html>';
+  return html;
+}
 </script>
 
 </body>
