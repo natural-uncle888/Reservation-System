@@ -308,3 +308,9 @@ input[type="radio"], input[type="checkbox"] { width: 20px; height: 20px; accent-
 body { padding-bottom: 88px; }
 #preview { font-size: .95rem; }
 #preview td, #preview th { padding: 8px 10px; }
+
+
+/* === Stack schedule & preview vertically on small screens === */
+@media (max-width: 768px){
+  .grid{ grid-template-columns: 1fr !important; }
+}
