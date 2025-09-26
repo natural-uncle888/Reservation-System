@@ -412,3 +412,36 @@ body { padding-bottom: 88px; }
     overflow-wrap: anywhere;
   }
 }
+
+
+/* === Strong mobile override: AC type must stack vertically on phones === */
+@media (max-width: 640px){
+  /* increase specificity and override any previous !important */
+  html body.page-ac-booking #ac-type {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  html body.page-ac-booking #ac-type > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  /* If inner wrappers force 50% width, neutralize */
+  html body.page-ac-booking #ac-type > .col,
+  html body.page-ac-booking #ac-type > .column,
+  html body.page-ac-booking #ac-type > .option {
+    flex: 0 0 auto !important;
+  }
+  /* Prevent overflow by long text or images */
+  html body.page-ac-booking #ac-type * {
+    min-width: 0 !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  html body.page-ac-booking #ac-type img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+}
