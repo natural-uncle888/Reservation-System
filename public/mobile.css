@@ -455,3 +455,23 @@ img[alt^="範例圖片"] {
   /* Stack name label + image + input vertically to reduce squeeze */
   .row[style*="align-items:center;"] { grid-template-columns: 1fr !important; }
 }
+
+
+/* === Two-column cards on other-service.html === */
+#washer-topload-count, #washer-floor-levels, #watertank-count, #pipe-plan {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+#washer-topload-count > label,
+#washer-floor-levels > label,
+#watertank-count > label,
+#pipe-plan > label {
+  margin: 0 !important;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* make group span full width inside row layout to avoid being squeezed by left labels */
+.row > .group { grid-column: 1 / -1; }
