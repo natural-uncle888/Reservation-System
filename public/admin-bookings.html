@@ -335,7 +335,8 @@ $("#emailApply").onclick = async ()=>{
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 
-// === Lightweight error overlay for debugging ===
+
+// === Error overlay (debug) ===
 (function(){
   if (window.__errorOverlayInstalled) return; window.__errorOverlayInstalled = true;
   function show(msg){
@@ -355,21 +356,7 @@ $("#emailApply").onclick = async ()=>{
   window.addEventListener("unhandledrejection", function(e){ show((e.reason && (e.reason.message||e.reason)) || "unhandled rejection"); });
 })();
 
-
-function renderEmailToRightPane(htmlOrText) {
-  try {
-    var iframe = document.getElementById('emailPreview');
-    if (!iframe) return;
-    iframe.removeAttribute('src');
-    var isHtml = /<\/?[a-z][\s\S]*>/i.test(htmlOrText || "");
-    var html = isHtml
-      ? String(htmlOrText||"")
-      : '<pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;padding:16px;margin:0;">' +
-        String(htmlOrText||"").replace(/[&<>]/g,function(s){return({"&":"&amp;","<":"&lt;",">":"&gt;"}[s])}) +
-        '</pre>';
-    iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'</body></html>';
-  } catch(e){ console.warn("renderEmailToRightPane err", e); }
-}
+// === Email preview helpers ===
 function ensureEmailIframe(){
   var host = document.getElementById('emailPreviewHost');
   if (!host) {
@@ -385,6 +372,20 @@ function ensureEmailIframe(){
   return document.getElementById('emailPreview');
 }
 
+function renderEmailToRightPane(htmlOrText) {
+  try {
+    var iframe = document.getElementById('emailPreview');
+    if (!iframe) return;
+    iframe.removeAttribute('src');
+    var isHtml = /<\/?[a-z][\s\S]*>/i.test(htmlOrText || "");
+    var html = isHtml
+      ? String(htmlOrText||"")
+      : '<pre style="white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;padding:16px;margin:0;">' +
+        String(htmlOrText||"").replace(/[&<>]/g,function(s){return({"&":"&amp;","<":"&lt;",">":"&gt;"}[s];)}) +
+        '</pre>';
+    iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'</body></html>';
+  } catch(e){ console.warn("renderEmailToRightPane err", e); }
+}
 </script>
 </body>
 </html>
