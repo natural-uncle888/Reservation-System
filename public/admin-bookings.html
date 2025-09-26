@@ -235,32 +235,39 @@ async function doSearch(){
   $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
 }
 
-function openDetails(item){
+function openDetails(item) {
   try {
     CURRENT_ITEM = item;
-    $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
-    $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
+    $("#dv-title").textContent =
+      (item.public_id || "") + (item.format ? "." + item.format : "");
+    $("#ctxpre").textContent = JSON.stringify(
+      { context: item.context ?? null, metadata: item.metadata ?? null },
+      null,
+      2
+    );
     // 原本的詳情渲染（依賴 #preview）
     renderFullContent(item, $("#preview"));
-  } catch(e){
+  } catch (e) {
     console.warn("renderFullContent failed:", e);
   }
+
   try {
     ensureEmailIframe();
     var ctx = normalizeContext(item) || {};
-    var iframe = document.getElementById('emailPreview');
+    var iframe = document.getElementById("emailPreview");
     if (!iframe) return;
-    if (ctx.email_html_url){
-      iframe.removeAttribute('srcdoc');
+
+    if (ctx.email_html_url) {
+      iframe.removeAttribute("srcdoc");
       iframe.src = ctx.email_html_url;
-    } else if (ctx.email_html){
+    } else if (ctx.email_html) {
       renderEmailToRightPane(ctx.email_html);
     } else if (item && item.context && (item.context.raw || item.context.email_text)) {
       renderEmailToRightPane(item.context.raw || item.context.email_text);
     } else {
       renderEmailToRightPane("（此筆沒有 email 內容可預覽）");
     }
-  } catch(e){
+  } catch (e) {
     console.warn("email preview failed:", e);
   }
 }, null, 2);
@@ -366,7 +373,6 @@ function renderEmailToRightPane(htmlOrText) {
 function ensureEmailIframe(){
   var host = document.getElementById('emailPreviewHost');
   if (!host) {
-    // 插在 #preview 後面，避免破壞原本結構
     var prev = document.getElementById('preview');
     if (prev && prev.insertAdjacentElement){
       host = document.createElement('div');
