@@ -272,14 +272,26 @@ const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
       body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
     });
     if (!mailRes.ok) throw new Error(`Brevo ${mailRes.status}: ${await mailRes.text()}`);
-    // Parse Brevo response JSON to capture messageId
+    // --- Capture Brevo Message ID robustly ---
     let brevoJson = null;
-    try { brevoJson = await mailRes.json(); } catch(_e){}
-    const brevoMsgId = brevoJson && (brevoJson.messageId || brevoJson["message-id"]);
-    if (brevoJson) console.log("Brevo Response:", brevoJson);
-    if (brevoMsgId) console.log("Brevo Message ID:", brevoMsgId);
+    let brevoMsgId = null;
+    try { brevoJson = await mailRes.json(); } catch(_e){ /* some Brevo responses may be 204 or no JSON */ }
+    if (brevoJson) {
+      brevoMsgId = brevoJson.messageId || brevoJson["message-id"] || null;
+      console.log("Brevo Response:", brevoJson);
+    }
+    if (!brevoMsgId) {
+      // try common header names
+      try {
+        brevoMsgId = mailRes.headers.get("message-id")
+          || mailRes.headers.get("x-message-id")
+          || mailRes.headers.get("sib-message-id")
+          || null;
+      } catch(_e){}
+    }
+    console.log("Brevo Message ID (captured):", brevoMsgId);
 
-    // Write messageId back into Cloudinary context (non-fatal if fails)
+    // --- Write messageId back into Cloudinary context (non-fatal) ---
     try {
       if (brevoMsgId && cloud && apiKey && apiSecret && public_id) {
         const ts_ctx = Math.floor(Date.now() / 1000);
@@ -304,7 +316,9 @@ const fileDataURI = `data:application/pdf;base64,${pdf.toString('base64')}`;
             context: newCtx
           })
         });
-        console.log('Updated Cloudinary context with brevo_msg_id');
+        console.log('Updated Cloudinary context with brevo_msg_id for', public_id);
+      } else {
+        console.log('Skip context update: missing msgId or Cloudinary creds/public_id');
       }
     } catch (e) {
       console.log('Failed to update brevo_msg_id to Cloudinary context:', e && e.message ? e.message : String(e));
