@@ -100,7 +100,8 @@
       </div>
       <div class="panel">
         <h3 id="dv-title">詳情</h3>
-        <div id="detail-pane" class="panel"><iframe id="emailPreview" sandbox="" style="width:100%;height:70vh;border:0;border-radius:12px;background:#fff;"></iframe></div>
+        <div id="preview" style="min-height:120px;"></div>
+<div id="detail-pane" class="panel"><iframe id="emailPreview" sandbox="" style="width:100%;height:70vh;border:0;border-radius:12px;background:#fff;"></iframe></div>
         <div style="margin-top:8px;display:flex;gap:8px">
           <button id="btnPaste" class="btn">貼上信件內容並回填</button>
         </div>
@@ -239,29 +240,28 @@ function openDetails(item){
   CURRENT_ITEM = item;
   $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
   $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
+  // Keep original detail renderer (requires #preview to exist)
   renderFullContent(item, $("#preview"));
 
-  var ctx = normalizeContext(item);
-  var iframe = document.getElementById('emailPreview');
-  if (ctx.email_html_url){
-    iframe.removeAttribute('srcdoc');
-    iframe.src = ctx.email_html_url;
-  } else if (ctx.email_html){
-    renderEmailToRightPane(ctx.email_html);
-  } else if (item.context && (item.context.raw || item.context.email_text)) {
-    renderEmailToRightPane(item.context.raw || item.context.email_text);
-  } else {
-    iframe.removeAttribute('src');
-    iframe.srcdoc = buildEmailHtmlFromContext(ctx);
-  }
+  // Safe email preview rendering (won't block Cloudinary fetch even if missing)
+  try {
+    var ctx = normalizeContext(item);
+    var iframe = document.getElementById('emailPreview');
+    if (iframe){
+      if (ctx.email_html_url){
+        iframe.removeAttribute('srcdoc');
+        iframe.src = ctx.email_html_url;
+      } else if (ctx.email_html){
+        renderEmailToRightPane(ctx.email_html);
+      } else if (item.context && (item.context.raw || item.context.email_text)) {
+        renderEmailToRightPane(item.context.raw || item.context.email_text);
+      } else {
+        renderEmailToRightPane("（此筆沒有 email 內容可預覽）");
+      }
+    }
+  } catch (_e) { /* no-op to avoid breaking list */ }
 }, null, 2);
   renderFullContent(item, $("#preview"));
-  var ctx = normalizeContext(item);
-  var iframe = document.getElementById('emailPreview');
-  if (ctx.email_html_url){ iframe.removeAttribute('srcdoc'); iframe.src = ctx.email_html_url; }
-  else if (ctx.email_html){ renderEmailToRightPane(ctx.email_html); }
-  else if (item.context && (item.context.raw || item.context.email_text)) { renderEmailToRightPane(item.context.raw || item.context.email_text); }
-  else { iframe.removeAttribute('src'); iframe.srcdoc = buildEmailHtmlFromContext(ctx); }
 }
 
 $("#btnSearch").onclick = () => doSearch();
@@ -325,35 +325,11 @@ $("#emailApply").onclick = async ()=>{
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 
-
-function buildEmailHtmlFromContext(ctx){
-  function nb(v){ return (v==null? "": String(v).trim()); }
-  function tr(k,v){ if(!nb(v)) return ""; return '<tr><th style="text-align:left;width:180px;padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+k+'</th><td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#111827;">'+nb(v)+'</td></tr>'; }
-  function section(title, rows){
-    if(!rows || !rows.trim()) return "";
-    return '<div style="margin:18px 0;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">'
-      + '<div style="font-weight:700;margin-bottom:8px;color:#111827">'+title+'</div>'
-      + '<table style="width:100%;border-collapse:collapse">'+rows+'</table></div>';
-  }
-  var rowsBasic = [
-    tr("姓名", ctx.name), tr("電話", ctx.phone), tr("地址", ctx.address),
-    tr("地區", ctx.area), tr("來源", ctx.source),
-    tr("預約日期", ctx.date), tr("預約時段", ctx.timeslot)
-  ].join("");
-  var rowsSvc = [ tr("服務類別", ctx.service||ctx.service_category), tr("冷氣類型", ctx.ac_type), tr("清洗數量", ctx.count||ctx.ac_count) ].join("");
-  var rowsOther = [ tr("備註", ctx.note) ].join("");
-
-  return '<!doctype html><html><head><meta charset="utf-8"></head><body style="background:#f8fafc;padding:16px;font-family:system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">'
-    + '<h2 style="margin:0 0 10px;color:#111827">寄出內容預覽</h2>'
-    + section("基本資料", rowsBasic)
-    + section("服務內容", rowsSvc)
-    + section("其他", rowsOther)
-    + '</body></html>';
-}
-
 function renderEmailToRightPane(htmlOrText) {
   var iframe = document.getElementById('emailPreview');
   if (!iframe) return;
+  // Clean previous src to avoid mixed mode
+  iframe.removeAttribute('src');
   var isHtml = /<\/?[a-z][\s\S]*>/i.test(htmlOrText || "");
   var html = isHtml
     ? htmlOrText
@@ -362,7 +338,6 @@ function renderEmailToRightPane(htmlOrText) {
       '</pre>';
   iframe.srcdoc = '<!doctype html><html><head><meta charset="utf-8"></head><body>'+ html +'</body></html>';
 }
-
 </script>
 </body>
 </html>
