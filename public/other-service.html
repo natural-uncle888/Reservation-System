@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#2563eb"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
 <title>其他清洗服務</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
-  <style>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
     .wrap{max-width:960px;margin:0 auto;padding:18px 16px}
@@ -24,81 +25,74 @@
     .hidden{display:none}
     ul{margin:6px 0;color:var(--muted)}
   </style>
-<link rel="stylesheet" href="mobile.v4.css"/>
+<link href="mobile.v4.css" rel="stylesheet"/>
 </head>
 <body>
-  <div class="wrap">
-    <h1>其他清洗服務</h1>
-    <p class="desc">以下為非冷氣項目。若僅預約冷氣可直接跳到下一步。</p>
-    <p>若您同時有預約以下服務，我們將提供額外優惠：</p>
+<div class="wrap">
+<h1>其他清洗服務</h1>
+<p class="desc">以下為非冷氣項目。若僅預約冷氣可直接跳到下一步。</p>
+<p>若您同時有預約以下服務，我們將提供額外優惠：</p>
 <ul>
 <li>✅ 直立式洗衣機清洗 ➜ 若同時清洗冷氣，可再折扣 $200 元</li>
 <li>✅ 家用水塔清洗（兩噸內） ➜ 若同時清洗自來水管，可再折扣 $200 元</li>
+<div class="section">
+<h2>直立式洗衣機清洗</h2>
+<div class="subhead">清洗台數</div>
+<div class="group" id="washing-count"><label class="option"><input name="washer_count" type="radio" value="1台"/>1 台</label><label class="option"><input name="washer_count" type="radio" value="2台"/>2 台</label><label class="option"><input name="washer_count" type="radio" value="3台"/>3 台</label><label class="option"><input name="washer_count" type="radio" value="4台"/>4 台</label></div>
 
-    <div class="section">
-      <h2>直立式洗衣機清洗</h2>
-      <div class="subhead">清洗台數</div>
-      <label class="option"><input type="radio" name="washer_count" value="1台">1 台</label>
-      <label class="option"><input type="radio" name="washer_count" value="2台">2 台</label>
-      <label class="option"><input type="radio" name="washer_count" value="3台">3 台</label>
-      <label class="option"><input type="radio" name="washer_count" value="4台">4 台</label>
-      <ul><li>尚無提供滾筒式洗衣機清洗服務。</li></ul>
 
-      <div class="subhead">洗衣機位於樓層（可複選）</div>
-      <!-- 改為可複選 checkbox -->
-      <label class="option"><input type="checkbox" name="washer_floor" value="1F">1F</label>
-      <label class="option"><input type="checkbox" name="washer_floor" value="2F">2F</label>
-      <label class="option"><input type="checkbox" name="washer_floor" value="3F">3F</label>
-      <label class="option"><input type="checkbox" name="washer_floor" value="4F">4F</label>
-      <label class="option"><input type="checkbox" name="washer_floor" value="5F">5F</label>
-      <label class="option"><input type="checkbox" name="washer_floor" value="大樓">大樓（同樓層）</label>
-    </div>
 
-    <div class="section">
-      <h2>家用水塔清洗（兩噸內）</h2>
-      <div class="subhead">清洗顆數</div>
-      <label class="option"><input type="radio" name="tank_count" value="1顆">1 顆</label>
-      <label class="option"><input type="radio" name="tank_count" value="2顆">2 顆</label>
-      <label class="option"><input type="radio" name="tank_count" value="3顆">3 顆</label>
-      <label class="option"><input type="radio" name="tank_count" value="4顆">4 顆</label>
-      <label class="option"><input type="radio" name="tank_count" value="5顆">5 顆</label>
-      <ul><li>放置高危險/狹窄機房請事先告知說明。</li></ul>
-    </div>
+<ul><li>尚無提供滾筒式洗衣機清洗服務。</li></ul>
+<div class="subhead">洗衣機位於樓層（可複選）</div>
+<!-- 改為可複選 checkbox -->
+<div class="group" id="washer-floor"><label class="option"><input name="washer_floor" type="checkbox" value="1F"/>1F</label><label class="option"><input name="washer_floor" type="checkbox" value="2F"/>2F</label><label class="option"><input name="washer_floor" type="checkbox" value="3F"/>3F</label><label class="option"><input name="washer_floor" type="checkbox" value="4F"/>4F</label><label class="option"><input name="washer_floor" type="checkbox" value="5F"/>5F</label><label class="option"><input name="washer_floor" type="checkbox" value="大樓"/>大樓（同樓層）</label></div>
 
-    <div class="section">
-      <h2>自來水管清洗服務</h2>
-      <div class="subhead">戶型方案</div>
-      <label class="option"><input type="radio" name="pipe_service" value="無廚一衛">無廚一衛</label>
-      <label class="option"><input type="radio" name="pipe_service" value="一廚一衛">一廚一衛</label>
-      <label class="option"><input type="radio" name="pipe_service" value="一廚兩衛">一廚兩衛</label>
-      <label class="option"><input type="radio" name="pipe_service" value="一廚三衛">一廚三衛</label>
-      <label class="option"><input type="radio" name="pipe_service" value="一廚四衛">一廚四衛</label>
-      <label class="option"><input type="radio" name="pipe_service" value="一廚五衛">一廚五衛</label>
 
-      <div class="subhead">清洗原因（可複選）</div>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="異味">出水有異味（如鐵鏽味、霉味）</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="混濁">水質混濁或有顆粒、沉澱物</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="水壓變小">水壓變小或出水量減少</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="長時間未清洗">長時間未清洗過水管（5 年以上）</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="新屋">剛搬新家或新裝修</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="健康考量">家中成員皮膚過敏或健康考量</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="預防性保養">預防性保養清洗</label>
-      <label class="option"><input type="checkbox" name="pipe_reason" value="其他" data-other-id="pipe_reason_other">其他原因（請說明）</label>
-      <div id="pipe_reason_other_wrap" class="hidden">
-        <textarea id="pipe_reason_other" placeholder="請輸入其他原因…"></textarea>
-      </div>
-      <ul><li>施工期間需可接入設備，請預留廚房/浴室作業空間。</li>
-          <li>若有熱水器/軟水機/淨水器，將暫時關閉進出水與電源。</li>
+
+
+
+</div>
+<div class="section">
+<h2>家用水塔清洗（兩噸內）</h2>
+<div class="subhead">清洗顆數</div>
+<div class="group" id="tank-count"><label class="option"><input name="tank_count" type="radio" value="1顆"/>1 顆</label><label class="option"><input name="tank_count" type="radio" value="2顆"/>2 顆</label><label class="option"><input name="tank_count" type="radio" value="3顆"/>3 顆</label><label class="option"><input name="tank_count" type="radio" value="4顆"/>4 顆</label><label class="option"><input name="tank_count" type="radio" value="5顆"/>5 顆</label></div>
+
+
+
+
+<ul><li>放置高危險/狹窄機房請事先告知說明。</li></ul>
+</div>
+<div class="section">
+<h2>自來水管清洗服務</h2>
+<div class="subhead">戶型方案</div>
+<div class="group" id="pipe-plan"><label class="option"><input name="pipe_service" type="radio" value="無廚一衛"/>無廚一衛</label><label class="option"><input name="pipe_service" type="radio" value="一廚一衛"/>一廚一衛</label><label class="option"><input name="pipe_service" type="radio" value="一廚兩衛"/>一廚兩衛</label><label class="option"><input name="pipe_service" type="radio" value="一廚三衛"/>一廚三衛</label><label class="option"><input name="pipe_service" type="radio" value="一廚四衛"/>一廚四衛</label><label class="option"><input name="pipe_service" type="radio" value="一廚五衛"/>一廚五衛</label></div>
+
+
+
+
+
+<div class="subhead">清洗原因（可複選）</div>
+<label class="option"><input name="pipe_reason" type="checkbox" value="異味"/>出水有異味（如鐵鏽味、霉味）</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="混濁"/>水質混濁或有顆粒、沉澱物</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="水壓變小"/>水壓變小或出水量減少</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="長時間未清洗"/>長時間未清洗過水管（5 年以上）</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="新屋"/>剛搬新家或新裝修</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="健康考量"/>家中成員皮膚過敏或健康考量</label>
+<label class="option"><input name="pipe_reason" type="checkbox" value="預防性保養"/>預防性保養清洗</label>
+<label class="option"><input data-other-id="pipe_reason_other" name="pipe_reason" type="checkbox" value="其他"/>其他原因（請說明）</label>
+<div class="hidden" id="pipe_reason_other_wrap">
+<textarea id="pipe_reason_other" placeholder="請輸入其他原因…"></textarea>
+</div>
+<ul><li>施工期間需可接入設備，請預留廚房/浴室作業空間。</li>
+<li>若有熱水器/軟水機/淨水器，將暫時關閉進出水與電源。</li>
 </ul>
-    </div>
-
-    <div class="nav">
-      <a href="addon-service.html" id="back">← 返回上一步</a>
-      <a href="contact.html" id="next">下一步 ➜ 聯繫名稱說明</a>
-    </div>
-  </div>
-
-  <script>
+</div>
+<div class="nav">
+<a href="addon-service.html" id="back">← 返回上一步</a>
+<a href="contact.html" id="next">下一步 ➜ 聯繫名稱說明</a>
+</div>
+</ul></div>
+<script>
   (function(){
     const KEY='BOOKING_DATA';
     const $=s=>document.querySelector(s);
@@ -164,7 +158,7 @@
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
-  <script src="ux.v4.js"></script>
-  <script src="kill-legacy.js" defer></script>
+<script src="ux.v4.js"></script>
+<script defer="" src="kill-legacy.js"></script>
 </body>
 </html>
