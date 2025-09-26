@@ -232,24 +232,6 @@ input:checked + label.option{background:var(--accent-strong);border-color:var(--
 .btn-primary{background:var(--brand);color:#fff;border-color:var(--brand)}
 .btn-primary:hover{background:var(--brand-600)}
 
-/* Progress bar */
-.progress{
-  display:flex;gap:8px;align-items:center;margin:6px 0 12px 0
-}
-.progress .step{
-  display:flex;align-items:center;gap:8px
-}
-.progress .dot{
-  width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-  border:2px solid var(--line);background:#fff;font-weight:700;color:var(--muted)
-}
-.progress .step.active .dot{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-.progress .label{font-weight:600;color:var(--muted)}
-.progress .step.active .label{color:var(--ink)}
-.progress .bar{flex:1;height:2px;background:var(--line)}
-.progress .step.completed .dot{background:var(--accent-strong);border-color:var(--brand);color:#1e3a8a}
-.progress .step.completed .label{color:var(--ink-weak)}
-
 /* Bigger touch zones */
 input, select, textarea{min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
 label{display:block;margin:8px 0 4px 0;color:var(--ink-weak)}

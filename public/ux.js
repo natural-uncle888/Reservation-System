@@ -51,15 +51,6 @@
     };
 
     function validate(el){
-      /* checkbox group required */
-      if(el.type==='checkbox' && el.required){
-        const name = el.name;
-        const boxes = document.querySelectorAll(`input[type="checkbox"][name="${name}"]`);
-        const anyChecked = Array.from(boxes).some(b=>b.checked);
-        if(!anyChecked){ boxes.forEach(b=>b.classList.add('is-invalid')); return false; }
-        boxes.forEach(b=>{ b.classList.remove('is-invalid'); b.classList.add('is-valid'); });
-        return true;
-      }
       const type = (el.type || el.getAttribute('type') || '').toLowerCase();
       const required = el.required;
       const v = (el.value||'').trim();
@@ -125,43 +116,6 @@
     if(submit) submit.classList.add('btn-primary');
   }
 
-  /* 6. Confirm before submit (non-invasive) */
-  function confirmBeforeSubmit(){
-    const btn = document.querySelector('#submit, button[type="submit"]');
-    if(!btn) return;
-    const form = btn.closest('form');
-    const handler = (ev)=>{
-      // Run quick validation of visible required fields
-      let okAll = true;
-      document.querySelectorAll('input[required], select[required], textarea[required]').forEach(el=>{
-        if(el.offsetParent!==null){ // visible
-          const evt = new Event('input', {bubbles:true});
-          el.dispatchEvent(evt);
-          if(el.classList.contains('is-invalid')) okAll=false;
-        }
-      });
-      if(!okAll){
-        alert('請先修正標示為紅色的欄位，再送出。');
-        ev.preventDefault();
-        return false;
-      }
-      if(!confirm('確認要送出預約資料嗎？')){
-        ev.preventDefault();
-        return false;
-      }
-      // let native submit continue
-      return true;
-    };
-
-    if(form){
-      form.addEventListener('submit', handler);
-    }else{
-      btn.addEventListener('click', function(e){
-        if(!handler(e)) e.preventDefault();
-      });
-    }
-  }
-
   /* 7. Datalists for autofill (only if fields exist) */
   function datalists(){
     const cities = ['台北市','新北市','基隆市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣','澎湖縣','金門縣','連江縣'];
@@ -208,7 +162,7 @@
       injectSaveBanner();
       restoreFields();
       attachValidation();
-      confirmBeforeSubmit();
+      // confirmBeforeSubmit removed
       datalists();
     }catch(e){/* silent */}
   }, {once:true});
