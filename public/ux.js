@@ -13,6 +13,49 @@
     }catch(e){}
   }
 
+  /* 2. Progress bar */
+  function makeProgress(){
+    const map = {
+      'index.html': 0,
+      'ac-booking.html': 1,
+      'bulk-booking.html': 1,
+      'group-booking.html': 1,
+      'other-service.html': 1,
+      'addon-service.html': 2,
+      'contact.html': 2,
+      'final-booking.html': 3
+    };
+    const steps = ['選服務','填細節','聯繫/加購','確認送出'];
+    const file = (location.pathname.split('/').pop() || 'index.html');
+    const idx = map[file] ?? 0;
+
+    const bar = document.createElement('div');
+    bar.className = 'progress';
+    steps.forEach((label, i)=>{
+      const step = document.createElement('div');
+      step.className = 'step' + (i===idx?' active':'') + (i<idx?' completed':'');
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      dot.textContent = (i+1);
+      const lab = document.createElement('div');
+      lab.className = 'label';
+      lab.textContent = label;
+      step.appendChild(dot);
+      step.appendChild(lab);
+      bar.appendChild(step);
+      if(i<steps.length-1){
+        const pipe = document.createElement('div');
+        pipe.className = 'bar';
+        bar.appendChild(pipe);
+      }
+    });
+
+    const host = document.querySelector('.wrap, .container, main, body');
+    if(host){
+      host.insertBefore(bar, host.firstChild);
+    }
+  }
+
   /* 3. Restore data to fields (keep existing collectors intact) */
   function restoreFields(){
     const data = readLS();
@@ -116,6 +159,43 @@
     if(submit) submit.classList.add('btn-primary');
   }
 
+  /* 6. Confirm before submit (non-invasive) */
+  function confirmBeforeSubmit(){
+    const btn = document.querySelector('#submit, button[type="submit"]');
+    if(!btn) return;
+    const form = btn.closest('form');
+    const handler = (ev)=>{
+      // Run quick validation of visible required fields
+      let okAll = true;
+      document.querySelectorAll('input[required], select[required], textarea[required]').forEach(el=>{
+        if(el.offsetParent!==null){ // visible
+          const evt = new Event('input', {bubbles:true});
+          el.dispatchEvent(evt);
+          if(el.classList.contains('is-invalid')) okAll=false;
+        }
+      });
+      if(!okAll){
+        alert('請先修正標示為紅色的欄位，再送出。');
+        ev.preventDefault();
+        return false;
+      }
+      if(!confirm('確認要送出預約資料嗎？')){
+        ev.preventDefault();
+        return false;
+      }
+      // let native submit continue
+      return true;
+    };
+
+    if(form){
+      form.addEventListener('submit', handler);
+    }else{
+      btn.addEventListener('click', function(e){
+        if(!handler(e)) e.preventDefault();
+      });
+    }
+  }
+
   /* 7. Datalists for autofill (only if fields exist) */
   function datalists(){
     const cities = ['台北市','新北市','基隆市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣','澎湖縣','金門縣','連江縣'];
@@ -157,12 +237,12 @@
 
   document.addEventListener('DOMContentLoaded', function(){
     try{
-      // makeProgress removed
+      makeProgress();
       makeStickyCTA();
-      // injectSaveBanner removed
-      // restoreFields removed
+      injectSaveBanner();
+      restoreFields();
       attachValidation();
-      // confirmBeforeSubmit removed
+      confirmBeforeSubmit();
       datalists();
     }catch(e){/* silent */}
   }, {once:true});

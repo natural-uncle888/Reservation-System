@@ -314,3 +314,45 @@ body { padding-bottom: 88px; }
 @media (max-width: 768px){
   .grid{ grid-template-columns: 1fr !important; }
 }
+
+
+/* === Mobile compact for schedule page === */
+#timeslot {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+#timeslot > label { margin: 0 !important; } /* tighter cards */
+#timeslot > #time_other {
+  grid-column: 1 / -1; /* span full width for custom time input */
+}
+
+/* Collapsible preview styles */
+.preview-collapsible {
+  border: 1px solid var(--line, #cbd5e1);
+  border-radius: 12px;
+  background: #fff;
+  margin-top: 12px;
+}
+.preview-collapsible summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-weight: 800;
+  color: var(--ink, #1f2937);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.preview-collapsible summary::after {
+  content: '展開';
+  font-weight: 600;
+  color: var(--muted, #64748b);
+}
+.preview-collapsible[open] summary::after { content: '收合'; }
+.preview-collapsible .inner {
+  padding: 0 14px 12px;
+}
+@media (max-width: 768px){
+  /* smaller table on phones */
+  #preview { font-size: .9rem; }
+  #preview td, #preview th { padding: 6px 8px; }
+}
