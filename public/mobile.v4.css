@@ -362,86 +362,29 @@ body { padding-bottom: 88px; }
 .progress, .autosave-banner { display: none !important; }
 
 
-/* === Two-column card layout for 其他清洗服務 (forced) === */
-#washing-count, #washer-floor, #tank-count, #pipe-plan {
+/* === Two-column card layout for 冷氣清洗｜預約表單 === */
+#ac-count, #ac-floor, #ac-brand, #ac-transformers {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 10px !important;
 }
-#washing-count > label,
-#washer-floor > label,
-#tank-count > label,
-#pipe-plan > label {
+#ac-count > label,
+#ac-floor > label,
+#ac-brand > label,
+#ac-transformers > label {
   margin: 0 !important;
 }
 
 
-/* === AC Booking page: force all .group to be two-column, even on small screens === */
-.page-ac-booking .group {
+/* === Two-column card layout for 冷氣清洗｜預約表單 === */
+#ac-count, #ac-floor, #ac-brand, #ac-transformers {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
   gap: 10px !important;
 }
-.page-ac-booking .group > label {
+#ac-count > label,
+#ac-floor > label,
+#ac-brand > label,
+#ac-transformers > label {
   margin: 0 !important;
-}
-
-
-/* Force two-column for AC type options */
-#ac-type {
-  display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 10px !important;
-}
-#ac-type > label { margin: 0 !important; }
-
-
-/* === Mobile override: AC type stacks vertically on small screens === */
-@media (max-width: 640px){
-  #ac-type {
-    grid-template-columns: 1fr !important; /* revert to single column on phones */
-  }
-  #ac-type img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
-  #ac-type > * {
-    min-width: 0; /* prevent overflow */
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
-}
-
-
-/* === Strong mobile override: AC type must stack vertically on phones === */
-@media (max-width: 640px){
-  /* increase specificity and override any previous !important */
-  html body.page-ac-booking #ac-type {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-  }
-  html body.page-ac-booking #ac-type > * {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-  }
-  /* If inner wrappers force 50% width, neutralize */
-  html body.page-ac-booking #ac-type > .col,
-  html body.page-ac-booking #ac-type > .column,
-  html body.page-ac-booking #ac-type > .option {
-    flex: 0 0 auto !important;
-  }
-  /* Prevent overflow by long text or images */
-  html body.page-ac-booking #ac-type * {
-    min-width: 0 !important;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
-  html body.page-ac-booking #ac-type img {
-    max-width: 100% !important;
-    height: auto !important;
-    display: block !important;
-  }
 }
