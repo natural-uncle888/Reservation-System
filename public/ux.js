@@ -13,49 +13,6 @@
     }catch(e){}
   }
 
-  /* 2. Progress bar */
-  function makeProgress(){
-    const map = {
-      'index.html': 0,
-      'ac-booking.html': 1,
-      'bulk-booking.html': 1,
-      'group-booking.html': 1,
-      'other-service.html': 1,
-      'addon-service.html': 2,
-      'contact.html': 2,
-      'final-booking.html': 3
-    };
-    const steps = ['選服務','填細節','聯繫/加購','確認送出'];
-    const file = (location.pathname.split('/').pop() || 'index.html');
-    const idx = map[file] ?? 0;
-
-    const bar = document.createElement('div');
-    bar.className = 'progress';
-    steps.forEach((label, i)=>{
-      const step = document.createElement('div');
-      step.className = 'step' + (i===idx?' active':'') + (i<idx?' completed':'');
-      const dot = document.createElement('div');
-      dot.className = 'dot';
-      dot.textContent = (i+1);
-      const lab = document.createElement('div');
-      lab.className = 'label';
-      lab.textContent = label;
-      step.appendChild(dot);
-      step.appendChild(lab);
-      bar.appendChild(step);
-      if(i<steps.length-1){
-        const pipe = document.createElement('div');
-        pipe.className = 'bar';
-        bar.appendChild(pipe);
-      }
-    });
-
-    const host = document.querySelector('.wrap, .container, main, body');
-    if(host){
-      host.insertBefore(bar, host.firstChild);
-    }
-  }
-
   /* 3. Restore data to fields (keep existing collectors intact) */
   function restoreFields(){
     const data = readLS();
@@ -94,6 +51,15 @@
     };
 
     function validate(el){
+      /* checkbox group required */
+      if(el.type==='checkbox' && el.required){
+        const name = el.name;
+        const boxes = document.querySelectorAll(`input[type="checkbox"][name="${name}"]`);
+        const anyChecked = Array.from(boxes).some(b=>b.checked);
+        if(!anyChecked){ boxes.forEach(b=>b.classList.add('is-invalid')); return false; }
+        boxes.forEach(b=>{ b.classList.remove('is-invalid'); b.classList.add('is-valid'); });
+        return true;
+      }
       const type = (el.type || el.getAttribute('type') || '').toLowerCase();
       const required = el.required;
       const v = (el.value||'').trim();
@@ -237,7 +203,7 @@
 
   document.addEventListener('DOMContentLoaded', function(){
     try{
-      makeProgress();
+      // makeProgress removed
       makeStickyCTA();
       injectSaveBanner();
       restoreFields();
