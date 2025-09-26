@@ -424,3 +424,34 @@ body * {
 #contact-time > label {
   margin: 0 !important;
 }
+
+
+/* === Fix residence-type grid alignment & equal heights === */
+.row > .group { grid-column: 1 / -1; } /* group spans full width within its row */
+#residence-type {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px;
+}
+#residence-type > label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 72px; /* equal tap target / consistent height */
+  margin: 0 !important;
+  word-break: break-word;
+}
+#residence-type > label input[type="radio"] { flex: 0 0 auto; }
+
+/* === Make LINE/FB sample image responsive on mobile === */
+img[alt^="範例圖片"] {
+  width: 100% !important;
+  max-width: 360px !important; /* readable size on phones */
+  height: auto !important;
+  border-radius: 10px;
+  display: block;
+}
+@media (max-width: 480px){
+  /* Stack name label + image + input vertically to reduce squeeze */
+  .row[style*="align-items:center;"] { grid-template-columns: 1fr !important; }
+}
