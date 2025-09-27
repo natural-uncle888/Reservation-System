@@ -33,3 +33,25 @@
   .section h2{ margin: 0 0 6px !important; }
   .subhead{ margin: 6px 0 4px !important; }
 }
+
+/* === Additions to better match '聯繫名稱說明' layout === */
+@media (max-width: 768px){
+  /* 讓文字輸入/textarea/說明列在兩欄下可以全寬 */
+  .group input[type="text"],
+  .group input[type="tel"],
+  .group textarea,
+  .group .full,
+  .options input[type="text"],
+  .options textarea{
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  /* 單純的文字小提醒或 details 也全寬 */
+  .group details,
+  .options details,
+  .group .hint,
+  .options .hint{
+    grid-column: 1 / -1 !important;
+  }
+}
