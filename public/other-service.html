@@ -26,41 +26,7 @@
     ul{margin:6px 0;color:var(--muted)}
   </style>
 <link href="mobile.v4.css" rel="stylesheet"/>
-<style>
-/* === Added by ChatGPT: mobile two-column cards === */
-@media (max-width: 768px){
-  /* generic form option groups -> two columns */
-  .group,
-  .options,
-  .option-grid,
-  .section .group,
-  .section .options{
-    display:grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap:10px !important;
-  }
-  /* make each label look like a card and fill a grid cell */
-  .group > label,
-  .options > label,
-  .option,
-  .option-grid > label{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:12px;
-    border:1px solid #d1d5db;
-    border-radius:12px;
-    background:#fff;
-    width:100%;
-    box-sizing:border-box;
-    margin:0 !important; /* remove vertical stacking gaps */
-  }
-  /* tighten vertical spacing for mobile */
-  .section{padding:12px !important;margin:12px 0 !important}
-  .section h2{margin:0 0 6px !important}
-  .subhead{margin:6px 0 4px !important}
-}
-</style></head>
+<link href="./mobile-2col.css" rel="stylesheet"/></head>
 <body>
 <div class="wrap">
 <h1>其他清洗服務</h1>
