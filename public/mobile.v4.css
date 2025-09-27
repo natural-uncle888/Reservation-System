@@ -388,3 +388,91 @@ body { padding-bottom: 88px; }
 #ac-transformers > label {
   margin: 0 !important;
 }
+
+
+/* === Added by ChatGPT: mobile two-column card grid (global) === */
+@media (max-width: 768px){
+  .group,
+  .options,
+  .option-grid,
+  .section .group,
+  .section .options{
+    display:grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap:10px !important;
+  }
+  .group > label,
+  .options > label,
+  .option,
+  .option-grid > label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    background:#fff;
+    width:100%;
+    box-sizing:border-box;
+    margin:0 !important;
+  }
+  .section{padding:12px !important;margin:12px 0 !important}
+  .section h2{margin:0 0 6px !important}
+  .subhead{margin:6px 0 4px !important}
+}
+
+
+/* === Added by ChatGPT on request: Mobile two-column card grid (global) === */
+@media (max-width: 768px){
+  /* 選項群組兩欄 */
+  .group,
+  .options,
+  .option-grid,
+  .section .group,
+  .section .options{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* 選項卡片樣式 */
+  .group > label,
+  .options > label,
+  .option,
+  .option-grid > label{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 !important;
+  }
+
+  /* 區塊間距縮短 */
+  .section{ padding: 12px !important; margin: 12px 0 !important; }
+  .section h2{ margin: 0 0 6px !important; }
+  .subhead{ margin: 6px 0 4px !important; }
+
+  /* 讓文字輸入框 / textarea 跨兩欄 */
+  .group input[type="text"],
+  .group input[type="tel"],
+  .group textarea,
+  .options input[type="text"],
+  .options textarea {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+
+  /* details、小提醒全寬 */
+  .group details,
+  .options details,
+  .group .hint,
+  .options .hint {
+    grid-column: 1 / -1 !important;
+  }
+}
+
