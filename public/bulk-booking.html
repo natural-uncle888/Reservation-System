@@ -9,7 +9,7 @@ main{max-width:900px;margin:18px auto;padding:0 16px}.section{border:1px solid v
 .section h2{margin:0 0 8px;color:#2563eb}.desc{margin:0 0 10px;color:#555}
 textarea{width:100%;min-height:160px;padding:10px;border:1px solid #ccc;border-radius:8px;resize:vertical;box-sizing:border-box;}
 .nav{display:flex;gap:12px;margin:18px 0}.nav a{flex:1;text-align:center;padding:12px 16px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none}
-.nav a:hover{background:#1e40af}</style><link rel="stylesheet" href="mobile.v4.css"/>
+.nav a:hover{background:#1e40af}</style><link rel="stylesheet" href="mobile.css"/>
 </head><body>
 <header><h1>大量清洗需求</h1></header><main>
 <input type="hidden" name="service_category" value="大量清洗需求"/>
@@ -23,6 +23,5 @@ function save(part){try{const prev=JSON.parse(localStorage.getItem(KEY)||'{}');l
 function collect(root=document){const out={service_category:'大量清洗需求'};$$('input[name],textarea[name],select[name]',root).forEach(el=>{const n=el.name;if(!n)return;const v=(el.value||'').trim();if(v)out[n]=v;});return out;}
 document.addEventListener('input',()=>save(collect()));['back','next'].forEach(id=>{const a=document.getElementById(id);if(a)a.addEventListener('click',()=>save(collect()),{capture:true});});
 window.debugBulk=()=>collect();window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');})();</script>
-  <script src="ux.v4.js"></script>
-  <script src="kill-legacy.js" defer></script>
+  <script src="ux.js"></script>
 </body></html>

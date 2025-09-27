@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="#2563eb" name="theme-color"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#2563eb"/>
 <title>預約表單</title>
-<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
-<style>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+  <style>
     :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
     *{box-sizing:border-box}
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
@@ -56,93 +55,103 @@
     .section h2.req::after{content:" *"; color:#dc2626; margin-left:4px; font-weight:700}
 
 </style>
-<link href="mobile.v4.css" rel="stylesheet"/>
+<link rel="stylesheet" href="mobile.css"/>
 </head>
 <body>
-<div class="header">
-<div class="wrap">
-<h1>冷氣清洗｜預約表單</h1>
-<p class="desc">請提供機型與數量，以便安排合適人員與時間。若選擇「以上／其他」，請輸入實際數字或品牌。</p>
+  <div class="header">
+    <div class="wrap">
+      <h1>冷氣清洗｜預約表單</h1>
+      <p class="desc">請提供機型與數量，以便安排合適人員與時間。若選擇「以上／其他」，請輸入實際數字或品牌。</p>
+    </div>
+  </div>
+
+  <form id="booking-form" action="addon-service.html" method="get">
+    <input type="hidden" name="service_category" value="冷氣清洗"/>
+
+    <div class="section">
+      <h2 class="req">冷氣類型</h2>
+      <div class="group">
+        <label><input type="radio" name="ac_type" value="分離式冷氣" required>分離式冷氣 <img src="imagessplit-ac.jpg" alt="分離式冷氣示意圖" class="opt-img"></label>
+        <label><input type="radio" name="ac_type" value="吊隱式冷氣">吊隱式冷氣 <img src="imagesceiling-ac.jpg" alt="吊隱式冷氣示意圖" class="opt-img"></label>
+      </div>
+      <p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
+    </div>
+
+    <div class="section">
+      <h2 class="req">清洗數量</h2>
+      <div class="group">
+        <label><input type="radio" name="ac_count" value="1台" required>1 台</label>
+        <label><input type="radio" name="ac_count" value="2台">2 台</label>
+        <label><input type="radio" name="ac_count" value="3台">3 台</label>
+        <label><input type="radio" name="ac_count" value="4台">4 台</label>
+        <label><input type="radio" name="ac_count" value="5台">5 台</label>
+        <label><input type="radio" name="ac_count" value="5台以上" data-other-id="ac_count_other">5 台以上</label>
+        <div class="hidden-input" id="ac_count_other_wrap">
+          <input id="ac_count_other" name="ac_count_other" type="number" min="6" placeholder="請輸入實際台數（≥6）">
+        </div>
+      </div>
+      <div class="aside">
+        <div class="tip">團體或社區聯合可改走「團購預約清洗」。</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="req">室內機所在樓層（可複選）</h2>
+      <div class="group">
+        <label><input type="checkbox" name="indoor_floor" value="1樓">1 樓</label>
+        <label><input type="checkbox" name="indoor_floor" value="2樓">2 樓</label>
+        <label><input type="checkbox" name="indoor_floor" value="3樓">3 樓</label>
+        <label><input type="checkbox" name="indoor_floor" value="4樓">4 樓</label>
+        <label><input type="checkbox" name="indoor_floor" value="5樓">5 樓</label>
+        <label><input type="checkbox" name="indoor_floor" value="5樓以上" data-other-id="indoor_floor_other">5 樓以上</label>
+        <div class="hidden-input" id="indoor_floor_other_wrap">
+          <input id="indoor_floor_other" name="indoor_floor_other" type="text" placeholder="請輸入樓層（如 6樓、頂樓加蓋）">
+        </div>
+      </div>
+      <p class="help">若樓高特殊或其他因素，請事先告知說明。</p>
+    </div>
+
+    <div class="section">
+      <h2 class="req">冷氣品牌（可複選）</h2>
+      
+      <div class="group">
+        <label><input type="checkbox" name="ac_brand" value="HITACHI 日立">HITACHI 日立</label>
+        <label><input type="checkbox" name="ac_brand" value="Panasonic 國際牌">Panasonic 國際牌</label>
+        <label><input type="checkbox" name="ac_brand" value="DAIKIN 大金">DAIKIN 大金</label>
+        <label><input type="checkbox" name="ac_brand" value="MITSUBISHI 三菱">MITSUBISHI 三菱</label>
+        <label><input type="checkbox" name="ac_brand" value="FUJITSU 富士通">FUJITSU 富士通</label>
+        <label><input type="checkbox" name="ac_brand" value="LG">LG</label>
+        <label><input type="checkbox" name="ac_brand" value="TECO 東元">TECO 東元</label>
+        <label><input type="checkbox" name="ac_brand" value="SANLUX 三洋">SANLUX 三洋</label>
+        <label><input type="checkbox" name="ac_brand" value="SAMPO 聲寶">SAMPO 聲寶</label>
+        <label><input type="checkbox" name="ac_brand" value="Heran 禾聯">Heran 禾聯</label>
+        <label><input type="checkbox" name="ac_brand" value="Kolin 歌林">Kolin 歌林</label>
+        <label><input type="checkbox" name="ac_brand" value="TATUNG 大同">TATUNG 大同</label>
+        <label><input type="checkbox" name="ac_brand" value="其他" data-other-id="ac_brand_other">其他</label>
+        <div class="hidden-input" id="ac_brand_other_wrap">
+          <input id="ac_brand_other" name="ac_brand_other" type="text" placeholder="請輸入品牌">
+        </div>
+      </div>
 </div>
-</div>
-<form action="addon-service.html" id="booking-form" method="get">
-<input name="service_category" type="hidden" value="冷氣清洗"/>
-<div class="section">
-<h2 class="req">冷氣類型</h2>
-<div class="group">
-<label><input name="ac_type" required="" type="radio" value="分離式冷氣"/>分離式冷氣 <img alt="分離式冷氣示意圖" class="opt-img" src="imagessplit-ac.jpg"/></label>
-<label><input name="ac_type" type="radio" value="吊隱式冷氣"/>吊隱式冷氣 <img alt="吊隱式冷氣示意圖" class="opt-img" src="imagesceiling-ac.jpg"/></label>
-</div>
-<p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
-</div>
-<div class="section">
-<h2 class="req">清洗數量</h2>
-<div class="group" id="ac-count">
-<label><input name="ac_count" required="" type="radio" value="1台"/>1 台</label>
-<label><input name="ac_count" type="radio" value="2台"/>2 台</label>
-<label><input name="ac_count" type="radio" value="3台"/>3 台</label>
-<label><input name="ac_count" type="radio" value="4台"/>4 台</label>
-<label><input name="ac_count" type="radio" value="5台"/>5 台</label>
-<label><input data-other-id="ac_count_other" name="ac_count" type="radio" value="5台以上"/>5 台以上</label>
-<div class="hidden-input" id="ac_count_other_wrap">
-<input id="ac_count_other" min="6" name="ac_count_other" placeholder="請輸入實際台數（≥6）" type="number"/>
-</div>
-</div>
-<div class="aside">
-<div class="tip">團體或社區聯合可改走「團購預約清洗」。</div>
-</div>
-</div>
-<div class="section">
-<h2 class="req">室內機所在樓層（可複選）</h2>
-<div class="group" id="ac-floor">
-<label><input name="indoor_floor" type="checkbox" value="1樓"/>1 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="2樓"/>2 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="3樓"/>3 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="4樓"/>4 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="5樓"/>5 樓</label>
-<label><input data-other-id="indoor_floor_other" name="indoor_floor" type="checkbox" value="5樓以上"/>5 樓以上</label>
-<div class="hidden-input" id="indoor_floor_other_wrap">
-<input id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" type="text"/>
-</div>
-</div>
-<p class="help">若樓高特殊或其他因素，請事先告知說明。</p>
-</div>
-<div class="section">
-<h2 class="req">冷氣品牌（可複選）</h2>
-<div class="group" id="ac-brand">
-<label><input name="ac_brand" type="checkbox" value="HITACHI 日立"/>HITACHI 日立</label>
-<label><input name="ac_brand" type="checkbox" value="Panasonic 國際牌"/>Panasonic 國際牌</label>
-<label><input name="ac_brand" type="checkbox" value="DAIKIN 大金"/>DAIKIN 大金</label>
-<label><input name="ac_brand" type="checkbox" value="MITSUBISHI 三菱"/>MITSUBISHI 三菱</label>
-<label><input name="ac_brand" type="checkbox" value="FUJITSU 富士通"/>FUJITSU 富士通</label>
-<label><input name="ac_brand" type="checkbox" value="LG"/>LG</label>
-<label><input name="ac_brand" type="checkbox" value="TECO 東元"/>TECO 東元</label>
-<label><input name="ac_brand" type="checkbox" value="SANLUX 三洋"/>SANLUX 三洋</label>
-<label><input name="ac_brand" type="checkbox" value="SAMPO 聲寶"/>SAMPO 聲寶</label>
-<label><input name="ac_brand" type="checkbox" value="Heran 禾聯"/>Heran 禾聯</label>
-<label><input name="ac_brand" type="checkbox" value="Kolin 歌林"/>Kolin 歌林</label>
-<label><input name="ac_brand" type="checkbox" value="TATUNG 大同"/>TATUNG 大同</label>
-<label><input data-other-id="ac_brand_other" name="ac_brand" type="checkbox" value="其他"/>其他</label>
-<div class="hidden-input" id="ac_brand_other_wrap">
-<input id="ac_brand_other" name="ac_brand_other" placeholder="請輸入品牌" type="text"/>
-</div>
-</div>
-</div>
-<div class="section">
-<h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
-<div class="group" id="ac-transformers">
-<label><input name="ac_transformer_series" required="" type="radio" value="是"/>是</label>
-<label><input name="ac_transformer_series" type="radio" value="否"/>否</label>
-<label><input name="ac_transformer_series" type="radio" value="不清楚（現場由人員判斷）"/>不清楚（現場由人員判斷）</label>
-</div>
-<div class="aside"> <div class="tip"> <strong>什麼是「變形金剛系列」？</strong> <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p> <img alt="常見變形金剛系列參考照片" class="opt-img" src="imagestransformer-ac.jpg"/> </div></div>
-</div>
-<div class="nav">
-<a href="index.html">回首頁</a>
-<button type="submit">下一步 ➜ 加購服務專區</button>
-</div>
-</form>
-<script>
+    </div>
+
+    <div class="section">
+      <h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
+      <div class="group">
+        <label><input type="radio" name="ac_transformer_series" value="是" required>是</label>
+        <label><input type="radio" name="ac_transformer_series" value="否">否</label>
+        <label><input type="radio" name="ac_transformer_series" value="不清楚（現場由人員判斷）">不清楚（現場由人員判斷）</label>
+      </div>
+      <div class="aside">  <div class="tip">    <strong>什麼是「變形金剛系列」？</strong>    <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p>    <img src="imagestransformer-ac.jpg" alt="常見變形金剛系列參考照片" class="opt-img">  </div></div>
+    </div>
+
+    <div class="nav">
+      <a href="index.html">回首頁</a>
+      <button type="submit">下一步 ➜ 加購服務專區</button>
+    </div>
+  </form>
+
+  <script>
   (function(){
     const KEY = 'BOOKING_DATA';
     const form = document.getElementById('booking-form');
@@ -205,6 +214,7 @@
     window.debugLS = ()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
+
 <script>
 (function() {
   function anyChecked(name) {
@@ -247,7 +257,6 @@
   }
 })();
 </script>
-<script src="ux.v4.js"></script>
-<script defer="" src="kill-legacy.js"></script>
+  <script src="ux.js"></script>
 </body>
 </html>

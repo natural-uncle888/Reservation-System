@@ -1,0 +1,171 @@
+
+/* Mobile-first enhancements */
+:root{
+  --brand:#2563eb;
+  --ink:#111827;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --bg:#ffffff;
+  --radius:14px;
+}
+
+/* Typography scales with viewport but stays readable */
+html{font-size:16px}
+@supports (font-size: clamp(1rem, 1vw, 1rem)) {
+  h1{font-size:clamp(1.5rem, 4.5vw, 2rem)}
+  h2{font-size:clamp(1.2rem, 3.6vw, 1.6rem)}
+  h3{font-size:clamp(1.1rem, 3.2vw, 1.3rem)}
+  body{font-size:clamp(1rem, 2.9vw, 1.0625rem)}
+}
+
+/* Layout */
+.container, .wrap, .section, .grid{
+  padding-left:16px;
+  padding-right:16px;
+}
+.grid{display:grid;gap:12px}
+@media (min-width:720px){
+  .grid.cols-2{grid-template-columns:1fr 1fr}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+}
+
+/* Images and media */
+img, video{max-width:100%;height:auto}
+
+/* Cards */
+.card{
+  border:1px solid var(--line);
+  background:var(--bg);
+  border-radius:var(--radius);
+  padding:14px;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+
+/* Buttons and inputs: comfortable touch targets */
+button, .btn, input[type=submit]{
+  min-height:48px;
+  padding:0 16px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--brand);
+  color:#fff;
+  font-weight:600;
+  line-height:1;
+  -webkit-tap-highlight-color:transparent;
+}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+
+input[type=text], input[type=tel], input[type=email], input[type=date], input[type=time], input[type=number], select, textarea{
+  width:100%;
+  min-height:48px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#fff;
+}
+
+/* Form groups space */
+.form-row, .field, .form-group{display:grid;gap:8px;margin:10px 0}
+
+/* Sticky primary actions on mobile */
+@media (max-width:767px){
+  .sticky-cta{
+    position:sticky;
+    bottom:0;
+    display:flex;
+    gap:10px;
+    padding:10px 16px;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:saturate(1.2) blur(4px);
+    border-top:1px solid var(--line);
+    margin-left:-16px;margin-right:-16px;
+  }
+  .sticky-cta .btn{flex:1}
+}
+
+/* Tables: scroll on small screens */
+.table-scroll{overflow-x:auto}
+.table-scroll table{min-width:560px}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;scroll-behavior:auto !important}
+}
+
+/* Better focus */
+:where(a, button, input, select, textarea):focus-visible{
+  outline:3px solid rgba(37,99,235,.6);
+  outline-offset:2px;
+}
+
+/* Larger checkboxes and radios */
+input[type=checkbox], input[type=radio]{width:20px;height:20px}
+label{line-height:1.3}
+
+/* Utility helpers */
+.hidden-mobile{display:none}
+@media (min-width:768px){.hidden-mobile{display:initial} .hidden-desktop{display:none}}
+
+
+/* Make existing .nav bars mobile-sticky */
+@media (max-width:767px){
+  .nav{
+    position:sticky;
+    bottom:0;
+    display:flex;
+    gap:10px;
+    padding:10px 16px;
+    background:rgba(255,255,255,.96);
+    backdrop-filter:saturate(1.2) blur(4px);
+    border-top:1px solid var(--line);
+    margin-left:-16px;margin-right:-16px;
+  }
+  .nav a, .nav button{flex:1; min-height:48px; border:1px solid var(--line); border-radius:12px; text-align:center; padding:12px}
+}
+
+/* Make all tables horizontally scrollable on small screens */
+@media (max-width:767px){
+  table{display:block; overflow-x:auto; white-space:nowrap}
+}
+
+
+/* === Contrast Enhancement Additions === */
+body {
+  background-color: #ffffff;
+  color: #1f2937; /* darker ink */
+}
+
+.section, .card {
+  background: #f9fafb;
+  border: 1px solid #cbd5e1; /* stronger border */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.option, .group label, label.option {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: background .2s, border-color .2s;
+}
+.option:hover, .group label:hover, label.option:hover {
+  background: #e0f2fe; /* light blue on hover */
+  border-color: #3b82f6;
+}
+.option input:checked + label,
+.group input:checked + label,
+label.option:has(input:checked) {
+  background: #dbeafe; /* checked state */
+  border-color: #2563eb;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+
+/* Headings more prominent */
+h1, h2, h3 {
+  color: #1e3a8a;
+  font-weight: 700;
+}
+p, label, span {
+  color: #374151;
+}
