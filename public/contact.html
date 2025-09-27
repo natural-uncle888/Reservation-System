@@ -4,9 +4,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <meta name="theme-color" content="#2563eb"/>
+<meta content="#2563eb" name="theme-color"/>
 <title>聯繫名稱說明</title>
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
 <style>
     :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
@@ -27,8 +27,42 @@
   
   input.other-input{padding:10px;border:1px solid #d1d5db;border-radius:8px;width:100%;max-width:560px}
 </style>
-<link rel="stylesheet" href="mobile.v4.css"/>
-</head>
+<link href="mobile.v4.css" rel="stylesheet"/>
+<style>
+/* === Added by ChatGPT: mobile two-column cards === */
+@media (max-width: 768px){
+  /* generic form option groups -> two columns */
+  .group,
+  .options,
+  .option-grid,
+  .section .group,
+  .section .options{
+    display:grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap:10px !important;
+  }
+  /* make each label look like a card and fill a grid cell */
+  .group > label,
+  .options > label,
+  .option,
+  .option-grid > label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    background:#fff;
+    width:100%;
+    box-sizing:border-box;
+    margin:0 !important; /* remove vertical stacking gaps */
+  }
+  /* tighten vertical spacing for mobile */
+  .section{padding:12px !important;margin:12px 0 !important}
+  .section h2{margin:0 0 6px !important}
+  .subhead{margin:6px 0 4px !important}
+}
+</style></head>
 <body>
 <div class="wrap">
 <h1>聯繫名稱說明</h1>
@@ -44,18 +78,18 @@
 <label><input name="contact_method" type="radio" value="Facebook"/>Facebook</label>
 <label><input name="contact_method" type="radio" value="電話"/>電話</label>
 <label><input data-other-id="contact_method_other" name="contact_method" type="radio" value="其他"/>其他</label>
-<input class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式" type="text">
-</input></div>
+<input class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式" type="text"/>
+</div>
 <details><summary>小提醒</summary><p>若偏好非電話聯繫，請在下方名稱處提供 LINE 或 FB 名稱。</p></details>
 </div>
 <div class="section">
-  <h2>LINE 或 Facebook 名稱</h2>
-  <div class="row" style="align-items:center;">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div>名稱</div>
-      <img src="imagesexample.jpg" alt="範例圖片：如何找到 LINE 或 Facebook 名稱" style="max-width:140px;border:1px solid #d1d5db;border-radius:8px;"/>
-    </div>
-    <input name="social_name" placeholder="請輸入名稱（若選 LINE/FB 請務必填寫）" type="text"/>
+<h2>LINE 或 Facebook 名稱</h2>
+<div class="row" style="align-items:center;">
+<div style="display:flex;align-items:center;gap:8px;">
+<div>名稱</div>
+<img alt="範例圖片：如何找到 LINE 或 Facebook 名稱" src="imagesexample.jpg" style="max-width:140px;border:1px solid #d1d5db;border-radius:8px;"/>
+</div>
+<input name="social_name" placeholder="請輸入名稱（若選 LINE/FB 請務必填寫）" type="text"/>
 </div>
 </div>
 <div class="section">
@@ -145,7 +179,7 @@
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
-</div>  <script src="ux.v4.js"></script>
-  <script src="kill-legacy.js" defer></script>
+</div> <script src="ux.v4.js"></script>
+<script defer="" src="kill-legacy.js"></script>
 </body>
 </html>
