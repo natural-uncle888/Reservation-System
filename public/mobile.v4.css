@@ -388,3 +388,39 @@ body { padding-bottom: 88px; }
 #ac-transformers > label {
   margin: 0 !important;
 }
+
+
+/* === Forced two-column mobile grids for specified sections === */
+@media (max-width: 767px){
+  /* Other-service sections: render choice cards in 2 columns */
+  .section{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: start;
+  }
+  .section > h2,
+  .section > .subhead,
+  .section > ul,
+  .section > p,
+  .section > details{
+    grid-column: 1 / -1; /* headings/notes span full width */
+  }
+  label.option{ display:block; }
+
+  /* Contact sections: buttons/labels in 2 columns */
+  .section .group{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: start;
+  }
+  .section .group .other-input{ grid-column: 1 / -1; }
+
+  /* Tighten vertical rhythm on mobile */
+  .wrap{ padding: 8px 12px; }
+  .section{ margin: 10px 0 12px; }
+  .subhead{ margin: 4px 0 6px; font-size: .95rem; }
+  label.option, .group label{ padding: 6px 8px; }
+  p, label{ line-height: 1.35; }
+}
