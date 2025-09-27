@@ -476,3 +476,42 @@ body { padding-bottom: 88px; }
   }
 }
 
+
+
+/* === Responsive card grid for mobile (consistent across pages) === */
+/* Base spacing for cards */
+.card, .card-b, .card-h {
+  width: 100%;
+}
+
+/* Service cards grid */
+.grid.service-links, .service-links {
+  display: grid;
+  gap: 12px;
+}
+
+/* Ultra-small phones: single column, compact cards */
+@media (max-width: 479px) {
+  .grid.service-links, .service-links { grid-template-columns: 1fr; }
+  .card, .card-b, .card-h { padding: 12px; border-radius: 12px; }
+  .card h3, .card-b h3, .card-h h3 { font-size: 1rem; }
+  .card p, .card-b p, .card-h p { font-size: .9rem; line-height: 1.45; }
+}
+
+/* Small phones / portrait: two columns */
+@media (min-width: 480px) and (max-width: 767px) {
+  .grid.service-links, .service-links { grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
+/* Tablets and up: fall back to whatever the page sets, but ensure a reasonable default */
+@media (min-width: 768px) {
+  .grid.service-links, .service-links { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+
+/* Make images inside cards scale nicely */
+.card img, .card-b img, .card-h img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+}
