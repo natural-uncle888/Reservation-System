@@ -232,11 +232,33 @@ input:checked + label.option{background:var(--accent-strong);border-color:var(--
 .btn-primary{background:var(--brand);color:#fff;border-color:var(--brand)}
 .btn-primary:hover{background:var(--brand-600)}
 
+/* Progress bar */
+.progress{
+  display:flex;gap:8px;align-items:center;margin:6px 0 12px 0
+}
+.progress .step{
+  display:flex;align-items:center;gap:8px
+}
+.progress .dot{
+  width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  border:2px solid var(--line);background:#fff;font-weight:700;color:var(--muted)
+}
+.progress .step.active .dot{border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.progress .label{font-weight:600;color:var(--muted)}
+.progress .step.active .label{color:var(--ink)}
+.progress .bar{flex:1;height:2px;background:var(--line)}
+.progress .step.completed .dot{background:var(--accent-strong);border-color:var(--brand);color:#1e3a8a}
+.progress .step.completed .label{color:var(--ink-weak)}
+
 /* Bigger touch zones */
 input, select, textarea{min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid var(--line)}
 label{display:block;margin:8px 0 4px 0;color:var(--ink-weak)}
 
-/* autosave banner removed */
+/* Save banner (optional) */
+.autosave-banner{
+  display:none;margin:6px 0;padding:8px 10px;border:1px solid #bbf7d0;background:#ecfccb;border-radius:10px;color:#166534
+}
+.autosave-banner.show{display:block}
 
 
 /* === Button Style Fix === */
@@ -335,66 +357,20 @@ body { padding-bottom: 88px; }
   #preview td, #preview th { padding: 6px 8px; }
 }
 
-/* === Layout alignment & overflow fixes === */
-html, body { margin:0; padding:0; overflow-x:hidden; }
-.wrap, .container, main { width:100%; max-width:1024px; margin:0 auto; box-sizing:border-box; }
-.grid, .section, .card { width:100%; box-sizing:border-box; }
+
+/* Kill-switch for legacy UI bits */
+.progress, .autosave-banner { display: none !important; }
 
 
-/* === Overflow & Right-Shift Fix (mobile-first) === */
-*,
-*::before,
-*::after { box-sizing: border-box; }
-
-html, body { margin: 0; padding: 0; overflow-x: hidden; }
-
-.wrap, .container, main {
-  width: 100% !important;
-  max-width: 1024px;
-  margin: 0 auto;
-  padding-left: 16px;
-  padding-right: 16px;
-  box-sizing: border-box !important;
+/* === Two-column card layout for 其他清洗服務 (forced) === */
+#washing-count, #washer-floor, #tank-count, #pipe-plan {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
 }
-
-.grid, .section, .card {
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-img, video, canvas, iframe {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-input, select, textarea, button {
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-table {
-  width: 100% !important;
-  table-layout: fixed;
-  border-collapse: collapse;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-/* Sticky bar should not cause horizontal overflow */
-.nav, .nav.sticky {
-  width: 100% !important;
-  max-width: 100% !important;
-  left: 0; right: 0;
-  box-sizing: border-box;
-}
-.nav > * {
-  min-width: 0; /* allow buttons to shrink within flex container */
-}
-
-/* Prevent accidental negative margins from pushing layout */
-body * {
-  margin-left: clamp(-0.01px, 0vw, 0px);
+#washing-count > label,
+#washer-floor > label,
+#tank-count > label,
+#pipe-plan > label {
+  margin: 0 !important;
 }
