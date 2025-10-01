@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant"><head>
 <meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="#2563eb" name="theme-color"/>
@@ -24,7 +25,95 @@ textarea{width:100%;min-height:160px;padding:10px;border:1px solid #ccc;border-r
         max-width: 100%;
         box-sizing: border-box;
     }
-    </style></head><body>
+    </style><style>
+/* ==== Mobile RWD Nav ==== */
+.mobile-nav {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  height: 56px;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
+  font-size: 1.1rem;
+}
+.mobile-nav a {
+  display: flex; flex-direction: column; align-items: center;
+  color: #2563eb; text-decoration: none; font-weight: bold;
+  transition: background .15s, color .15s;
+  border-radius: 14px;
+  padding: 4px 10px;
+}
+.mobile-nav a:active, .mobile-nav a:focus {
+  background: #e0e7ff;
+  color: #1d4ed8;
+}
+@media (min-width: 768px) {
+  .mobile-nav { display: none; }
+}
+
+/* ==== Card & Button Active ==== */
+.card:active, .go:active, button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 12px rgba(37,99,235,0.12);
+  filter: brightness(0.97);
+  transition: transform .05s, box-shadow .05s;
+}
+button, .go, .card {
+  transition: box-shadow .18s, transform .10s, filter .10s;
+  cursor: pointer;
+}
+
+/* ==== Visual Upgrade ==== */
+.hero h1 {
+  font-size: 1.9rem;
+  letter-spacing: .5px;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+.hero p {
+  color: #64748b;
+  font-size: 1.04rem;
+}
+.grid { gap: 22px; }
+.card {
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  font-size: 1rem;
+}
+.card h3 {
+  font-size: 1.16rem;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+.card p {
+  color: #6b7280;
+  font-size: .99rem;
+}
+footer {
+  margin-bottom: 56px; /* 避開 mobile-nav */
+}
+
+/* ==== Error Message ==== */
+.input-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-top: 4px;
+  font-size: .93rem;
+  font-weight: 600;
+}
+.form-row.error input, .form-row.error textarea, .form-row.error select {
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+}
+</style></head><body>
 <header><h1>大量清洗需求</h1></header><main>
 <input name="service_category" type="hidden" value="大量清洗需求"/>
 <section class="section"><h2>多台預約說明</h2>
@@ -37,4 +126,16 @@ function save(part){try{const prev=JSON.parse(localStorage.getItem(KEY)||'{}');l
 function collect(root=document){const out={service_category:'大量清洗需求'};$$('input[name],textarea[name],select[name]',root).forEach(el=>{const n=el.name;if(!n)return;const v=(el.value||'').trim();if(v)out[n]=v;});return out;}
 document.addEventListener('input',()=>save(collect()));['back','next'].forEach(id=>{const a=document.getElementById(id);if(a)a.addEventListener('click',()=>save(collect()),{capture:true});});
 window.debugBulk=()=>collect();window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');})();</script>
+
+<nav class="mobile-nav">
+<a href="index.html">
+<span>🏠</span><span>首頁</span>
+</a>
+<a href="contact.html">
+<span>📞</span><span>聯絡</span>
+</a>
+<a href="final-booking.html">
+<span>📄</span><span>預約確認</span>
+</a>
+</nav>
 </body></html>
