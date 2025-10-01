@@ -181,15 +181,14 @@ label{line-height:1.3}
   .option-group > label.option-card,
   .option-group > label.option { font-size: 1.01rem; padding: 12px 4px; }
 }
-#pipe_reason_other_wrap textarea {
-  width: 100vw !important;
-  max-width: calc(100vw - 40px) !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-  margin-left: -12px !important;
-  margin-right: -12px !important;
-  border-radius: 12px !important;
-  padding: 12px 10px !important;
-  font-size: 1rem !important;
-  display: block !important;
+.option-card textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 1rem;
+  display: block;
+  margin-top: 8px;
 }
