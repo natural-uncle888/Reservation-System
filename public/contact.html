@@ -29,97 +29,72 @@
 </style>
 <link href="mobile.css" rel="stylesheet"/>
 <style>
-    body, html {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    table, input, select, textarea, button {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    </style><style>
-/* ==== Card & Button Active ==== */
-.card:active, .go:active, button:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 12px rgba(37,99,235,0.12);
-  filter: brightness(0.97);
-  transition: transform .05s, box-shadow .05s;
+/* === 雙欄卡片群組 === */
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  gap: 12px;
+  margin-bottom: 10px;
+  justify-content: space-between;
 }
-button, .go, .card {
-  transition: box-shadow .18s, transform .10s, filter .10s;
+.group .option-card, .group label {
+  flex: 1 1 calc(50% - 6px);
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 0 !important;
+  max-width: calc(50% - 6px);
+  display: flex; align-items: center; gap: 10px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px 10px;
+  font-size: 1.12rem;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.03);
   cursor: pointer;
+  transition: border .13s, box-shadow .13s, background .12s;
+  position: relative;
 }
-
-/* ==== Visual Upgrade ==== */
-.hero h1 {
-  font-size: 1.9rem;
-  letter-spacing: .5px;
-  font-weight: 800;
-  color: #2563eb;
-  margin-bottom: 4px;
+.group .option-card:active, .group label:active {
+  background: #e0e7ff;
+  border-color: #2563eb;
 }
-.hero p {
-  color: #64748b;
-  font-size: 1.04rem;
+.group input[type="radio"],
+.group input[type="checkbox"] {
+  accent-color: #2563eb;
+  width: 22px;
+  height: 22px;
+  margin-right: 6px;
+  margin-left: 0;
+  flex-shrink: 0;
 }
-.grid { gap: 22px; }
-.card {
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-  font-size: 1rem;
+.group .option-card.selected, .group label.selected {
+  border: 2.5px solid #2563eb;
+  background: #e0e7ff;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.10);
 }
-.card h3 {
-  font-size: 1.16rem;
-  font-weight: 700;
-  letter-spacing: .1px;
+/* 例外處理 for group 內 input[type=text] 讓它獨占一行 */
+.group input[type="text"], .group input[type="tel"] {
+  max-width: 100%;
+  margin-top: 8px;
+  flex: 1 1 100%;
+  border-radius: 9px;
+  box-shadow: none;
+  border: 1.5px solid #e5e7eb;
+  padding: 12px 10px;
 }
-.card p {
-  color: #6b7280;
-  font-size: .99rem;
+/* 其他欄位、row區塊維持原寬度與間距 */
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px;
+  align-items: center;
 }
-footer {
-  margin-bottom: 0;
+@media (max-width: 520px) {
+  .row { grid-template-columns: 1fr; gap: 2px;}
 }
-
-/* ==== Error Message ==== */
-.input-error {
-  color: #dc2626;
-  background: #fef2f2;
-  border-radius: 8px;
-  padding: 5px 10px;
-  margin-top: 4px;
-  font-size: .93rem;
-  font-weight: 600;
-}
-.form-row.error input, .form-row.error textarea, .form-row.error select {
-  border: 2px solid #dc2626;
-  background: #fef2f2;
-}
-
-/* ==== FAB ==== */
-.fab-home {
-  position: fixed; right: 18px; bottom: 72px;
-  width: 54px; height: 54px;
-  background: #2563eb;
-  color: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.1em;
-  z-index: 1010;
-  text-decoration: none;
-  transition: background .13s, transform .13s;
-  border: none;
-}
-.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
-@media (min-width: 768px) {
-  .fab-home { display: none; }
-}
+/* 外圍padding */
+.wrap, main, form { padding-left: 8px !important; padding-right: 8px !important; }
 </style></head>
 <body>
 <div class="wrap">
@@ -132,10 +107,10 @@ footer {
 <div class="section">
 <h2>與我們聯繫方式</h2>
 <div class="group" id="contact-method">
-<label><input name="contact_method" type="radio" value="LINE"/>LINE</label>
-<label><input name="contact_method" type="radio" value="Facebook"/>Facebook</label>
-<label><input name="contact_method" type="radio" value="電話"/>電話</label>
-<label><input data-other-id="contact_method_other" name="contact_method" type="radio" value="其他"/>其他</label>
+<label class="option-card"><input name="contact_method" type="radio" value="LINE"/>LINE</label>
+<label class="option-card"><input name="contact_method" type="radio" value="Facebook"/>Facebook</label>
+<label class="option-card"><input name="contact_method" type="radio" value="電話"/>電話</label>
+<label class="option-card"><input data-other-id="contact_method_other" name="contact_method" type="radio" value="其他"/>其他</label>
 <input class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式" type="text"/>
 </div>
 <details><summary>小提醒</summary><p>若偏好非電話聯繫，請在下方名稱處提供 LINE 或 FB 名稱。</p></details>
@@ -167,22 +142,22 @@ footer {
 <div class="row">
 <div>居住地型態</div>
 <div class="group">
-<label><input name="housing_type" type="radio" value="透天屋"/>透天屋</label>
-<label><input name="housing_type" type="radio" value="大樓（有電梯）"/>大樓（有電梯）</label>
-<label><input name="housing_type" type="radio" value="大樓（無電梯）"/>大樓（無電梯）</label>
-<label><input data-other-id="housing_type_other" name="housing_type" type="radio" value="其他"/>其他</label>
+<label class="option-card"><input name="housing_type" type="radio" value="透天屋"/>透天屋</label>
+<label class="option-card"><input name="housing_type" type="radio" value="大樓（有電梯）"/>大樓（有電梯）</label>
+<label class="option-card"><input name="housing_type" type="radio" value="大樓（無電梯）"/>大樓（無電梯）</label>
+<label class="option-card"><input data-other-id="housing_type_other" name="housing_type" type="radio" value="其他"/>其他</label>
 <input class="other-input" id="housing_type_other" name="housing_type_other" placeholder="請輸入型態" type="text"/>
 </div>
 </div>
 <div class="row">
 <div>方便聯繫時間（可複選）</div>
 <div class="group">
-<label><input name="contact_time_preference" type="checkbox" value="平日"/>平日</label>
-<label><input name="contact_time_preference" type="checkbox" value="假日"/>假日</label>
-<label><input name="contact_time_preference" type="checkbox" value="上午"/>上午</label>
-<label><input name="contact_time_preference" type="checkbox" value="下午"/>下午</label>
-<label><input name="contact_time_preference" type="checkbox" value="晚上"/>晚上</label>
-<label><input name="contact_time_preference" type="checkbox" value="皆可"/>皆可</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="平日"/>平日</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="假日"/>假日</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="上午"/>上午</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="下午"/>下午</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="晚上"/>晚上</label>
+<label class="option-card"><input name="contact_time_preference" type="checkbox" value="皆可"/>皆可</label>
 </div>
 </div>
 <details><summary>隱私說明</summary><p>聯繫資訊僅用於預約溝通與派工，不做其他用途。</p></details>
@@ -237,7 +212,22 @@ footer {
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
-</div>
-<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
-</body>
+</div><script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.group').forEach(function(group) {
+    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+      input.addEventListener('change', function(){
+        if(input.type==="radio"){
+          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
+          group.querySelectorAll('label').forEach(function(card){card.classList.remove('selected')});
+        }
+        if(input.checked) input.closest('label').classList.add('selected');
+        else input.closest('label').classList.remove('selected');
+      });
+      // 預設選中的也要上色
+      if(input.checked) input.closest('label').classList.add('selected');
+    });
+  });
+});
+</script></body>
 </html>
