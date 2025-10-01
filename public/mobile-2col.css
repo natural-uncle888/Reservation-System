@@ -181,3 +181,20 @@ label{line-height:1.3}
   .option-group > label.option-card,
   .option-group > label.option { font-size: 1.01rem; padding: 12px 4px; }
 }
+/* 讓 option-card 內的 input/textarea 永遠不會超出卡片 */
+.option-card input[type="text"],
+.option-card textarea,
+.option-card input[type="tel"],
+.option-card input[type="number"] {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  margin-bottom: 0;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  padding: 10px 8px;
+  background: #fff;
+  font-size: 1rem;
+  display: block;
+}
