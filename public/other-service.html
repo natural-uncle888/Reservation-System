@@ -26,40 +26,7 @@
     ul{margin:6px 0;color:var(--muted)}
   </style>
 <link href="mobile.css" rel="stylesheet"/>
-<style>
-.option-group {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-left: 2px; padding-right: 2px;
-}
-.option-card, .option {
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px 10px;
-  font-size: 1.12rem;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.03);
-  cursor: pointer;
-  transition: border .13s, box-shadow .13s, background .12s;
-  margin-bottom: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box;
-}
-@media (max-width: 520px) {
-  .option-group { gap: 8px;}
-  .option-card, .option { font-size: 1.01rem; padding: 12px 4px;}
-}
-@media (max-width: 440px) {
-  .option-group { grid-template-columns: 1fr;}
-}
-</style></head>
+</head>
 <body>
 <div class="wrap">
 <h1>其他清洗服務</h1>
@@ -191,20 +158,5 @@
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.option-group').forEach(function(group) {
-    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
-      input.addEventListener('change', function(){
-        if(input.type==="radio"){
-          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
-        }
-        if(input.checked) input.closest('label').classList.add('selected');
-        else input.closest('label').classList.remove('selected');
-      });
-      if(input.checked) input.closest('label').classList.add('selected');
-    });
-  });
-});
-</script></body>
+</body>
 </html>
