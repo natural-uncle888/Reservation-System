@@ -27,96 +27,37 @@
   </style>
 <link href="mobile.css" rel="stylesheet"/>
 <style>
-    body, html {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    table, input, select, textarea, button {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    </style><style>
-/* ==== Card & Button Active ==== */
-.card:active, .go:active, button:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 12px rgba(37,99,235,0.12);
-  filter: brightness(0.97);
-  transition: transform .05s, box-shadow .05s;
+.option-group {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-left: 2px; padding-right: 2px;
 }
-button, .go, .card {
-  transition: box-shadow .18s, transform .10s, filter .10s;
+.option-card, .option {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px 10px;
+  font-size: 1.12rem;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.03);
   cursor: pointer;
+  transition: border .13s, box-shadow .13s, background .12s;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
 }
-
-/* ==== Visual Upgrade ==== */
-.hero h1 {
-  font-size: 1.9rem;
-  letter-spacing: .5px;
-  font-weight: 800;
-  color: #2563eb;
-  margin-bottom: 4px;
+@media (max-width: 520px) {
+  .option-group { gap: 8px;}
+  .option-card, .option { font-size: 1.01rem; padding: 12px 4px;}
 }
-.hero p {
-  color: #64748b;
-  font-size: 1.04rem;
-}
-.grid { gap: 22px; }
-.card {
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-  font-size: 1rem;
-}
-.card h3 {
-  font-size: 1.16rem;
-  font-weight: 700;
-  letter-spacing: .1px;
-}
-.card p {
-  color: #6b7280;
-  font-size: .99rem;
-}
-footer {
-  margin-bottom: 0;
-}
-
-/* ==== Error Message ==== */
-.input-error {
-  color: #dc2626;
-  background: #fef2f2;
-  border-radius: 8px;
-  padding: 5px 10px;
-  margin-top: 4px;
-  font-size: .93rem;
-  font-weight: 600;
-}
-.form-row.error input, .form-row.error textarea, .form-row.error select {
-  border: 2px solid #dc2626;
-  background: #fef2f2;
-}
-
-/* ==== FAB ==== */
-.fab-home {
-  position: fixed; right: 18px; bottom: 72px;
-  width: 54px; height: 54px;
-  background: #2563eb;
-  color: #fff;
-  border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.1em;
-  z-index: 1010;
-  text-decoration: none;
-  transition: background .13s, transform .13s;
-  border: none;
-}
-.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
-@media (min-width: 768px) {
-  .fab-home { display: none; }
+@media (max-width: 440px) {
+  .option-group { grid-template-columns: 1fr;}
 }
 </style></head>
 <body>
@@ -130,48 +71,48 @@ footer {
 <div class="section">
 <h2>直立式洗衣機清洗</h2>
 <div class="subhead">清洗台數</div>
-<label class="option"><input name="washer_count" type="radio" value="1台"/>1 台</label>
-<label class="option"><input name="washer_count" type="radio" value="2台"/>2 台</label>
-<label class="option"><input name="washer_count" type="radio" value="3台"/>3 台</label>
-<label class="option"><input name="washer_count" type="radio" value="4台"/>4 台</label>
+<div class="option-group"><label class="option option-card"><input name="washer_count" type="radio" value="1台"/>1 台</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_count" type="radio" value="2台"/>2 台</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_count" type="radio" value="3台"/>3 台</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_count" type="radio" value="4台"/>4 台</label></div>
 <ul><li>尚無提供滾筒式洗衣機清洗服務。</li></ul>
 <div class="subhead">洗衣機位於樓層（可複選）</div>
 <!-- 改為可複選 checkbox -->
-<label class="option"><input name="washer_floor" type="checkbox" value="1F"/>1F</label>
-<label class="option"><input name="washer_floor" type="checkbox" value="2F"/>2F</label>
-<label class="option"><input name="washer_floor" type="checkbox" value="3F"/>3F</label>
-<label class="option"><input name="washer_floor" type="checkbox" value="4F"/>4F</label>
-<label class="option"><input name="washer_floor" type="checkbox" value="5F"/>5F</label>
-<label class="option"><input name="washer_floor" type="checkbox" value="大樓"/>大樓（同樓層）</label>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="1F"/>1F</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="2F"/>2F</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="3F"/>3F</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="4F"/>4F</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="5F"/>5F</label></div>
+<div class="option-group"><label class="option option-card"><input name="washer_floor" type="checkbox" value="大樓"/>大樓（同樓層）</label></div>
 </div>
 <div class="section">
 <h2>家用水塔清洗（兩噸內）</h2>
 <div class="subhead">清洗顆數</div>
-<label class="option"><input name="tank_count" type="radio" value="1顆"/>1 顆</label>
-<label class="option"><input name="tank_count" type="radio" value="2顆"/>2 顆</label>
-<label class="option"><input name="tank_count" type="radio" value="3顆"/>3 顆</label>
-<label class="option"><input name="tank_count" type="radio" value="4顆"/>4 顆</label>
-<label class="option"><input name="tank_count" type="radio" value="5顆"/>5 顆</label>
+<div class="option-group"><label class="option option-card"><input name="tank_count" type="radio" value="1顆"/>1 顆</label></div>
+<div class="option-group"><label class="option option-card"><input name="tank_count" type="radio" value="2顆"/>2 顆</label></div>
+<div class="option-group"><label class="option option-card"><input name="tank_count" type="radio" value="3顆"/>3 顆</label></div>
+<div class="option-group"><label class="option option-card"><input name="tank_count" type="radio" value="4顆"/>4 顆</label></div>
+<div class="option-group"><label class="option option-card"><input name="tank_count" type="radio" value="5顆"/>5 顆</label></div>
 <ul><li>放置高危險/狹窄機房請事先告知說明。</li></ul>
 </div>
 <div class="section">
 <h2>自來水管清洗服務</h2>
 <div class="subhead">戶型方案</div>
-<label class="option"><input name="pipe_service" type="radio" value="無廚一衛"/>無廚一衛</label>
-<label class="option"><input name="pipe_service" type="radio" value="一廚一衛"/>一廚一衛</label>
-<label class="option"><input name="pipe_service" type="radio" value="一廚兩衛"/>一廚兩衛</label>
-<label class="option"><input name="pipe_service" type="radio" value="一廚三衛"/>一廚三衛</label>
-<label class="option"><input name="pipe_service" type="radio" value="一廚四衛"/>一廚四衛</label>
-<label class="option"><input name="pipe_service" type="radio" value="一廚五衛"/>一廚五衛</label>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="無廚一衛"/>無廚一衛</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="一廚一衛"/>一廚一衛</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="一廚兩衛"/>一廚兩衛</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="一廚三衛"/>一廚三衛</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="一廚四衛"/>一廚四衛</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_service" type="radio" value="一廚五衛"/>一廚五衛</label></div>
 <div class="subhead">清洗原因（可複選）</div>
-<label class="option"><input name="pipe_reason" type="checkbox" value="異味"/>出水有異味（如鐵鏽味、霉味）</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="混濁"/>水質混濁或有顆粒、沉澱物</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="水壓變小"/>水壓變小或出水量減少</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="長時間未清洗"/>長時間未清洗過水管（5 年以上）</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="新屋"/>剛搬新家或新裝修</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="健康考量"/>家中成員皮膚過敏或健康考量</label>
-<label class="option"><input name="pipe_reason" type="checkbox" value="預防性保養"/>預防性保養清洗</label>
-<label class="option"><input data-other-id="pipe_reason_other" name="pipe_reason" type="checkbox" value="其他"/>其他原因（請說明）</label>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="異味"/>出水有異味（如鐵鏽味、霉味）</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="混濁"/>水質混濁或有顆粒、沉澱物</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="水壓變小"/>水壓變小或出水量減少</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="長時間未清洗"/>長時間未清洗過水管（5 年以上）</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="新屋"/>剛搬新家或新裝修</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="健康考量"/>家中成員皮膚過敏或健康考量</label></div>
+<div class="option-group"><label class="option option-card"><input name="pipe_reason" type="checkbox" value="預防性保養"/>預防性保養清洗</label></div>
+<div class="option-group"><label class="option option-card"><input data-other-id="pipe_reason_other" name="pipe_reason" type="checkbox" value="其他"/>其他原因（請說明）</label></div>
 <div class="hidden" id="pipe_reason_other_wrap">
 <textarea id="pipe_reason_other" placeholder="請輸入其他原因…"></textarea>
 </div>
@@ -250,7 +191,20 @@ footer {
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
   </script>
-
-<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.option-group').forEach(function(group) {
+    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+      input.addEventListener('change', function(){
+        if(input.type==="radio"){
+          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
+        }
+        if(input.checked) input.closest('label').classList.add('selected');
+        else input.closest('label').classList.remove('selected');
+      });
+      if(input.checked) input.closest('label').classList.add('selected');
+    });
+  });
+});
+</script></body>
 </html>
