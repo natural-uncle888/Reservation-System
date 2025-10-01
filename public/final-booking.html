@@ -89,35 +89,6 @@ button {
         box-sizing: border-box;
     }
     </style><style>
-/* ==== Mobile RWD Nav ==== */
-.mobile-nav {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  background: #fff;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 1000;
-  height: 56px;
-  box-shadow: 0 -2px 12px rgba(0,0,0,0.04);
-  font-size: 1.1rem;
-}
-.mobile-nav a {
-  display: flex; flex-direction: column; align-items: center;
-  color: #2563eb; text-decoration: none; font-weight: bold;
-  transition: background .15s, color .15s;
-  border-radius: 14px;
-  padding: 4px 10px;
-}
-.mobile-nav a:active, .mobile-nav a:focus {
-  background: #e0e7ff;
-  color: #1d4ed8;
-}
-@media (min-width: 768px) {
-  .mobile-nav { display: none; }
-}
-
 /* ==== Card & Button Active ==== */
 .card:active, .go:active, button:active {
   transform: scale(0.97);
@@ -159,7 +130,7 @@ button, .go, .card {
   font-size: .99rem;
 }
 footer {
-  margin-bottom: 56px; /* 避開 mobile-nav */
+  margin-bottom: 0;
 }
 
 /* ==== Error Message ==== */
@@ -175,6 +146,26 @@ footer {
 .form-row.error input, .form-row.error textarea, .form-row.error select {
   border: 2px solid #dc2626;
   background: #fef2f2;
+}
+
+/* ==== FAB ==== */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px;
+  width: 54px; height: 54px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em;
+  z-index: 1010;
+  text-decoration: none;
+  transition: background .13s, transform .13s;
+  border: none;
+}
+.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
+@media (min-width: 768px) {
+  .fab-home { display: none; }
 }
 </style></head>
 <body>
@@ -315,16 +306,6 @@ footer {
   })();
   </script>
 
-<nav class="mobile-nav">
-<a href="index.html">
-<span>🏠</span><span>首頁</span>
-</a>
-<a href="contact.html">
-<span>📞</span><span>聯絡</span>
-</a>
-<a href="final-booking.html">
-<span>📄</span><span>預約確認</span>
-</a>
-</nav>
+<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
 </body>
 </html>
