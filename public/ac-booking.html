@@ -149,6 +149,68 @@ footer {
 @media (min-width: 768px) {
   .fab-home { display: none; }
 }
+</style><style>
+/* 卡片式選項群組（行動裝置強化） */
+.group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px;}
+.option-card {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border: 2px solid #e5e7eb;
+  border-radius: 16px; padding: 16px 14px;
+  font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  cursor: pointer; min-height: 48px;
+  transition: border .13s, box-shadow .13s, background .12s;
+  margin-bottom: 0 !important;
+  position: relative;
+}
+.option-card:active { background: #e0e7ff; border-color: #2563eb;}
+.option-card input[type="radio"], .option-card input[type="checkbox"] {
+  accent-color: #2563eb; width: 22px; height: 22px; margin-right: 6px; margin-left: 0;
+  flex-shrink: 0;
+}
+.option-card.selected {
+  border: 2.5px solid #2563eb;
+  background: #e0e7ff;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.10);
+}
+.option-card img.opt-img { width: 88px !important; border-radius: 10px; margin-top: 0;}
+/* 其他欄位維持原樣式 */
+
+/* FAB 回首頁按鈕 */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px;
+  width: 54px; height: 54px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em;
+  z-index: 1010;
+  text-decoration: none;
+  transition: background .13s, transform .13s;
+  border: none;
+}
+.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
+@media (min-width: 768px) { .fab-home { display: none; } }
+</style><style>
+.group.model-group { flex-direction: column; }
+
+.group:not(.model-group) {
+  display: flex; flex-wrap: wrap; flex-direction: row; gap: 12px;
+  margin-bottom: 10px; justify-content: space-between;
+}
+.group:not(.model-group) .option-card {
+  flex: 1 1 calc(50% - 6px);
+  min-width: 0; box-sizing: border-box;
+  margin-bottom: 0 !important;
+  max-width: calc(50% - 6px);
+}
+@media (max-width: 400px) {
+  .group:not(.model-group) .option-card {
+    font-size: 1.03rem; padding: 14px 6px;
+  }
+}
+main, form { padding-left: 6px !important; padding-right: 6px !important; }
 </style></head>
 <body>
 <div class="header">
@@ -162,20 +224,20 @@ footer {
 <div class="section">
 <h2 class="req">冷氣類型</h2>
 <div class="group">
-<label><input name="ac_type" required="" type="radio" value="分離式冷氣"/>分離式冷氣 <img alt="分離式冷氣示意圖" class="opt-img" src="imagessplit-ac.jpg"/></label>
-<label><input name="ac_type" type="radio" value="吊隱式冷氣"/>吊隱式冷氣 <img alt="吊隱式冷氣示意圖" class="opt-img" src="imagesceiling-ac.jpg"/></label>
+<label class="option-card"><input name="ac_type" required="" type="radio" value="分離式冷氣"/>分離式冷氣 <img alt="分離式冷氣示意圖" class="opt-img" src="imagessplit-ac.jpg"/></label>
+<label class="option-card"><input name="ac_type" type="radio" value="吊隱式冷氣"/>吊隱式冷氣 <img alt="吊隱式冷氣示意圖" class="opt-img" src="imagesceiling-ac.jpg"/></label>
 </div>
 <p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
 </div>
 <div class="section">
 <h2 class="req">清洗數量</h2>
 <div class="group">
-<label><input name="ac_count" required="" type="radio" value="1台"/>1 台</label>
-<label><input name="ac_count" type="radio" value="2台"/>2 台</label>
-<label><input name="ac_count" type="radio" value="3台"/>3 台</label>
-<label><input name="ac_count" type="radio" value="4台"/>4 台</label>
-<label><input name="ac_count" type="radio" value="5台"/>5 台</label>
-<label><input data-other-id="ac_count_other" name="ac_count" type="radio" value="5台以上"/>5 台以上</label>
+<label class="option-card"><input name="ac_count" required="" type="radio" value="1台"/>1 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="2台"/>2 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="3台"/>3 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="4台"/>4 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="5台"/>5 台</label>
+<label class="option-card"><input data-other-id="ac_count_other" name="ac_count" type="radio" value="5台以上"/>5 台以上</label>
 <div class="hidden-input" id="ac_count_other_wrap">
 <input id="ac_count_other" min="6" name="ac_count_other" placeholder="請輸入實際台數（≥6）" type="number"/>
 </div>
@@ -187,12 +249,12 @@ footer {
 <div class="section">
 <h2 class="req">室內機所在樓層（可複選）</h2>
 <div class="group">
-<label><input name="indoor_floor" type="checkbox" value="1樓"/>1 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="2樓"/>2 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="3樓"/>3 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="4樓"/>4 樓</label>
-<label><input name="indoor_floor" type="checkbox" value="5樓"/>5 樓</label>
-<label><input data-other-id="indoor_floor_other" name="indoor_floor" type="checkbox" value="5樓以上"/>5 樓以上</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="1樓"/>1 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="2樓"/>2 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="3樓"/>3 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="4樓"/>4 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="5樓"/>5 樓</label>
+<label class="option-card"><input data-other-id="indoor_floor_other" name="indoor_floor" type="checkbox" value="5樓以上"/>5 樓以上</label>
 <div class="hidden-input" id="indoor_floor_other_wrap">
 <input id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" type="text"/>
 </div>
@@ -202,19 +264,19 @@ footer {
 <div class="section">
 <h2 class="req">冷氣品牌（可複選）</h2>
 <div class="group">
-<label><input name="ac_brand" type="checkbox" value="HITACHI 日立"/>HITACHI 日立</label>
-<label><input name="ac_brand" type="checkbox" value="Panasonic 國際牌"/>Panasonic 國際牌</label>
-<label><input name="ac_brand" type="checkbox" value="DAIKIN 大金"/>DAIKIN 大金</label>
-<label><input name="ac_brand" type="checkbox" value="MITSUBISHI 三菱"/>MITSUBISHI 三菱</label>
-<label><input name="ac_brand" type="checkbox" value="FUJITSU 富士通"/>FUJITSU 富士通</label>
-<label><input name="ac_brand" type="checkbox" value="LG"/>LG</label>
-<label><input name="ac_brand" type="checkbox" value="TECO 東元"/>TECO 東元</label>
-<label><input name="ac_brand" type="checkbox" value="SANLUX 三洋"/>SANLUX 三洋</label>
-<label><input name="ac_brand" type="checkbox" value="SAMPO 聲寶"/>SAMPO 聲寶</label>
-<label><input name="ac_brand" type="checkbox" value="Heran 禾聯"/>Heran 禾聯</label>
-<label><input name="ac_brand" type="checkbox" value="Kolin 歌林"/>Kolin 歌林</label>
-<label><input name="ac_brand" type="checkbox" value="TATUNG 大同"/>TATUNG 大同</label>
-<label><input data-other-id="ac_brand_other" name="ac_brand" type="checkbox" value="其他"/>其他</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="HITACHI 日立"/>HITACHI 日立</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Panasonic 國際牌"/>Panasonic 國際牌</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="DAIKIN 大金"/>DAIKIN 大金</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="MITSUBISHI 三菱"/>MITSUBISHI 三菱</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="FUJITSU 富士通"/>FUJITSU 富士通</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="LG"/>LG</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="TECO 東元"/>TECO 東元</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="SANLUX 三洋"/>SANLUX 三洋</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="SAMPO 聲寶"/>SAMPO 聲寶</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Heran 禾聯"/>Heran 禾聯</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Kolin 歌林"/>Kolin 歌林</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="TATUNG 大同"/>TATUNG 大同</label>
+<label class="option-card"><input data-other-id="ac_brand_other" name="ac_brand" type="checkbox" value="其他"/>其他</label>
 <div class="hidden-input" id="ac_brand_other_wrap">
 <input id="ac_brand_other" name="ac_brand_other" placeholder="請輸入品牌" type="text"/>
 </div>
@@ -223,9 +285,9 @@ footer {
 <div class="section">
 <h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
 <div class="group">
-<label><input name="ac_transformer_series" required="" type="radio" value="是"/>是</label>
-<label><input name="ac_transformer_series" type="radio" value="否"/>否</label>
-<label><input name="ac_transformer_series" type="radio" value="不清楚（現場由人員判斷）"/>不清楚（現場由人員判斷）</label>
+<label class="option-card"><input name="ac_transformer_series" required="" type="radio" value="是"/>是</label>
+<label class="option-card"><input name="ac_transformer_series" type="radio" value="否"/>否</label>
+<label class="option-card"><input name="ac_transformer_series" type="radio" value="不清楚（現場由人員判斷）"/>不清楚（現場由人員判斷）</label>
 </div>
 <div class="aside"> <div class="tip"> <strong>什麼是「變形金剛系列」？</strong> <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p> <img alt="常見變形金剛系列參考照片" class="opt-img" src="imagestransformer-ac.jpg"/> </div></div>
 </div>
@@ -339,7 +401,23 @@ footer {
   }
 })();
 </script>
-
 <a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
-</body>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.group').forEach(function(group) {
+    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+      input.addEventListener('change', function(){
+        // radio：互斥
+        if(input.type==="radio"){
+          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
+        }
+        if(input.checked) input.closest('.option-card').classList.add('selected');
+        else input.closest('.option-card').classList.remove('selected');
+      });
+      // 預設選中的也要上色
+      if(input.checked) input.closest('.option-card').classList.add('selected');
+    });
+  });
+});
+</script></body>
 </html>
