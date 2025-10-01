@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#2563eb"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
 <title>安排時段填寫</title>
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
-  <style>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
     .wrap{max-width:1024px;margin:0 auto;padding:18px 16px}
@@ -73,54 +74,60 @@ button {
 }
 
 </style>
-<link rel="stylesheet" href="mobile.css"/>
-</head>
+<link href="mobile.css" rel="stylesheet"/>
+<style>
+    body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    table, input, select, textarea, button {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    </style></head>
 <body>
-  <div class="wrap">
-    <h1>安排時段填寫</h1>
-    <p class="desc">請選擇可安排時段，並補充其他說明。右側可即時預覽填寫的內容。</p>
-
-    <div class="grid">
-      <div class="section">
-        <h2>可安排時段（可複選）</h2>
-        <div class="group" id="timeslot">
-          <label><input type="checkbox" name="timeslot" value="平日">平日</label>
-          <label><input type="checkbox" name="timeslot" value="假日">假日</label>
-          <label><input type="checkbox" name="timeslot" value="上午">上午</label>
-          <label><input type="checkbox" name="timeslot" value="下午">下午</label>
-          <label><input type="checkbox" name="timeslot" value="晚上">晚上</label>
-          <label><input type="checkbox" name="timeslot" value="皆可">皆可</label>
-          <label><input type="checkbox" name="timeslot" value="其他指定時間" data-other-id="time_other">其他指定時間</label>
-          <input id="time_other" name="time_other" placeholder="例如 6/9 09:00–11:00" />
-        </div>
-
-        <h2>其他備註說明</h2>
-        <textarea name="note" rows="4" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊"></textarea>
-
-        <details><summary>送出後流程</summary><p>我司將收到您的預約資料，人員會於「方便聯繫時間」內與您聯絡，確認細節與到府時間。</p></details>
-      </div>
-
-      <div class="section">
-        <h2>送出前預覽</h2>
-        <table id="preview"><tbody></tbody></table>
-      </div>
-    </div>
-
-    <div class="nav">
-      <a href="contact-info.html" id="back">← 返回上一步</a>
-      <button id="submit">完成填寫並送出</button>
-    </div>
-  </div>
-
-  <div class="ok" id="ok">
-    <div class="modal">
-      <h3>已送出</h3>
-      <p>感謝您填寫預約資料🙏</p>
-      <p>我們將盡快與您聯繫，安排最合適的清洗服務時段！</p>
-    </div>
-  </div>
-
-  <script>
+<div class="wrap">
+<h1>安排時段填寫</h1>
+<p class="desc">請選擇可安排時段，並補充其他說明。右側可即時預覽填寫的內容。</p>
+<div class="grid">
+<div class="section">
+<h2>可安排時段（可複選）</h2>
+<div class="group" id="timeslot">
+<label><input name="timeslot" type="checkbox" value="平日"/>平日</label>
+<label><input name="timeslot" type="checkbox" value="假日"/>假日</label>
+<label><input name="timeslot" type="checkbox" value="上午"/>上午</label>
+<label><input name="timeslot" type="checkbox" value="下午"/>下午</label>
+<label><input name="timeslot" type="checkbox" value="晚上"/>晚上</label>
+<label><input name="timeslot" type="checkbox" value="皆可"/>皆可</label>
+<label><input data-other-id="time_other" name="timeslot" type="checkbox" value="其他指定時間"/>其他指定時間</label>
+<input id="time_other" name="time_other" placeholder="例如 6/9 09:00–11:00">
+</input></div>
+<h2>其他備註說明</h2>
+<textarea name="note" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊" rows="4"></textarea>
+<details><summary>送出後流程</summary><p>我司將收到您的預約資料，人員會於「方便聯繫時間」內與您聯絡，確認細節與到府時間。</p></details>
+</div>
+<div class="section">
+<h2>送出前預覽</h2>
+<table id="preview"><tbody></tbody></table>
+</div>
+</div>
+<div class="nav">
+<a href="contact-info.html" id="back">← 返回上一步</a>
+<button id="submit">完成填寫並送出</button>
+</div>
+</div>
+<div class="ok" id="ok">
+<div class="modal">
+<h3>已送出</h3>
+<p>感謝您填寫預約資料🙏</p>
+<p>我們將盡快與您聯繫，安排最合適的清洗服務時段！</p>
+</div>
+</div>
+<script>
   (function(){
     const KEY='BOOKING_DATA';
     const FN='/submit';

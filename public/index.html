@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#2563eb"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
 <title>自然大叔｜預約清洗服務</title>
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
-  <style>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
     *{box-sizing:border-box}
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
@@ -25,54 +26,60 @@
     .notes h4{margin:0 0 6px;color:var(--ink);font-size:1rem}
     footer{border-top:1px solid var(--line);padding:14px 16px;color:var(--muted);font-size:.9rem;text-align:center}
   </style>
-<link rel="stylesheet" href="mobile.css"/>
-</head>
+<link href="mobile.css" rel="stylesheet"/>
+<style>
+    body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    table, input, select, textarea, button {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    </style></head>
 <body>
-  <header class="hero">
-    <div class="wrap">
-      <h1>自然大叔｜預約清洗服務</h1>
-      <p>請先選擇類別，後續頁面會帶出對應的問題。所有欄位皆可於最終頁再次確認。</p>
-    </div>
-  </header>
-
-  <main class="grid service-links">
-    <a href="ac-booking.html" class="card service-link" data-service="冷氣清洗" role="button" aria-label="選擇 冷氣清洗">
-      <h3>❄️ 冷氣清洗</h3>
-      <p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
-      <span class="go">開始</span>
-    </a>
-
-    <a href="other-service.html" class="card service-link" data-service="其他保養清洗" role="button" aria-label="選擇 其他保養清洗">
-      <h3>🧺 其他保養清洗</h3>
-      <p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
-      <span class="go">開始</span>
-    </a>
-
-    <a href="group-booking.html" class="card service-link" data-service="團購預約清洗" role="button" aria-label="選擇 團購預約清洗">
-      <h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
-      <p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
-      <span class="go">開始</span>
-    </a>
-
-    <a href="bulk-booking.html" class="card service-link" data-service="大量清洗需求" role="button" aria-label="選擇 大量清洗需求">
-      <h3>🏢 大量清洗需求</h3>
-      <p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
-      <span class="go">開始</span>
-    </a>
-  </main>
-
-  <div class="notes">
-    <h4>流程說明</h4>
-    <ol>
-      <li>依序填寫各頁問題並點下一步。</li>
-      <li>最終頁可預覽與備註。按送出後將寄出通知信。</li>
-      <li>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</li>
-    </ol>
-  </div>
-
-  <footer>© 自然大叔 預約系統</footer>
-
-  <script>
+<header class="hero">
+<div class="wrap">
+<h1>自然大叔｜預約清洗服務</h1>
+<p>請先選擇類別，後續頁面會帶出對應的問題。所有欄位皆可於最終頁再次確認。</p>
+</div>
+</header>
+<main class="grid service-links">
+<a aria-label="選擇 冷氣清洗" class="card service-link" data-service="冷氣清洗" href="ac-booking.html" role="button">
+<h3>❄️ 冷氣清洗</h3>
+<p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
+<span class="go">開始</span>
+</a>
+<a aria-label="選擇 其他保養清洗" class="card service-link" data-service="其他保養清洗" href="other-service.html" role="button">
+<h3>🧺 其他保養清洗</h3>
+<p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
+<span class="go">開始</span>
+</a>
+<a aria-label="選擇 團購預約清洗" class="card service-link" data-service="團購預約清洗" href="group-booking.html" role="button">
+<h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
+<p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
+<span class="go">開始</span>
+</a>
+<a aria-label="選擇 大量清洗需求" class="card service-link" data-service="大量清洗需求" href="bulk-booking.html" role="button">
+<h3>🏢 大量清洗需求</h3>
+<p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
+<span class="go">開始</span>
+</a>
+</main>
+<div class="notes">
+<h4>流程說明</h4>
+<ol>
+<li>依序填寫各頁問題並點下一步。</li>
+<li>最終頁可預覽與備註。按送出後將寄出通知信。</li>
+<li>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</li>
+</ol>
+</div>
+<footer>© 自然大叔 預約系統</footer>
+<script>
   /* home-service.v1 — 將首頁的服務選擇存入 localStorage.BOOKING_DATA.service_category */
   (function(){
     const KEY='BOOKING_DATA';

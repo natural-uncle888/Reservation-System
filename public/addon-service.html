@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="theme-color" content="#2563eb"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
 <title>加購服務專區</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
-  <style>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;background:#fff;color:#111}
     .container{max-width:900px;margin:0 auto;padding:20px}
     h1{font-size:1.5rem;color:#2563eb;margin:8px 0 16px}
@@ -18,46 +19,56 @@
     .nav a{flex:1;text-align:center;padding:12px 16px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none}
     .nav a:hover{background:#1e40af}
   </style>
-<link rel="stylesheet" href="mobile.css"/>
-</head>
+<link href="mobile.css" rel="stylesheet"/>
+<style>
+    body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    table, input, select, textarea, button {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    </style></head>
 <body>
-  <div class="container">
-    <h1>防霉・消毒｜加購服務專區</h1>
-    <p>為提升清洗效果與環境品質，我們提供以下兩項可選擇加購服務：</p>
-    <!-- 防霉抗菌處理（checkbox：勾選=需要；未勾=不需要） -->
-    <div class="section" id="sec-anti-mold">
-      <h2>🟢 冷氣防霉抗菌處理</h2>
-      <div class="option">
-        <input id="anti_mold" type="checkbox" name="anti_mold" value="防霉抗菌處理">
-        <label for="anti_mold">需要（每台 300 元，5 台以上每台 250 元）</label>
-      </div>
-      <ul>
-        <li>奈米級抗菌，無香料、無化學添加，純水性原料</li>
-        <li>噴塗鰭片／風鼓／風道，延緩黴菌灰塵附著</li>
-      </ul>
-    </div>
-
-    <!-- 臭氧空間消毒（checkbox） -->
-    <div class="section" id="sec-ozone">
-      <h2>🟢 臭氧空間全面消毒（房間）</h2>
-      <div class="option">
-        <input id="ozone" type="checkbox" name="ozone" value="臭氧空間消毒">
-        <label for="ozone">需要（每間房間 200 元）</label>
-      </div>
-      <ul>
-        <li>去除黴菌／異味，降低過敏源</li>
-        <li>減少異味、家具等釋放污染物</li>
-	<li>臭氧殺菌力為氯的 3000 倍，能有效達到深層消毒！</li>
-      </ul>
-    </div>
-
-    <div class="nav">
-      <a href="ac-booking.html" id="back">← 返回上一步</a>
-      <a href="other-service.html" id="next">下一步 ➜ 其他清洗服務</a>
-    </div>
-  </div>
-
-  <script>
+<div class="container">
+<h1>防霉・消毒｜加購服務專區</h1>
+<p>為提升清洗效果與環境品質，我們提供以下兩項可選擇加購服務：</p>
+<!-- 防霉抗菌處理（checkbox：勾選=需要；未勾=不需要） -->
+<div class="section" id="sec-anti-mold">
+<h2>🟢 冷氣防霉抗菌處理</h2>
+<div class="option">
+<input id="anti_mold" name="anti_mold" type="checkbox" value="防霉抗菌處理"/>
+<label for="anti_mold">需要（每台 300 元，5 台以上每台 250 元）</label>
+</div>
+<ul>
+<li>奈米級抗菌，無香料、無化學添加，純水性原料</li>
+<li>噴塗鰭片／風鼓／風道，延緩黴菌灰塵附著</li>
+</ul>
+</div>
+<!-- 臭氧空間消毒（checkbox） -->
+<div class="section" id="sec-ozone">
+<h2>🟢 臭氧空間全面消毒（房間）</h2>
+<div class="option">
+<input id="ozone" name="ozone" type="checkbox" value="臭氧空間消毒"/>
+<label for="ozone">需要（每間房間 200 元）</label>
+</div>
+<ul>
+<li>去除黴菌／異味，降低過敏源</li>
+<li>減少異味、家具等釋放污染物</li>
+<li>臭氧殺菌力為氯的 3000 倍，能有效達到深層消毒！</li>
+</ul>
+</div>
+<div class="nav">
+<a href="ac-booking.html" id="back">← 返回上一步</a>
+<a href="other-service.html" id="next">下一步 ➜ 其他清洗服務</a>
+</div>
+</div>
+<script>
   // addon-service（機器讀版）：只用表單值，不讀摘要、不會出現「一」
   (function(){
     const KEY='BOOKING_DATA';
