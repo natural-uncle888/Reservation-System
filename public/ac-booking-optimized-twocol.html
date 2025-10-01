@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
+<title>預約表單</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
+    :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
+    *{box-sizing:border-box}
+    body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
+    .header{padding:22px 16px;border-bottom:1px solid var(--line);background:#fff}
+    .wrap{max-width:960px;margin:0 auto}
+    .header h1{margin:0;color:var(--brand);font-size:1.5rem}
+    .desc{color:var(--muted);margin-top:6px}
+    form{max-width:960px;margin:16px auto;padding:0 16px}
+    .section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+    .section h2{margin:0 0 8px;color:var(--brand);font-size:1.1rem}
+    p.help{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+    .group label{display:flex;align-items:center;gap:8px;margin:6px 0}
+    .hidden-input{display:none;margin:8px 0 0 28px}
+    .hidden-input input{width:320px;max-width:100%;padding:8px;border:1px solid #ccc;border-radius:8px}
+    .aside{display:grid;gap:6px;margin-top:8px}
+    .aside .tip{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--muted);font-size:.92rem}
+    details{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:10px}
+    details>summary{cursor:pointer;font-weight:700;color:var(--ink)}
+    .nav{display:flex;gap:12px;max-width:960px;margin:18px auto;padding:0 16px}
+    .nav a,.nav button{flex:1;text-align:center;padding:12px 16px;background:var(--brand);color:#fff;border-radius:10px;text-decoration:none;border:none;cursor:pointer; font-size:1rem;}
+    .nav a:hover,.nav button:hover{background:#1e40af}
+    .group label{align-items:flex-start}
+    .group label img.opt-img {
+  width:140px;
+  height:auto;
+  display:block;
+  border:1px solid var(--line);
+  border-radius:8px;
+  margin-top:6px;
+  padding:2px;
+  background:#fff;
+}
+
+.aside .tip img.opt-img {
+  width:450px;
+  height:auto;
+  display:block;
+  border:1px solid var(--line);
+  border-radius:8px;
+  margin-top:6px;
+  padding:2px;
+  background:#fff;
+}
+
+  
+    .section h2.req::after{content:" *"; color:#dc2626; margin-left:4px; font-weight:700}
+
+</style>
+<link href="mobile.css" rel="stylesheet"/>
+<style>
+    body, html {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    table, input, select, textarea, button {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    </style><style>
+/* ==== Card & Button Active ==== */
+.card:active, .go:active, button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 12px rgba(37,99,235,0.12);
+  filter: brightness(0.97);
+  transition: transform .05s, box-shadow .05s;
+}
+button, .go, .card {
+  transition: box-shadow .18s, transform .10s, filter .10s;
+  cursor: pointer;
+}
+
+/* ==== Visual Upgrade ==== */
+.hero h1 {
+  font-size: 1.9rem;
+  letter-spacing: .5px;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+.hero p {
+  color: #64748b;
+  font-size: 1.04rem;
+}
+.grid { gap: 22px; }
+.card {
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  font-size: 1rem;
+}
+.card h3 {
+  font-size: 1.16rem;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+.card p {
+  color: #6b7280;
+  font-size: .99rem;
+}
+footer {
+  margin-bottom: 0;
+}
+
+/* ==== Error Message ==== */
+.input-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-top: 4px;
+  font-size: .93rem;
+  font-weight: 600;
+}
+.form-row.error input, .form-row.error textarea, .form-row.error select {
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+}
+
+/* ==== FAB ==== */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px;
+  width: 54px; height: 54px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em;
+  z-index: 1010;
+  text-decoration: none;
+  transition: background .13s, transform .13s;
+  border: none;
+}
+.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
+@media (min-width: 768px) {
+  .fab-home { display: none; }
+}
+</style><style>
+/* 卡片式選項群組（行動裝置強化） */
+.group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px;}
+.option-card {
+  display: flex; align-items: center; gap: 14px;
+  background: #fff; border: 2px solid #e5e7eb;
+  border-radius: 16px; padding: 16px 14px;
+  font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  cursor: pointer; min-height: 48px;
+  transition: border .13s, box-shadow .13s, background .12s;
+  margin-bottom: 0 !important;
+  position: relative;
+}
+.option-card:active { background: #e0e7ff; border-color: #2563eb;}
+.option-card input[type="radio"], .option-card input[type="checkbox"] {
+  accent-color: #2563eb; width: 22px; height: 22px; margin-right: 6px; margin-left: 0;
+  flex-shrink: 0;
+}
+.option-card.selected {
+  border: 2.5px solid #2563eb;
+  background: #e0e7ff;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.10);
+}
+.option-card img.opt-img { width: 88px !important; border-radius: 10px; margin-top: 0;}
+/* 其他欄位維持原樣式 */
+
+/* FAB 回首頁按鈕 */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px;
+  width: 54px; height: 54px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em;
+  z-index: 1010;
+  text-decoration: none;
+  transition: background .13s, transform .13s;
+  border: none;
+}
+.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
+@media (min-width: 768px) { .fab-home { display: none; } }
+</style><style>
+.group.model-group { flex-direction: column; }
+
+.group:not(.model-group) {
+  display: flex; flex-wrap: wrap; flex-direction: row; gap: 12px;
+  margin-bottom: 10px; justify-content: space-between;
+}
+.group:not(.model-group) .option-card {
+  flex: 1 1 calc(50% - 6px);
+  min-width: 0; box-sizing: border-box;
+  margin-bottom: 0 !important;
+  max-width: calc(50% - 6px);
+}
+@media (max-width: 400px) {
+  .group:not(.model-group) .option-card {
+    font-size: 1.03rem; padding: 14px 6px;
+  }
+}
+main, form { padding-left: 6px !important; padding-right: 6px !important; }
+</style></head>
+<body>
+<div class="header">
+<div class="wrap">
+<h1>冷氣清洗｜預約表單</h1>
+<p class="desc">請提供機型與數量，以便安排合適人員與時間。若選擇「以上／其他」，請輸入實際數字或品牌。</p>
+</div>
+</div>
+<form action="addon-service.html" id="booking-form" method="get">
+<input name="service_category" type="hidden" value="冷氣清洗"/>
+<div class="section">
+<h2 class="req">冷氣類型</h2>
+<div class="group">
+<label class="option-card"><input name="ac_type" required="" type="radio" value="分離式冷氣"/>分離式冷氣 <img alt="分離式冷氣示意圖" class="opt-img" src="imagessplit-ac.jpg"/></label>
+<label class="option-card"><input name="ac_type" type="radio" value="吊隱式冷氣"/>吊隱式冷氣 <img alt="吊隱式冷氣示意圖" class="opt-img" src="imagesceiling-ac.jpg"/></label>
+</div>
+<p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
+</div>
+<div class="section">
+<h2 class="req">清洗數量</h2>
+<div class="group">
+<label class="option-card"><input name="ac_count" required="" type="radio" value="1台"/>1 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="2台"/>2 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="3台"/>3 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="4台"/>4 台</label>
+<label class="option-card"><input name="ac_count" type="radio" value="5台"/>5 台</label>
+<label class="option-card"><input data-other-id="ac_count_other" name="ac_count" type="radio" value="5台以上"/>5 台以上</label>
+<div class="hidden-input" id="ac_count_other_wrap">
+<input id="ac_count_other" min="6" name="ac_count_other" placeholder="請輸入實際台數（≥6）" type="number"/>
+</div>
+</div>
+<div class="aside">
+<div class="tip">團體或社區聯合可改走「團購預約清洗」。</div>
+</div>
+</div>
+<div class="section">
+<h2 class="req">室內機所在樓層（可複選）</h2>
+<div class="group">
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="1樓"/>1 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="2樓"/>2 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="3樓"/>3 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="4樓"/>4 樓</label>
+<label class="option-card"><input name="indoor_floor" type="checkbox" value="5樓"/>5 樓</label>
+<label class="option-card"><input data-other-id="indoor_floor_other" name="indoor_floor" type="checkbox" value="5樓以上"/>5 樓以上</label>
+<div class="hidden-input" id="indoor_floor_other_wrap">
+<input id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" type="text"/>
+</div>
+</div>
+<p class="help">若樓高特殊或其他因素，請事先告知說明。</p>
+</div>
+<div class="section">
+<h2 class="req">冷氣品牌（可複選）</h2>
+<div class="group">
+<label class="option-card"><input name="ac_brand" type="checkbox" value="HITACHI 日立"/>HITACHI 日立</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Panasonic 國際牌"/>Panasonic 國際牌</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="DAIKIN 大金"/>DAIKIN 大金</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="MITSUBISHI 三菱"/>MITSUBISHI 三菱</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="FUJITSU 富士通"/>FUJITSU 富士通</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="LG"/>LG</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="TECO 東元"/>TECO 東元</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="SANLUX 三洋"/>SANLUX 三洋</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="SAMPO 聲寶"/>SAMPO 聲寶</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Heran 禾聯"/>Heran 禾聯</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="Kolin 歌林"/>Kolin 歌林</label>
+<label class="option-card"><input name="ac_brand" type="checkbox" value="TATUNG 大同"/>TATUNG 大同</label>
+<label class="option-card"><input data-other-id="ac_brand_other" name="ac_brand" type="checkbox" value="其他"/>其他</label>
+<div class="hidden-input" id="ac_brand_other_wrap">
+<input id="ac_brand_other" name="ac_brand_other" placeholder="請輸入品牌" type="text"/>
+</div>
+</div>
+</div>
+<div class="section">
+<h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
+<div class="group">
+<label class="option-card"><input name="ac_transformer_series" required="" type="radio" value="是"/>是</label>
+<label class="option-card"><input name="ac_transformer_series" type="radio" value="否"/>否</label>
+<label class="option-card"><input name="ac_transformer_series" type="radio" value="不清楚（現場由人員判斷）"/>不清楚（現場由人員判斷）</label>
+</div>
+<div class="aside"> <div class="tip"> <strong>什麼是「變形金剛系列」？</strong> <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p> <img alt="常見變形金剛系列參考照片" class="opt-img" src="imagestransformer-ac.jpg"/> </div></div>
+</div>
+<div class="nav">
+<a href="index.html">回首頁</a>
+<button type="submit">下一步 ➜ 加購服務專區</button>
+</div>
+</form>
+<script>
+  (function(){
+    const KEY = 'BOOKING_DATA';
+    const form = document.getElementById('booking-form');
+
+    function toggleOtherWrap(name){
+      form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
+        const id = el.dataset.otherId;
+        const wrap = id && document.getElementById(id + '_wrap');
+        if(wrap) wrap.style.display = el.checked ? 'block' : 'none';
+      });
+    }
+    function collect(){
+      const out = { service_category: '冷氣清洗' };
+      form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
+        const n = el.name; if(!n) return;
+        if(el.type==='radio'){
+          if(!el.checked) return;
+          let v = el.value || '';
+          const oid = el.dataset.otherId;
+          if(oid){
+            const extra = (form.querySelector('#'+oid)?.value||'').trim();
+            if(extra) v = v + '：' + extra;
+          }
+          out[n] = v;
+        }else if(el.type==='checkbox'){
+          if(!el.checked) return;
+          let v = el.value || '';
+          const oid = el.dataset.otherId;
+          if(oid){
+            const extra = (form.querySelector('#'+oid)?.value||'').trim();
+            if(extra) v = v + '：' + extra;
+          }
+          (out[n]||(out[n]=[])).push(v);
+        }else{
+          const v = (el.value||'').trim();
+          if(v) out[n] = v;
+        }
+      });
+      return out;
+    }
+    function save(part){
+      try{
+        const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+        localStorage.setItem(KEY, JSON.stringify(Object.assign(prev, part)));
+      }catch(e){}
+    }
+    ['ac_count','indoor_floor','ac_brand'].forEach(n=>{
+      form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
+        el.addEventListener('change', ()=>{
+          toggleOtherWrap(n);
+          save(collect());
+        });
+      });
+      toggleOtherWrap(n);
+    });
+    form.addEventListener('input', ()=> save(collect()));
+    form.addEventListener('submit', ()=> save(collect()), {capture:true});
+
+    window.debugCollectAC = ()=>collect();
+    window.debugLS = ()=>JSON.parse(localStorage.getItem(KEY)||'{}');
+  })();
+  </script>
+<script>
+(function() {
+  function anyChecked(name) {
+    return Array.from(document.querySelectorAll('input[name="' + name + '"]')).some(function(i){ return i.checked; });
+  }
+  function clearValidity(name) {
+    var first = document.querySelector('input[name="' + name + '"]');
+    if (first) first.setCustomValidity('');
+  }
+  function ensureGroup(name, msg) {
+    var first = document.querySelector('input[name="' + name + '"]');
+    if (!first) return true;
+    first.setCustomValidity('');
+    if (!anyChecked(name)) {
+      first.setCustomValidity(msg);
+      return false;
+    }
+    return true;
+  }
+
+  document.addEventListener('change', function(e){
+    if (e.target && e.target.matches('input[name="indoor_floor"], input[name="ac_brand"]')) {
+      clearValidity('indoor_floor');
+      clearValidity('ac_brand');
+    }
+  });
+
+  var form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e){
+      var ok1 = ensureGroup('indoor_floor', '請至少勾選一個樓層');
+      var ok2 = ensureGroup('ac_brand', '請至少勾選一個品牌');
+      if (!(ok1 && ok2)) {
+        // Trigger native message
+        var first = document.querySelector('input[name="' + (ok1 ? 'ac_brand' : 'indoor_floor') + '"]');
+        if (first && first.reportValidity) first.reportValidity();
+        e.preventDefault();
+      }
+    }, true);
+  }
+})();
+</script>
+<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.group').forEach(function(group) {
+    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+      input.addEventListener('change', function(){
+        // radio：互斥
+        if(input.type==="radio"){
+          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
+        }
+        if(input.checked) input.closest('.option-card').classList.add('selected');
+        else input.closest('.option-card').classList.remove('selected');
+      });
+      // 預設選中的也要上色
+      if(input.checked) input.closest('.option-card').classList.add('selected');
+    });
+  });
+});
+</script></body>
+</html>
