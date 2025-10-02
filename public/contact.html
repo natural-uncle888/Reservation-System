@@ -119,6 +119,23 @@
   }
 }
 
+
+/* === 強制修正（不分裝置）===
+   避免任何外部樣式覆蓋，使用更高選擇器與 !important */
+.section .row.social-row {
+  display: block !important;      /* 直接改成直向堆疊 */
+  grid-template-columns: none !important;
+  min-height: auto !important;
+}
+.section .row.social-row > * {
+  display: block !important;
+  width: 100% !important;
+  margin-bottom: 10px !important;
+}
+.section .row.social-row input[name="social_name"]{
+  max-width: 420px !important;
+}
+
 </style>
 </head>
 <body>
