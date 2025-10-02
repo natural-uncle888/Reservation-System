@@ -1,613 +1,447 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>預約資料管理（Cloudinary）</title>
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+  <meta name="theme-color" content="#2563eb" />
+  <title>冷氣清洗｜預約表單</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+
   <style>
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
-    header{padding:26px 20px 8px}
-    h1{margin:0 0 4px;font-size:22px}
-    .sub{color:#64748b;font-size:13px}
-    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
-    .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
-    .input{display:flex;flex-direction:column;gap:6px}
-    .input input{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:220px}
-    .btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
-    .btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
-    th,td{padding:12px 14px;font-size:14px;border-bottom:1px solid #e5e7eb}
-    th{background:#f9fafb;color:#374151;text-align:left;position:sticky;top:0}
-    tr:hover{background:#f6f9ff;cursor:pointer}
-    .grid{display:grid;grid-template-columns: 1fr 380px;gap:16px;align-items:start}
-    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}
-    .panel h3{margin:0 0 10px}
-    .fullview-wrap{display:flex;flex-direction:column;gap:12px}
-    .card.fullview{border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-    .card.fullview .card-h{padding:10px 12px;font-weight:600;color:#3b82f6}
-    .card.fullview .card-b{padding:8px 12px 12px}
-    .card.fullview .row{display:grid;grid-template-columns:160px 1fr;padding:6px 0;border-bottom:1px dotted #eef2f7}
-    .card.fullview .row:last-child{border-bottom:0}
-    .card.fullview .k{color:#6b7280}
-    .card.fullview .v{color:#111827;white-space:pre-wrap}
-    .email-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
-    .email-dialog{width:min(720px,92vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
-    .email-dialog h3{margin:0 0 10px}
-    .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
-    .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+    /* ===== Scoped Reset (只作用在 .acv2) ===== */
+    .acv2, .acv2 *, .acv2 *::before, .acv2 *::after { box-sizing: border-box; }
+    .acv2 { line-height: 1.5; -webkit-text-size-adjust: 100%; color: #111827;  font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; --brand-700:#1e40af; }
+    .acv2 h1, .acv2 h2, .acv2 h3, .acv2 h4, .acv2 p { margin: 0; }
+    .acv2 img { max-width: 100%; height: auto; display: block; }
+    .acv2 a { color: inherit; text-decoration: none; }
+    .acv2 input, .acv2 select, .acv2 textarea, .acv2 button { font: inherit; color: inherit; }
+    .acv2 table, .acv2 input, .acv2 select, .acv2 textarea, .acv2 button { max-width: 100%; }
+
+    /* ===== Theme tokens ===== */
+    .acv2 { --brand:#2563eb; --brand-700:#1e40af; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
+
+    /* ===== Layout ===== */
+    .acv2 .wrap { max-width: 960px; margin: 0 auto; }
+    .acv2 .header { padding: 22px 16px; border-bottom: 1px solid var(--line); background: #fff; }
+    .acv2 .header h1 { color: var(--brand); font-size: 1.5rem; font-weight: 800; }
+    .acv2 .desc { color: var(--muted); margin-top: 6px; }
+    .acv2 form { max-width: 960px; margin: 16px auto; padding: 0 16px; }
+
+    /* ===== Sections ===== */
+    .acv2 .section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .acv2 .section h2 { color: var(--brand); font-size: 1.1rem; margin: 0 0 8px; }
+    .acv2 .section h2.req::after { content: " *"; color: #dc2626; margin-left: 4px; font-weight: 700; }
+    .acv2 p.help { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+
+    /* ===== Group & Option Cards ===== */
+    .acv2 .group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 10px; }
+    .acv2 .group.model-group { display: flex; flex-direction: column; gap: 12px; }
+
+    /* 手機：預設所有群組維持 2 欄，僅 .onecol-mobile 改為 1 欄 */
+    @media (max-width: 640px) {
+      .acv2 .group { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .acv2 .group.onecol-mobile { grid-template-columns: 1fr; }
+    }
+
+    .acv2 .option-card { width: 100%; }
+    .acv2 .option-card { display: flex; align-items: center; gap: 14px; background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 16px 14px; font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04); cursor: pointer; min-height: 48px; transition: border .13s, box-shadow .13s, background .12s; position: relative; }
+    .acv2 .option-card:active { background: #e0e7ff; border-color: var(--brand); }
+    .acv2 .option-card input[type="radio"], .acv2 .option-card input[type="checkbox"] { accent-color: var(--brand); width: 22px; height: 22px; margin-right: 6px; margin-left: 0; flex-shrink: 0; }
+    .acv2 .option-card.selected { border: 2.5px solid var(--brand); background: #e0e7ff; box-shadow: 0 2px 12px rgba(37,99,235,0.10); }
+    .acv2 .option-card img.opt-img { width: 88px; border-radius: 10px; margin-top: 0; border:1px solid var(--line); padding:2px; background:#fff; }
+
+    /* ===== Hidden inputs for "其他" - 膠囊式 ===== */
+    .acv2 .hidden-input { display: none; margin: 10px 0 0 0; grid-column: 1 / -1; }
+    .acv2 .hidden-input input {
+      width: 100%;
+      max-width: 520px;
+      padding: 12px 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 9999px;
+      font: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .acv2 .hidden-input input::placeholder { color: #9ca3af; font-size: 1rem; }
+
+    /* ===== Aside / Tips ===== */
+    .acv2 .aside { display: grid; gap: 6px; margin-top: 8px; }
+    .acv2 .aside .tip { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; color: #6b7280; font-size: .92rem; }
+    .acv2 details { background: #fff; border: 1px dashed var(--line); border-radius: 10px; padding: 10px; }
+    .acv2 details > summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+    .acv2 .aside .tip img.opt-img { width: 450px; height: auto; border:1px solid var(--line); border-radius:8px; margin-top:6px; padding:2px; background:#fff; }
+
+    /* ===== Nav ===== */
+    
+
+    /* ===== FAB Home (行動) ===== */
+    .acv2 .fab-home { position: fixed; right: 18px; bottom: 72px; width: 54px; height: 54px; background: var(--brand); color: #fff; border-radius: 50%; box-shadow: 0 2px 12px rgba(37,99,235,0.08); display: flex; align-items: center; justify-content: center; font-size: 2.1em; z-index: 1010; border: none; }
+    .acv2 .fab-home:active { background: #1d4ed8; transform: scale(0.92); }
+    @media (min-width: 768px) { .acv2 .fab-home { display: none; } }
+
+    /* ===== Error Style ===== */
+    .acv2 .input-error { color: #dc2626; background: #fef2f2; border-radius: 8px; padding: 5px 10px; margin-top: 4px; font-size: .93rem; font-weight: 600; }
+    .acv2 .form-row.error input, .acv2 .form-row.error textarea, .acv2 .form-row.error select { border: 2px solid #dc2626; background: #fef2f2; }
   
-/* === Admin Login Modal === */
-.login-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:999}
-.login-dialog{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.18);width:min(520px,92vw);padding:18px 18px 16px;border:1px solid #e5e7eb}
-.login-h{margin:2px 4px 2px;font-size:20px;font-weight:700;color:#111827}
-.login-sub{margin:0 4px 14px;font-size:14px;color:#6b7280}
-.login-field{display:flex;flex-direction:column;gap:6px;margin:10px 4px}
-.login-label{font-size:13px;color:#374151}
-.login-input{height:40px;border-radius:12px;border:1px solid #e5e7eb;padding:8px 12px;background:#fff;outline:none}
-.login-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-.login-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-.btn-secondary{background:#f3f4f6;border:1px solid #e5e7eb;color:#111827;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
-.btn-primary{background:#0f172a;color:#fff;border:1px solid #111827;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed}
-.login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
+    
 
-/* === Login Dialog 輸入框在手機時不全螢幕 === */
-@media (max-width: 640px){
-  .login-dialog{
-    max-width: 360px;
-    width: calc(100% - 32px);
-    margin: 0 auto;              /* 置中 */
-    border-radius: 16px;
-  }
-  .login-input input{
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
+  
+    /* === Nav copied to match contact.html exactly === */
+    
 
+  
+    /* === addon-service 同款底部導覽（桌機/手機一致） === */
+    .acv2 .nav { display: flex; gap: 12px; margin-top: 22px; }
+    .acv2 .nav a { 
+      flex: 1; text-align: center; padding: 12px 16px; 
+      background: var(--brand); color: #fff; border-radius: 10px; 
+      text-decoration: none; 
+    }
+    .acv2 .nav a:hover { background: #1e40af; }
 
-/* === 頁面標題與說明置中 === */
-header {
-  text-align: center;
-}
-
-header h1 {
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-header .sub {
-  text-align: center;
-  display: block;
-  margin-bottom: 12px;
-  color: #64748b;
-}
-
-
-/* === 手機字體與可點性優化 === */
-@media (max-width: 640px){
-  html { font-size: 17px; }          /* 提升整體字級 */
-  body { line-height: 1.6; }
-
-  /* 標題與副標 */
-  header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  header .sub { font-size: 15px; line-height: 1.4; }
-
-  /* 表單輸入與按鈕 */
-  .input input { font-size: 16px; height: 48px; padding: 0 12px; }
-  .btn, .btn.primary { font-size: 16px; height: 48px; }
-
-  /* 表格可讀性 */
-  th { font-size: 15px; font-weight: 600; }
-  td { font-size: 15px; line-height: 1.5; }
-  tr { min-height: 48px; }
-
-  /* 詳情面板 key/value */
-  .card.fullview .k { font-size: 14px; }
-  .card.fullview .v { font-size: 16px; }
-}
-
-
-/* === 隱藏詳情面板內容 === */
-.card.fullview .card-b {
-  display: none;    /* 隱藏內容區 */
-}
-
-.card.fullview .card-h::after {
-  content: '';      
-}
-
-
-/* === 完全隱藏詳情區塊（含標題、按鈕、context / metadata） === */
-.panel {
-  display: none !important;
-}
-
-
-/* === 互動詳情面板（覆寫全域隱藏） === */
-.panel.detail-panel{ display:block !important; }
-.detail-panel{
-  background: var(--c-panel, #fff);
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
-  padding: 12px;
-}
-@media (max-width: 1024px){
-  .detail-panel{ grid-column: 1 / -1; }
-}
-</style>
-
-<style>
-/* ====== Mobile-first: 通用可用性 ====== */
-:root{
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
-}
-*{ -webkit-tap-highlight-color: transparent; }
-button, input, textarea, select{ font-size:16px; } /* iOS 避免焦點時自動放大 */
-body{ overscroll-behavior-y: none; }
-
-/* ====== 版面：改為小螢幕單欄、放大可點區域 ====== */
-@media (max-width: 1024px){
-  .wrap{ padding:0 16px 24px; }
-  .grid{ grid-template-columns: 1fr !important; gap: 12px; }
-  header{ padding: calc(16px + var(--safe-top)) 16px 6px; }
-  h1{ font-size:20px; }
-  .sub{ font-size:13px; }
-  .row{ gap:8px; align-items: stretch; }
-  .input input{ min-width:0; width:100%; height:44px; }
-  .btn, .btn.primary{ height:44px; padding:0 16px; border-radius:12px; }
-  .panel{ padding:12px; border-radius:12px; }
-}
-
-/* ====== 表格可橫向捲動 ====== */
-.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; }
-.table-wrap > table{ min-width:720px; }
-
-@media (max-width: 640px){
-  th, td{ padding:10px 12px; font-size:14px; }
-  tr:hover{ background:#f6f9ff; }
-  th{ top:0; }
-}
-
-/* 鍵盤可達性：列可聚焦（配合JS加 tabindex） */
-tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f7ff; }
-
-/* ====== 卡片（詳情）在手機更易讀 ====== */
-@media (max-width: 640px){
-  .card.fullview{ border-radius:12px; }
-  .card.fullview .card-h{ padding:10px 12px; font-size:15px; }
-  .card.fullview .card-b{ padding:8px 12px 12px; }
-  .card.fullview .row{ grid-template-columns: 1fr !important; gap: 2px; padding:8px 0; }
-  .card.fullview .k{ font-size:13px; color:#6b7280; }
-  .card.fullview .v{ font-size:15px; }
-}
-
-/* ====== 模態：手機全螢幕、好關閉、鍵盤不遮擋 ====== */
-@media (max-width: 640px){
-  .login-dialog,
-  .email-dialog{
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: auto;
-    max-height: calc(100dvh - 16px - var(--safe-top) - var(--safe-bottom));
-    margin: 0;
-    border-radius: 16px 16px 0 0;
-    padding-bottom: max(16px, var(--safe-bottom));
-  }
-  .email-dialog textarea{ height: 40dvh; }
-}
-
-/* ====== 觸控目標大小與狀態 ====== */
-.btn, .btn.primary, .btn-primary, .btn-secondary{
-  min-width: 44px; min-height: 44px;
-}
-.btn:active, .btn-primary:active, .btn-secondary:active{ transform: translateY(1px); }
-
-/* ====== iOS 背景鎖定（配合JS在開啟模態時加 body--modal-open） ====== */
-body.body--modal-open{ height:100dvh; overflow:hidden; }
-</style>
-
+  </style>
 </head>
 <body>
-
-  
-<div id="loginModal" class="login-backdrop" role="dialog" aria-modal="true">
-  <div class="login-dialog">
-    <div class="login-h">管理登入</div>
-    <div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
-    <div class="login-field">
-      <label class="login-label" for="login-username">帳號</label>
-      <input id="login-username" class="login-input" type="text" placeholder="admin" autocomplete="username" />
-    </div>
-    <div class="login-field">
-      <label class="login-label" for="login-password">密碼</label>
-      <input id="login-password" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-    <div id="login-error" class="login-error">登入失敗，請確認帳號密碼。</div>
-    <div class="login-actions">
-      <button id="login-clear" class="btn-secondary" type="button">清除</button>
-      <button id="login-submit" class="btn-primary" type="button">登入</button>
-    </div>
-  </div>
-</div>
-
-  <header>
-    <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
-  </header>
-  <div class="wrap">
-    <div class="row">
-      <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"></label>
-      <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"></label>
-      <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"></label>
-      <button id="btnSearch" class="btn primary">查詢</button>
-      <button id="btnCsv" class="btn">匯出 CSV</button>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div class="table-wrap"><table id="tbl">
-          <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-<!-- Dynamic Detail Panel -->
-<div class="panel detail-panel" id="detailPanel" style="display:none;">
-  <div class="card fullview">
-    <div class="card-h">預約詳情</div>
-    <div class="card-b" id="detailContent"></div>
-  </div>
-</div>
-
-        <div id="foot" style="margin-top:8px;color:#6b7280"></div>
+  <div class="acv2">
+    <div class="header">
+      <div class="wrap">
+        <h1>冷氣清洗｜預約表單</h1>
+        <p class="desc">請提供機型與數量，以便安排合適人員與時間。若選擇「以上／其他」，請輸入實際數字或品牌。</p>
       </div>
-      <div class="panel">
-        <h3 id="dv-title">詳情</h3>
-        <div id="preview" style="min-height:120px;"></div>
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnPaste" class="btn">貼上信件內容並回填</button>
+    </div>
+
+    <form id="booking-form" action="addon-service.html" method="get" novalidate>
+      <input type="hidden" name="service_category" value="冷氣清洗" />
+
+      <div class="section">
+        <h2 class="req">冷氣類型</h2>
+        <div class="group onecol-mobile">
+          <label class="option-card">
+            <input type="radio" name="ac_type" value="分離式冷氣"  />分離式冷氣
+            <img class="opt-img" alt="分離式冷氣示意圖" src="imagessplit-ac.jpg" />
+          </label>
+          <label class="option-card">
+            <input type="radio" name="ac_type" value="吊隱式冷氣" />吊隱式冷氣
+            <img class="opt-img" alt="吊隱式冷氣示意圖" src="imagesceiling-ac.jpg" />
+          </label>
         </div>
-        <details style="margin-top:10px;">
-          <summary>context / metadata</summary>
-          <pre id="ctxpre" style="background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px;overflow:auto;"></pre>
-        </details>
+        <p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
       </div>
-    </div>
+
+      <div class="section">
+        <h2 class="req">清洗數量</h2>
+        <div class="group">
+          <label class="option-card"><input type="radio" name="ac_count" value="1台"  />1 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="2台" />2 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="3台" />3 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="4台" />4 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="5台" />5 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="5台以上" data-other-id="ac_count_other" />5 台以上</label>
+          <div id="ac_count_other_wrap" class="hidden-input">
+            <input type="number" id="ac_count_other" name="ac_count_other" min="6" placeholder="請輸入實際台數（≥6）" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="req">室內機所在樓層（可複選）</h2>
+        <div class="group">
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="1樓" />1 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="2樓" />2 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="3樓" />3 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="4樓" />4 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="5樓" />5 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="5樓以上" data-other-id="indoor_floor_other" />5 樓以上</label>
+          <div id="indoor_floor_other_wrap" class="hidden-input">
+            <input type="text" id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="req">冷氣品牌（可複選）</h2>
+        <div class="group">
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="HITACHI 日立" />HITACHI 日立</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Panasonic 國際牌" />Panasonic 國際牌</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="DAIKIN 大金" />DAIKIN 大金</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="MITSUBISHI 三菱" />MITSUBISHI 三菱</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="FUJITSU 富士通" />FUJITSU 富士通</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="LG" />LG</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="TECO 東元" />TECO 東元</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="SANLUX 三洋" />SANLUX 三洋</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="SAMPO 聲寶" />SAMPO 聲寶</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Heran 禾聯" />Heran 禾聯</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Kolin 歌林" />Kolin 歌林</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="TATUNG 大同" />TATUNG 大同</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="其他" data-other-id="ac_brand_other" />其他</label>
+          <div id="ac_brand_other_wrap" class="hidden-input">
+            <input type="text" id="ac_brand_other" name="ac_brand_other" placeholder="請輸入品牌" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
+        <div class="group model-group">
+          <label class="option-card"><input type="radio" name="ac_transformer_series" value="是"  />是</label>
+          <label class="option-card"><input type="radio" name="ac_transformer_series" value="否" />否</label>
+          <label class="option-card"><input type="radio" name="ac_transformer_series" value="不清楚（現場由人員判斷）" />不清楚（現場由人員判斷）</label>
+        
+        <div class="aside">
+          <div class="tip">
+            <strong>什麼是「變形金剛系列」？</strong>
+            <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p>
+            <img class="opt-img" alt="常見變形金剛系列參考照片" src="imagestransformer-ac.jpg" />
+          </div>
+        </div>
+
+      
+      
+      
+      
+      
+      <div class="nav">
+        <a href="index.html" id="back">回首頁</a>
+        <a href="#" id="next" data-next-href="addon-service.html">下一步</a>
+      </div>
+    </form>
+
+
+
+
+
+    <a class="fab-home" href="index.html" aria-label="回首頁">🏠</a>
   </div>
 
-  <div id="emailModal" class="email-modal">
-    <div class="email-dialog">
-      <h3>貼上信件內容 → 解析並回填</h3>
-      <div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
-      <textarea id="emailPaste"></textarea>
-      <div class="actions">
-        <button id="emailCancel" class="btn">取消</button>
-        <button id="emailApply" class="btn primary">解析並回填</button>
-      </div>
-      <div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
-    </div>
-  </div>
+  <script>
+    (function(){
+      const KEY = 'BOOKING_DATA';
+      const form = document.getElementById('booking-form');
 
-<script>
-const API_LIST = "/.netlify/functions/list-bookings";
-const API_LOGIN = "/.netlify/functions/auth-login";
-const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
-let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
-let CURRENT_ITEM = null;
-let CURRENT_LIST = [];
-const $ = (s)=>document.querySelector(s);
-
-function needLogin(){ return !ADMIN_TOKEN; }
-
-async function login(){
-  return new Promise((resolve)=>{
-    const modal = document.getElementById('loginModal');
-    const uEl = document.getElementById('login-username');
-    const pEl = document.getElementById('login-password');
-    const err = document.getElementById('login-error');
-    const btnSubmit = document.getElementById('login-submit');
-    const btnClear = document.getElementById('login-clear');
-    // init
-    err.style.display = 'none';
-    uEl.value = '';
-    pEl.value = '';
-    modal.style.display = 'flex';
-    uEl.focus();
-
-    const doSubmit = async ()=>{
-      btnSubmit.disabled = true;
-      err.style.display = 'none';
-      const u = uEl.value.trim();
-      const p = pEl.value;
-      if(!u || !p){ err.textContent = "請輸入帳號與密碼"; err.style.display='block'; btnSubmit.disabled=false; return; }
-      try{
-        const r = await fetch(API_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ username:u, password:p }) });
-        const j = await r.json();
-        if (!r.ok){ err.textContent = j.message || j.error || "登入失敗"; err.style.display='block'; btnSubmit.disabled=false; return; }
-        ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
-        modal.style.display = 'none';
-        resolve(true);
-      }catch(e){
-        err.textContent = "網路錯誤，請稍後重試"; err.style.display='block';
-        btnSubmit.disabled = false;
+      function toggleOtherWrap(name){
+        form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
+          const id = el.dataset.otherId;
+          const wrap = id && document.getElementById(id + '_wrap');
+          if(wrap) wrap.style.display = el.checked ? 'block' : 'none';
+        });
       }
-    };
-
-    btnSubmit.onclick = doSubmit;
-    btnClear.onclick = ()=>{ uEl.value=''; pEl.value=''; uEl.focus(); };
-    pEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSubmit(); });
-    uEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pEl.focus(); });
-  });
-}
-function fmtDate(d){ return new Date(d).toLocaleString(); }
-function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
-
-function normalizeContext(item){
-  const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
-  const m = item.metadata || {};
-  const get = (names, fb="") => pick(c, names, pick(m, names, fb));
-  return {
-    name: get(["name","customer_name","fullname","姓名"]),
-    phone: get(["phone","phone_number","mobile","tel","電話"]),
-    service: get(["service","service_category","service_item","select_service","服務"]),
-    address: get(["address","地址"]),
-    brand: get(["brand","冷氣品牌"]),
-    ac_type: get(["ac_type","冷氣類型"]),
-    count: get(["count","quantity","清洗數量"]),
-    floor: get(["floor","樓層","室內機所在樓層"]),
-    is_inverter: get(["is_inverter","變頻","是否為變頻機型系列"]),
-    antifungus: get(["antifungus","冷氣防霉抗菌處理"]),
-    ozone: get(["ozone","臭氧殺菌消毒"]),
-    extra_service: get(["extra_service","其他清洗服務"]),
-    line_id: get(["line_id","line","LINE","聯絡Line"]),
-    fb_name: get(["fb_name","facebook","FB","LINE & Facebook 姓名"]),
-    timeslot: get(["timeslot","預約時段"]),
-    date: get(["date","預約日期"]),
-    note: get(["note","備註"]),
-  };
-}
-
-function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
-function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
-function renderFullContent(item, mount){
-  const data = normalizeContext(item);
-  const blocks = [];
-  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
-  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
-  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
-  blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)));
-  blocks.push(sectionCard("預約資訊", kv("預約日期", data.date)+kv("預約時段", data.timeslot)+kv("建立時間", new Date(item.created_at).toLocaleString())));
-  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
-}
-
-async function doSearch(){
-  const payload = { q: $("#q").value.trim(), start: $("#start").value.trim(), end: $("#end").value.trim(), max: 50 };
-  const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
-  if (r.status === 401){ ADMIN_TOKEN=""; localStorage.removeItem("admin_token"); if(await login()) return doSearch(); return; }
-  const data = await r.json();
-  const list = data.resources || data.items || [];
-  CURRENT_LIST = list;
-  const tbody = $("#tbl tbody"); tbody.innerHTML = "";
-  for (const it of list){
-    const ctx = normalizeContext(it);
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}</td>`;
-    tr.onclick = ()=> openDetails(it);
-    tbody.appendChild(tr);
-  }
-  $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
-}
-
-function openDetails(item){
-  CURRENT_ITEM = item;
-  $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
-  $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
-  renderFullContent(item, $("#preview"));
-}
-
-$("#btnSearch").onclick = () => doSearch();
-$("#btnCsv").onclick = () => {
-  const rows = [["姓名","電話","服務","建立時間"]];
-  for (const it of CURRENT_LIST){
-    const c = normalizeContext(it);
-    rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)]);
-  }
-  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "bookings.csv"; a.click(); URL.revokeObjectURL(a.href);
-};
-
-// paste-from-email modal
-$("#btnPaste").onclick = ()=>{
-  if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
-  $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
-};
-$("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
-$("#emailApply").onclick = async ()=>{
-  const text = $("#emailPaste").value;
-  const msg = $("#emailMsg");
-  const lines = String(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  const kvs = {};
-  for (const ln of lines){
-    let m = ln.match(/^(.+?)[:：]\s*(.+)$/);
-    if (!m) m = ln.match(/^(.+?)\s+(.+)$/);
-    if (m){ kvs[m[1].trim()] = m[2].trim(); }
-  }
-  const pick = (obj, keys)=>{ for(const k of keys){ if(obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; };
-  const ctx = {
-    name: pick(kvs, ["聯絡人","姓名","name"]),
-    phone: pick(kvs, ["聯絡電話","電話","phone"]),
-    service: pick(kvs, ["服務類別","服務","service"]),
-    address: pick(kvs, ["地址","住址","address"]),
-    ac_type: pick(kvs, ["冷氣類型","ac_type"]),
-    count: pick(kvs, ["清洗數量","數量","count"]),
-    floor: pick(kvs, ["室內機所在樓層","樓層","floor"]),
-    brand: pick(kvs, ["冷氣品牌","brand"]),
-    is_inverter: pick(kvs, ["是否為變頻機型系列","變頻","is_inverter"]),
-    antifungus: pick(kvs, ["冷氣防霉抗菌處理","antifungus"]),
-    ozone: pick(kvs, ["臭氧殺菌消毒","ozone"]),
-    extra_service: pick(kvs, ["其他清洗服務","extra_service"]),
-    line_id: pick(kvs, ["LINE","LINE / Facebook","line_id"]),
-    fb_name: pick(kvs, ["LINE & Facebook 姓名","facebook","fb_name"]),
-    date: pick(kvs, ["預約日期","date"]),
-    timeslot: pick(kvs, ["預約時段","時段","timeslot"]),
-    note: pick(kvs, ["備註","note"]),
-    source: pick(kvs, ["來源","subject","page_title"]),
-  };
-  Object.keys(ctx).forEach(k=>{ if(!ctx[k]) delete ctx[k]; });
-  if (Object.keys(ctx).length===0){ msg.textContent="未解析到欄位，請確認貼上的是純文字內容"; return; }
-  msg.textContent="上傳中…";
-  const r = await fetch(API_UPDATE_CTX, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify({ public_id: CURRENT_ITEM.public_id, resource_type: CURRENT_ITEM.resource_type||"raw", type: CURRENT_ITEM.type||"upload", context: ctx }) });
-  const t = await r.text();
-  if (!r.ok){ try{ const j = JSON.parse(t); msg.textContent = "更新失敗：" + (j.error||t); } catch{ msg.textContent = "更新失敗：" + t; } return; }
-  msg.textContent="已更新！關閉此視窗後，重新查詢或點選此筆即可看到最新內容。";
-};
-
-(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
-</script>
-
-<script>
-  // 1) 模態開關時鎖定背景捲動
-  function lockScrollForModal(open){
-    document.body.classList.toggle('body--modal-open', !!open);
-  }
-
-  // 2) 表格列支援 Enter/Space 觸發 click（無障礙）
-  document.addEventListener('keydown', (e)=>{
-    const tr = e.target && e.target.closest && e.target.closest('tr[tabindex="0"]');
-    if(!tr) return;
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      tr.click();
-    }
-  });
-
-  // 3) 自動為表格列加 tabindex="0"，初次與動態新增都會套用
-  function enhanceRowsTabIndex(){
-    document.querySelectorAll('table#tbl tbody tr').forEach(tr=>{
-      if(!tr.hasAttribute('tabindex')) tr.setAttribute('tabindex','0');
-    });
-  }
-  const mo = new MutationObserver(enhanceRowsTabIndex);
-  window.addEventListener('DOMContentLoaded', ()=>{
-    enhanceRowsTabIndex();
-    const tbody = document.querySelector('table#tbl tbody');
-    if(tbody) mo.observe(tbody, {childList:true, subtree:true});
-  });
-
-  // 4) iOS：輸入框聚焦時，避免被鍵盤遮住
-  const autoScrollInputs = ['INPUT','TEXTAREA'];
-  document.addEventListener('focusin', (e)=>{
-    if(autoScrollInputs.includes(e.target.tagName)){
-      setTimeout(()=>{ e.target.scrollIntoView({block:'center'}); }, 100);
-    }
-  });
-</script>
-
-
-<script>
-(function(){
-  function toLabel(key){
-    const map = {
-      name: "姓名", phone: "電話", service: "服務", createdat: "建立時間",
-      created: "建立時間", time: "時間", email: "Email", address: "地址",
-      note: "備註", context: "context", metadata: "metadata"
-    };
-    const norm = String(key).toLowerCase().replace(/[\s\-_]/g,'');
-    return map[norm] || key;
-  }
-
-  function renderDetailFromDataset(ds){
-    const entries = Object.entries(ds).filter(([k,v]) => v != null && String(v).trim() !== '');
-    if(entries.length === 0){
-      return '<div style="padding:8px;color:#64748b;">此筆沒有可顯示的資料</div>';
-    }
-    return entries.map(([k,v]) => {
-      return (
-        '<div class="row">' +
-          '<div class="k">' + toLabel(k) + '</div>' +
-          '<div class="v">' + String(v) + '</div>' +
-        '</div>'
-      );
-    }).join('');
-  }
-
-  function setupDetailPanel(){
-    const panel = document.getElementById('detailPanel');
-    const content = document.getElementById('detailContent');
-    if(!panel || !content) return;
-
-    function handleRowClick(e){
-      const tr = e.currentTarget;
-      const ds = tr.dataset || {};
-      const html = renderDetailFromDataset(ds);
-      content.innerHTML = html;
-      panel.style.display = 'block';
-      panel.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    function bindRows(){
-      document.querySelectorAll('table#tbl tbody tr').forEach(tr => {
-        if(!tr.__detailBound){
-          tr.addEventListener('click', handleRowClick);
-          tr.__detailBound = true;
-        }
+      function collect(){
+        const out = { service_category: '冷氣清洗' };
+        form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
+          const n = el.name; if(!n) return;
+          if(el.type==='radio'){
+            if(!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if(oid){
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if(extra) v = v + '：' + extra;
+            }
+            out[n] = v;
+          }else if(el.type==='checkbox'){
+            if(!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if(oid){
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if(extra) v = v + '：' + extra;
+            }
+            (out[n]||(out[n]=[])).push(v);
+          }else{
+            const v = (el.value||'').trim();
+            if(v) out[n] = v;
+          }
+        });
+        return out;
+      }
+      function save(part){
+        try{
+          const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+          localStorage.setItem(KEY, JSON.stringify(Object.assign(prev, part)));
+        }catch(e){}
+      }
+      ['ac_count','indoor_floor','ac_brand'].forEach(n=>{
+        form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
+          el.addEventListener('change', ()=>{
+            toggleOtherWrap(n);
+            save(collect());
+          });
+        });
+        toggleOtherWrap(n);
       });
-    }
+      form.addEventListener('input', ()=> save(collect()));
+      
 
-    bindRows();
-    const tbody = document.querySelector('table#tbl tbody');
-    if(tbody){
-      const mo = new MutationObserver(bindRows);
-      mo.observe(tbody, {childList:true, subtree:true});
-    }
-  }
+      window.debugCollectAC = ()=>collect();
+      window.debugLS = ()=>JSON.parse(localStorage.getItem(KEY)||'{}');
+    })();
+  </script>
+  <script>
+    (function() {
+      const form = document.getElementById('booking-form');
+      function anyChecked(name) {
+        return Array.from(form.querySelectorAll('input[name="' + name + '"]')).some(i=> i.checked);
+      }
+      , true);
+      }
+    })();
+  </script>
+  <script>
+    // 卡片選中視覺狀態（僅限 .acv2 內部）
+    document.addEventListener('DOMContentLoaded', function () {
+      const root = document.querySelector('.acv2');
+      root.querySelectorAll('.group').forEach(function(group) {
+        group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+          input.addEventListener('change', function(){
+            if(input.type === 'radio') { group.querySelectorAll('.option-card').forEach(function(card){ card.classList.remove('selected'); }); }
+            if(input.checked) input.closest('.option-card').classList.add('selected');
+            else input.closest('.option-card').classList.remove('selected');
+          });
+          if(input.checked) input.closest('.option-card').classList.add('selected');
+        });
+      });
+    });
+  </script>
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupDetailPanel);
-  }else{
-    setupDetailPanel();
-  }
-})();
-</script>
+  <script>
+    
+  </script>
 
 <script>
-// 前端補強：從表格每列自動擷取文字，填入 data-* 供詳情面板使用
-(function(){
-  function applyDataAttrs(tr){
-    const tds = tr.querySelectorAll('td');
-    if(!tds || tds.length === 0) return;
-    // 只在尚未有值時才寫入，避免覆蓋既有 data-*
-    if(!tr.dataset.name && tds[0]) tr.dataset.name = tds[0].textContent.trim();
-    if(!tr.dataset.phone && tds[1]) tr.dataset.phone = tds[1].textContent.trim();
-    if(!tr.dataset.service && tds[2]) tr.dataset.service = tds[2].textContent.trim();
-    if(!tr.dataset.createdAt && tds[3]) tr.dataset.createdAt = tds[3].textContent.trim();
-    // 鍵盤可達性
-    if(!tr.hasAttribute('tabindex')) tr.setAttribute('tabindex','0');
+// === 統一：單一彈窗、依頁面順序、阻止舊邏輯干擾 ===
+
+// 防重複彈窗 / 提交抖動
+window.__ALERT_LAST_MSG__ = '';
+window.__ALERT_LAST_TS__ = 0;
+window.__BLOCK_SUBMIT_UNTIL__ = 0;
+function showOnceAlert(msg){
+  var now = Date.now();
+  if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) return;
+  window.__ALERT_LAST_MSG__ = msg;
+  window.__ALERT_LAST_TS__ = now;
+  alert(msg);
+  window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
+}
+
+// 驗證（依 DOM 出現順序）
+function runValidation(){
+  function requireRadio(name, label){
+    var picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
+    if(!picked){ return { ok:false, msg:'請選擇『'+label+'』' }; }
+    var oid = picked && picked.dataset.otherId;
+    if(oid){
+      var other = document.getElementById(oid);
+      if(other && !(other.value||'').trim()){
+        return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明' };
+      }
+    }
+    return { ok:true };
+  }
+  function requireCheckbox(name, label){
+    var checked = document.querySelectorAll('input[type="checkbox"][name="'+name+'"]:checked,'+
+                                            'input[type="checkbox"][name="'+name+'[]"]:checked');
+    if(checked.length===0){ return { ok:false, msg:'請至少勾選一個『'+label+'』' }; }
+    for(var i=0;i<checked.length;i++){
+      var el = checked[i];
+      var oid = el.dataset.otherId;
+      if(oid){
+        var other = document.getElementById(oid);
+        if(other && other.offsetParent !== null && !(other.value||'').trim()){
+          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明' };
+        }
+      }
+    }
+    return { ok:true };
+  }
+  function requireVisibleOthers(){
+    var nodes = document.querySelectorAll('.other-input');
+    for (var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      var vis = el.classList.contains('show') || el.offsetParent !== null;
+      if(vis && !(el.value||'').trim()){
+        return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明' };
+      }
+    }
+    return { ok:true };
+  }
+  function groupRoot(name){
+    var el = document.querySelector('input[name="'+name+'"], input[name="'+name+'[]"]');
+    if(!el) return null;
+    var sec = el.closest && el.closest('.section');
+    return sec || (el.closest && el.closest('.form-row')) || el.parentElement || el;
   }
 
-  function runOnce(){
-    const tbody = document.querySelector('table#tbl tbody');
-    if(!tbody) return;
-    tbody.querySelectorAll('tr').forEach(applyDataAttrs);
+  var groups = [
+    {name:'ac_transformer_series', label:'是否為變形金剛系列', type:'radio'},
+    {name:'ac_type', label:'冷氣類型', type:'radio'},
+    {name:'ac_count', label:'清洗數量', type:'radio'},
+    {name:'indoor_floor', label:'室內機所在樓層', type:'checkbox'},
+    {name:'ac_brand', label:'冷氣品牌', type:'checkbox'}
+  ];
+  groups.forEach(function(g){ g.root = groupRoot(g.name); });
+  groups = groups.filter(function(g){ return !!g.root; });
+  groups.sort(function(a,b){
+    if (a.root === b.root) return 0;
+    var pos = a.root.compareDocumentPosition(b.root);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+    return 0;
+  });
 
-    // 監聽後續新增的列
-    const mo = new MutationObserver(()=>{
-      tbody.querySelectorAll('tr').forEach(applyDataAttrs);
-    });
-    mo.observe(tbody, {childList:true, subtree:true});
+  for (var i=0;i<groups.length;i++){
+    var g = groups[i], r;
+    if (g.type === 'radio') r = requireRadio(g.name, g.label);
+    else r = requireCheckbox(g.name, g.label);
+    if (!r.ok) return { ok:false, msg:r.msg };
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', runOnce);
-  }else{
-    runOnce();
-  }
-})();
+  var ro = requireVisibleOthers();
+  if(!ro.ok) return { ok:false, msg:ro.msg };
+
+  return { ok:true, msg:'' };
+}
+
+// 下一步控制
+document.addEventListener('DOMContentLoaded', function(){
+  var form = document.getElementById('booking-form');
+  var nextBtn = document.getElementById('next');
+  if(!form || !nextBtn) return;
+
+  // click：先驗證，不過就攔截且只彈一次；通過才前進
+  nextBtn.addEventListener('click', function(e){
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg);
+      return false;
+    } else {
+      e.preventDefault(); e.stopImmediatePropagation();
+      // 正確前往 data-next-href 或提交
+      var href = nextBtn.getAttribute('data-next-href') || nextBtn.getAttribute('href');
+      if (href && href !== '#') window.location.href = href;
+      else if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+      return false;
+    }
+  }, true); // capture 先於其他監聽執行
+
+  // 全域 submit 捕獲：任何提交路徑都必須通過驗證
+  document.addEventListener('submit', function(e){
+    var f = e.target;
+    if (!f || f.id !== 'booking-form') return;
+
+    if (Date.now() < (window.__BLOCK_SUBMIT_UNTIL__ || 0)) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      return false;
+    }
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg);
+      return false;
+    }
+  }, true);
+});
 </script>
 </body>
 </html>
