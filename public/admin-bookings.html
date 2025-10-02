@@ -110,10 +110,20 @@ header .sub {
 }
 
 
-/* 移除：不再隱藏 .card.fullview .card-b */
+/* === 隱藏詳情面板內容 === */
+.card.fullview .card-b {
+  display: none;    /* 隱藏內容區 */
+}
+
+.card.fullview .card-h::after {
+  content: '';      
+}
 
 
-/* 移除：不再全站隱藏 .panel */
+/* === 完全隱藏詳情區塊（含標題、按鈕、context / metadata） === */
+.panel {
+  display: none !important;
+}
 
 
 /* === 互動詳情面板（覆寫全域隱藏） === */
@@ -128,10 +138,6 @@ header .sub {
 @media (max-width: 1024px){
   .detail-panel{ grid-column: 1 / -1; }
 }
-
-/* 修復：恢復舊詳情面板顯示 */
-.panel { display: block; }
-
 </style>
 
 <style>
@@ -638,7 +644,7 @@ function appendBookingFromBrevo(data){
 // --- Demo: use parsed data from the uploaded Brevo email ---
 (function(){
   const booking = {
-    name: "林宥騰",
+    name: "林奕騰",
     phone: "0912356331",
     service: "冷氣清洗 / 洗衣機清洗 / 水管清洗 / 水塔清洗",
     createdAt: "2025-10-02",
