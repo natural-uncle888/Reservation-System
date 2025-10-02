@@ -10,7 +10,7 @@
   <style>
     /* ===== Scoped Reset (只作用在 .acv2) ===== */
     .acv2, .acv2 *, .acv2 *::before, .acv2 *::after { box-sizing: border-box; }
-    .acv2 { line-height: 1.5; -webkit-text-size-adjust: 100%; color: #111827; }
+    .acv2 { line-height: 1.5; -webkit-text-size-adjust: 100%; color: #111827;  font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; --brand-700:#1e40af; }
     .acv2 h1, .acv2 h2, .acv2 h3, .acv2 h4, .acv2 p { margin: 0; }
     .acv2 img { max-width: 100%; height: auto; display: block; }
     .acv2 a { color: inherit; text-decoration: none; }
@@ -18,7 +18,7 @@
     .acv2 table, .acv2 input, .acv2 select, .acv2 textarea, .acv2 button { max-width: 100%; }
 
     /* ===== Theme tokens ===== */
-    .acv2 { --brand:#2563eb; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
+    .acv2 { --brand:#2563eb; --brand-700:#1e40af; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
 
     /* ===== Layout ===== */
     .acv2 .wrap { max-width: 960px; margin: 0 auto; }
@@ -72,9 +72,7 @@
     .acv2 .aside .tip img.opt-img { width: 450px; height: auto; border:1px solid var(--line); border-radius:8px; margin-top:6px; padding:2px; background:#fff; }
 
     /* ===== Nav ===== */
-    .acv2 .nav { display:flex; gap:12px; max-width:960px; margin:18px auto; padding:0 16px; }
-    .acv2 .nav a, .acv2 .nav button { flex:1; text-align:center; padding:12px 16px; background:var(--brand); color:#fff; border-radius:10px; text-decoration:none; border:none; cursor:pointer; font:500 16px/1.5 "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
-    .acv2 .nav a:hover, .acv2 .nav button:hover { background:#1e40af; }
+    
 
     /* ===== FAB Home (行動) ===== */
     .acv2 .fab-home { position: fixed; right: 18px; bottom: 72px; width: 54px; height: 54px; background: var(--brand); color: #fff; border-radius: 50%; box-shadow: 0 2px 12px rgba(37,99,235,0.08); display: flex; align-items: center; justify-content: center; font-size: 2.1em; z-index: 1010; border: none; }
@@ -84,6 +82,23 @@
     /* ===== Error Style ===== */
     .acv2 .input-error { color: #dc2626; background: #fef2f2; border-radius: 8px; padding: 5px 10px; margin-top: 4px; font-size: .93rem; font-weight: 600; }
     .acv2 .form-row.error input, .acv2 .form-row.error textarea, .acv2 .form-row.error select { border: 2px solid #dc2626; background: #fef2f2; }
+  
+    
+
+  
+    /* === Nav copied to match contact.html exactly === */
+    
+
+  
+    /* === addon-service 同款底部導覽（桌機/手機一致） === */
+    .acv2 .nav { display: flex; gap: 12px; margin-top: 22px; }
+    .acv2 .nav a { 
+      flex: 1; text-align: center; padding: 12px 16px; 
+      background: var(--brand); color: #fff; border-radius: 10px; 
+      text-decoration: none; 
+    }
+    .acv2 .nav a:hover { background: #1e40af; }
+
   </style>
 </head>
 <body>
@@ -181,12 +196,19 @@
         </div>
 
       
+      
+      
+      
+      
       <div class="nav">
         <a href="index.html" id="back">回首頁</a>
-        <button type="submit" id="next">下一步</button>
+        <a href="addon-service.html" id="next">下一步</a>
       </div>
-
     </form>
+
+
+
+
 
     <a class="fab-home" href="index.html" aria-label="回首頁">🏠</a>
   </div>
@@ -307,6 +329,20 @@
         });
       });
     });
+  </script>
+
+  <script>
+    (function(){
+      var form = document.getElementById('booking-form');
+      var next = document.getElementById('next');
+      if(next && form){
+        next.addEventListener('click', function(e){
+          e.preventDefault();
+          if (form.requestSubmit) form.requestSubmit();
+          else form.submit();
+        }, {capture:true});
+      }
+    })();
   </script>
 </body>
 </html>
