@@ -127,6 +127,43 @@
     white-space: normal;
   }
 
+
+  /* === 極致精簡的手機兩欄卡片（高度更低、不會超出） === */
+  @media (max-width: 520px){
+    .wrap{ padding-left: 10px !important; padding-right: 10px !important; }
+    .section{ padding: 10px; }
+    .row{ gap: 6px; }
+    .group{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+
+    /* 卡片更薄、更小字，單行優先，必要時換行 */
+    label.option-card, .group .option-card, .group label{
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      line-height: 1.25;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      min-height: 40px;
+    }
+    .group input[type="radio"], .group input[type="checkbox"]{
+      width: 16px; height: 16px; margin-right: 8px;
+    }
+
+    /* 卡片內文字處理：盡量單行，太長才折行，避免撐高 */
+    label.option-card span, .group .option-card span, .group label span{
+      display:inline-block;
+      max-width: calc(100% - 28px);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+  }
+
+  /* 預防任何異常撐寬 */
+  .group > * { min-width: 0; }
+  .group .option-card, .group label{
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
 </style>
 <link rel="stylesheet" href="mobile-2col.css"/>
 </head>
@@ -143,10 +180,10 @@
   <div class="section">
     <h2>與我們聯繫方式</h2>
     <div class="group" id="contact-method">
-      <label class="option-card"><input type="radio" name="contact_method" value="LINE"/>LINE</label>
-      <label class="option-card"><input type="radio" name="contact_method" value="Facebook"/>Facebook</label>
-      <label class="option-card"><input type="radio" name="contact_method" value="電話"/>電話</label>
-      <label class="option-card"><input type="radio" name="contact_method" value="其他" data-other-id="contact_method_other"/>其他</label>
+      <label class="option-card"><input type="radio" name="contact_method" value="LINE"/><span>LINE</span></label>
+      <label class="option-card"><input type="radio" name="contact_method" value="Facebook"/><span>Facebook</span></label>
+      <label class="option-card"><input type="radio" name="contact_method" value="電話"/><span>電話</span></label>
+      <label class="option-card"><input type="radio" name="contact_method" value="其他" data-other-id="contact_method_other"/><span>其他</span></label>
       <input type="text" class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式"/>
     </div>
     <details><summary>小提醒</summary><p>若偏好非電話聯繫，請在下方名稱處提供 LINE 或 FB 名稱。</p></details>
@@ -180,30 +217,30 @@
     <div class="row">
       <div>居住地型態</div>
       <div class="group" id="housing-type">
-        <label class="option-card"><input type="radio" name="housing_type" value="透天屋"/>透天屋</label>
-        <label class="option-card"><input type="radio" name="housing_type" value="大樓（有電梯）"/>大樓（有電梯）</label>
-        <label class="option-card"><input type="radio" name="housing_type" value="大樓（無電梯）"/>大樓（無電梯）</label>
-        <label class="option-card"><input type="radio" name="housing_type" value="其他" data-other-id="housing_type_other"/>其他</label>
+        <label class="option-card"><input type="radio" name="housing_type" value="透天屋"/><span>透天屋</span></label>
+        <label class="option-card"><input type="radio" name="housing_type" value="大樓（有電梯）"/><span>大樓（有電梯）</span></label>
+        <label class="option-card"><input type="radio" name="housing_type" value="大樓（無電梯）"/><span>大樓（無電梯）</span></label>
+        <label class="option-card"><input type="radio" name="housing_type" value="其他" data-other-id="housing_type_other"/><span>其他</span></label>
         <input type="text" class="other-input" id="housing_type_other" name="housing_type_other" placeholder="請輸入型態"/>
       </div>
     </div>
     <div class="row">
       <div>方便聯繫時間（可複選）</div>
       <div class="group">
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="平日"/>平日</label>
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="假日"/>假日</label>
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="上午"/>上午</label>
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="下午"/>下午</label>
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="晚上"/>晚上</label>
-        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="皆可"/>皆可</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="平日"/><span>平日</span></label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="假日"/><span>假日</span></label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="上午"/><span>上午</span></label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="下午"/><span>下午</span></label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="晚上"/><span>晚上</span></label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="皆可"/><span>皆可</span></label>
       </div>
     </div>
     <details><summary>隱私說明</summary><p>聯繫資訊僅用於預約溝通與派工，不做其他用途。</p></details>
   </div>
 
   <div class="nav">
-    <a href="other-service.html" id="back">← 返回上一步</a>
-    <a href="final-booking.html" id="next">下一步 ➜ 安排時段填寫</a>
+    <a href="other-service.html" id="back">返回上一步</a>
+    <a href="final-booking.html" id="next">下一步</a>
   </div>
 </div>
 
@@ -313,6 +350,5 @@
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
 </script>
-<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
 </body>
 </html>
