@@ -69,7 +69,7 @@ function normalize(m) {
     brand:         pick(m, ["冷氣品牌","brand"]),
     count:         pick(m, ["清洗數量","台數","count"]),
     floor:         pick(m, ["室內機所在樓層","樓層","floor"]),
-    is_inverter:   pick(m, ["是否為變頻機型系列","變頻","is_inverter"]),
+    is_inverter:   pick(m, ["是否為變形金剛系列","機型","is_inverter"]),
     antifungus:    pick(m, ["冷氣防霉抗菌處理","防霉抗菌","antifungus"]),
     ozone:         pick(m, ["臭氧空間消毒","臭氧殺菌消毒","臭氧","ozone"]),
     extra_service: pick(m, ["其他清洗服務","extra_service"]),
