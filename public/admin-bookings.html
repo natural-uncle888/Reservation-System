@@ -53,6 +53,78 @@
 .btn-primary:disabled{opacity:.6;cursor:not-allowed}
 .login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
 </style>
+
+<style>
+/* ====== Mobile-first: 通用可用性 ====== */
+:root{
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+*{ -webkit-tap-highlight-color: transparent; }
+button, input, textarea, select{ font-size:16px; } /* iOS 避免焦點時自動放大 */
+body{ overscroll-behavior-y: none; }
+
+/* ====== 版面：改為小螢幕單欄、放大可點區域 ====== */
+@media (max-width: 1024px){
+  .wrap{ padding:0 16px 24px; }
+  .grid{ grid-template-columns: 1fr !important; gap: 12px; }
+  header{ padding: calc(16px + var(--safe-top)) 16px 6px; }
+  h1{ font-size:20px; }
+  .sub{ font-size:13px; }
+  .row{ gap:8px; align-items: stretch; }
+  .input input{ min-width:0; width:100%; height:44px; }
+  .btn, .btn.primary{ height:44px; padding:0 16px; border-radius:12px; }
+  .panel{ padding:12px; border-radius:12px; }
+}
+
+/* ====== 表格可橫向捲動 ====== */
+.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; }
+.table-wrap > table{ min-width:720px; }
+
+@media (max-width: 640px){
+  th, td{ padding:10px 12px; font-size:14px; }
+  tr:hover{ background:#f6f9ff; }
+  th{ top:0; }
+}
+
+/* 鍵盤可達性：列可聚焦（配合JS加 tabindex） */
+tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f7ff; }
+
+/* ====== 卡片（詳情）在手機更易讀 ====== */
+@media (max-width: 640px){
+  .card.fullview{ border-radius:12px; }
+  .card.fullview .card-h{ padding:10px 12px; font-size:15px; }
+  .card.fullview .card-b{ padding:8px 12px 12px; }
+  .card.fullview .row{ grid-template-columns: 1fr !important; gap: 2px; padding:8px 0; }
+  .card.fullview .k{ font-size:13px; color:#6b7280; }
+  .card.fullview .v{ font-size:15px; }
+}
+
+/* ====== 模態：手機全螢幕、好關閉、鍵盤不遮擋 ====== */
+@media (max-width: 640px){
+  .login-dialog,
+  .email-dialog{
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto;
+    max-height: calc(100dvh - 16px - var(--safe-top) - var(--safe-bottom));
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: max(16px, var(--safe-bottom));
+  }
+  .email-dialog textarea{ height: 40dvh; }
+}
+
+/* ====== 觸控目標大小與狀態 ====== */
+.btn, .btn.primary, .btn-primary, .btn-secondary{
+  min-width: 44px; min-height: 44px;
+}
+.btn:active, .btn-primary:active, .btn-secondary:active{ transform: translateY(1px); }
+
+/* ====== iOS 背景鎖定（配合JS在開啟模態時加 body--modal-open） ====== */
+body.body--modal-open{ height:100dvh; overflow:hidden; }
+</style>
+
 </head>
 <body>
 
@@ -92,10 +164,10 @@
 
     <div class="grid">
       <div>
-        <table id="tbl">
+        <div class="table-wrap"><table id="tbl">
           <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
           <tbody></tbody>
-        </table>
+        </table></div>
         <div id="foot" style="margin-top:8px;color:#6b7280"></div>
       </div>
       <div class="panel">
@@ -303,5 +375,44 @@ $("#emailApply").onclick = async ()=>{
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 </script>
+
+<script>
+  // 1) 模態開關時鎖定背景捲動
+  function lockScrollForModal(open){
+    document.body.classList.toggle('body--modal-open', !!open);
+  }
+
+  // 2) 表格列支援 Enter/Space 觸發 click（無障礙）
+  document.addEventListener('keydown', (e)=>{
+    const tr = e.target && e.target.closest && e.target.closest('tr[tabindex="0"]');
+    if(!tr) return;
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      tr.click();
+    }
+  });
+
+  // 3) 自動為表格列加 tabindex="0"，初次與動態新增都會套用
+  function enhanceRowsTabIndex(){
+    document.querySelectorAll('table#tbl tbody tr').forEach(tr=>{
+      if(!tr.hasAttribute('tabindex')) tr.setAttribute('tabindex','0');
+    });
+  }
+  const mo = new MutationObserver(enhanceRowsTabIndex);
+  window.addEventListener('DOMContentLoaded', ()=>{
+    enhanceRowsTabIndex();
+    const tbody = document.querySelector('table#tbl tbody');
+    if(tbody) mo.observe(tbody, {childList:true, subtree:true});
+  });
+
+  // 4) iOS：輸入框聚焦時，避免被鍵盤遮住
+  const autoScrollInputs = ['INPUT','TEXTAREA'];
+  document.addEventListener('focusin', (e)=>{
+    if(autoScrollInputs.includes(e.target.tagName)){
+      setTimeout(()=>{ e.target.scrollIntoView({block:'center'}); }, 100);
+    }
+  });
+</script>
+
 </body>
 </html>
