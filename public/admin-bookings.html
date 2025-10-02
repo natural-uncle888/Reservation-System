@@ -241,7 +241,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
         <h3 id="dv-title">詳情</h3>
         <div id="preview" style="min-height:120px;"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnPaste" class="btn">貼上信件內容並回填</button>
+          <button id="btnPaste" class="btn">貼上信件內容（僅顯示）</button>
         </div>
         <details style="margin-top:10px;">
           <summary>context / metadata</summary>
@@ -400,6 +400,13 @@ $("#btnPaste").onclick = ()=>{
   $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
 };
 $("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 $("#emailApply").onclick = async ()=>{
   const text = $("#emailPaste").value;
   const msg = $("#emailMsg");
@@ -432,12 +439,39 @@ $("#emailApply").onclick = async ()=>{
     source: pick(kvs, ["來源","subject","page_title"]),
   };
   Object.keys(ctx).forEach(k=>{ if(!ctx[k]) delete ctx[k]; });
-  if (Object.keys(ctx).length===0){ msg.textContent="未解析到欄位，請確認貼上的是純文字內容"; return; }
-  msg.textContent="上傳中…";
-  const r = await fetch(API_UPDATE_CTX, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify({ public_id: CURRENT_ITEM.public_id, resource_type: CURRENT_ITEM.resource_type||"raw", type: CURRENT_ITEM.type||"upload", context: ctx }) });
-  const t = await r.text();
-  if (!r.ok){ try{ const j = JSON.parse(t); msg.textContent = "更新失敗：" + (j.error||t); } catch{ msg.textContent = "更新失敗：" + t; } return; }
-  msg.textContent="已更新！關閉此視窗後，重新查詢或點選此筆即可看到最新內容。";
+
+  if (!text || !lines.length){
+    msg.textContent = "沒有讀到可解析的文字，請確認貼上的是純文字內容（僅顯示，不寫回）";
+    return;
+  }
+
+  // 只顯示在詳情面板（不寫回）
+  const pv = $("#preview");
+  const prev = pv.innerHTML;
+
+  const toRows = (o)=> Object.keys(o).length
+    ? Object.entries(o).map(([k,v]) => `<div class="row"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join("")
+    : `<div class="row"><div class="k">解析結果</div><div class="v">（未偵測到可用欄位）</div></div>`;
+
+  const rawCard = `
+    <div class="card fullview">
+      <div class="card-h">Email 原始內容（僅顯示）</div>
+      <div class="card-b">
+        <div class="row"><div class="k">貼上文字</div><div class="v" style="white-space:pre-wrap">${escapeHtml(text)}</div></div>
+      </div>
+    </div>`;
+
+  const parsedCard = `
+    <div class="card fullview">
+      <div class="card-h">解析結果（未寫回）</div>
+      <div class="card-b">${toRows(ctx)}</div>
+    </div>`;
+
+  pv.innerHTML = `<div class="fullview-wrap">${rawCard}${parsedCard}${prev}</div>`;
+
+  // 提示＋關閉視窗
+  msg.textContent = "已顯示在右側詳情（未寫回）";
+  $("#emailModal").style.display = "none";
 };
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
