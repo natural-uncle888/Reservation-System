@@ -128,7 +128,7 @@ function normalize(m){
     brand:         pick(m, ["冷氣品牌","brand","品牌","冷氣機品牌"]),
     count:         pick(m, ["清洗數量","台數","數量","直立式洗衣機台數","洗衣機台數","count"]),
     floor:         pick(m, ["室內機所在樓層","洗衣機樓層","樓層","floor"]),
-    is_inverter:   yn(pick(m, ["是否為變頻機型系列","是否為變形金剛系列","變頻","is_inverter"])),
+    is_inverter:   yn(pick(m, ["是否為變形金剛系列","機型","is_inverter"])),
 
     // 加購/額外
     antifungus:    yn(pick(m, ["冷氣防霉抗菌處理","防霉抗菌","antifungus"])),
