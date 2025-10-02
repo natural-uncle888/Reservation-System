@@ -97,6 +97,45 @@ html,body,.page{ width:100%; overflow-x:hidden }
 /* 針對文字溢出（條列/段落） */
 .notice, .section, .hero, .wrap{ overflow-wrap:anywhere }
 </style>
+
+<style>
+
+/* === FAB：快速回首頁 === */
+.fab-home{
+  position:fixed; z-index:60;
+  right:clamp(12px,3vw,16px);
+  bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display:inline-flex; align-items:center; gap:10px;
+  padding:12px 16px; border-radius:9999px;
+  background:var(--brand, #2563eb); color:#fff; text-decoration:none; font-weight:700;
+  box-shadow:0 8px 24px rgba(37,99,235,.25), 0 2px 6px rgba(0,0,0,.08);
+  border:1px solid var(--brand, #2563eb);
+  transition:transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+.fab-home:active{ transform:translateY(1px) }
+.fab-home:hover{ background:var(--brand-700, #1d4ed8) }
+.fab-home__icon{ font-size:18px; line-height:1 }
+.fab-home__label{ font-size:15px }
+
+/* 讓頁面底部不被 FAB 擋到（約 88px 高度緩衝） */
+.sections{ padding-bottom:88px }
+@supports (bottom: env(safe-area-inset-bottom)){
+  .sections{ padding-bottom:calc(88px + env(safe-area-inset-bottom, 0px)) }
+}
+
+</style>
+
+<style>
+
+/* === FAB 調整：僅手機顯示（<=767px），圓形 54px，底部 72px === */
+.fab-home{
+  width:54px; height:54px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:2.1em;
+  bottom:72px; right:18px;
+}
+@media (min-width:768px){ .fab-home{ display:none; } }
+
+</style>
 </head>
 <body>
 <div class="page">
@@ -284,6 +323,54 @@ html,body,.page{ width:100%; overflow-x:hidden }
     window.debugOther=()=>collect();
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
+</script>
+
+<a class="fab-home" href="index.html" id="fab-home" aria-label="快速回首頁">
+  <span class="fab-home__icon">🏠</span>
+  <span class="fab-home__label">快速回首頁</span>
+</a>
+
+<script>
+// 讓點擊 FAB 也會保存表單資料再離開
+(function(){
+  const fab = document.getElementById('fab-home');
+  if(!fab) return;
+  fab.addEventListener('click', function(e){
+    try{
+      const KEY='BOOKING_DATA';
+      const $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
+      const out={};
+      $$('input[name],select[name],textarea[name]').forEach(el=>{
+        const n=el.name; if(!n) return;
+        if(el.type==='checkbox'){
+          if(!el.checked) return;
+          let v = el.value || '';
+          const oid = el.dataset.otherId;
+          if(oid){
+            const ext = document.getElementById(oid)?.value?.trim();
+            if(ext) v = v + '：' + ext;
+          }
+          (out[n]||(out[n]=[])).push(v);
+        }else if(el.type==='radio'){
+          if(!el.checked) return;
+          let v = el.value || '';
+          const oid = el.dataset.otherId;
+          if(oid){
+            const ext = document.getElementById(oid)?.value?.trim();
+            if(ext) v = v + '：' + ext;
+          }
+          out[n]=v;
+        }else{
+          const v=(el.value||'').trim();
+          if(v) out[n]=v;
+        }
+      });
+      const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+      localStorage.setItem(KEY, JSON.stringify(Object.assign(prev, out)));
+    }catch(_) {}
+    // 不中斷導航，讓連結照常前往首頁
+  }, {capture:true});
+})();
 </script>
 </body>
 </html>
