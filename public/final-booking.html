@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#2563eb" />
-  <title>安排時段填寫｜新版（上下區塊）</title>
+  <title>安排時段填寫</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" />
   <style>
     :root { --brand:#2563eb; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
@@ -19,7 +19,7 @@
 
     /* ===== Form sections (stacked) ===== */
     form { max-width: 960px; margin: 16px auto; padding: 0 16px; }
-    .section { background: var(--card); border:1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .section { background: var(--card); border:1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; overflow: hidden; }
     .section h2 { margin: 0 0 8px; color: var(--brand); font-size: 1.1rem; }
     .section h2.req::after { content: " *"; color:#dc2626; margin-left:4px; font-weight:700; }
     p.help { margin: 6px 0 0; color: var(--muted); font-size:.95rem; }
@@ -33,7 +33,7 @@
 
     /* ===== Hidden extra inputs (for "其他") ===== */
     .hidden-input { display:none; margin: 2px 0 0 34px; }
-    .hidden-input input, .hidden-input textarea { width: 420px; max-width: 100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; }
+    .hidden-input input, .hidden-input textarea { width: 100%; max-width: 100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; }
 
     /* ===== Textarea / table ===== */
     textarea { width: 100%; padding: 10px; border:1px solid #cbd5e1; border-radius: 8px; }
@@ -53,7 +53,7 @@
     .nav a:hover, .nav button:hover { background:#1e40af; }
 
     /* ===== Active micro-interactions ===== */
-    .card:active, .go:active, button:active { transform: scale(0.97); box-shadow:0 2px 12px rgba(37,99,235,0.12); filter:brightness(0.97); transition: transform .05s, box-shadow .05s; }
+    .card:active, .go:active, button:active { box-shadow:0 2px 12px rgba(37,99,235,0.12); filter:brightness(0.98); transition: box-shadow .05s; }
     button, .go, .card { transition: box-shadow .18s, transform .10s, filter .10s; cursor:pointer; }
 
     /* ===== Responsive safe-guards ===== */
@@ -70,11 +70,9 @@
     .input-error { color:#dc2626; background:#fef2f2; border-radius:8px; padding:6px 10px; margin-top:6px; font-size:.93rem; font-weight:600; }
     .form-row.error input, .form-row.error textarea, .form-row.error select { border: 2px solid #dc2626; background:#fef2f2; }
       /* ===== Two-column layout for upper part ===== */
-    .two-col { display:grid; grid-template-columns: 1fr; gap:14px; }
+    .two-col { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
     .two-col .full { grid-column: 1 / -1; }
-    @media (min-width: 640px){
-      .two-col { grid-template-columns: 1fr 1fr; }
-    }
+    
     .option-card{ width:100%; }
     .two-col .hidden-input{ grid-column: 1 / -1; }
   </style>
