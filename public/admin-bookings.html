@@ -373,7 +373,10 @@ function openDetails(item){
   CURRENT_ITEM = item;
   const pv = $("#preview");
   if (pv) pv.innerHTML = "";
+  // 點選左側列時，顯示 Cloudinary 詳細內容
+  renderFullContent(item, $("#preview"));
 }
+
 , null, 2);
   renderFullContent(item, $("#preview"));
 }
