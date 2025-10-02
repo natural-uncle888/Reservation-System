@@ -74,6 +74,30 @@
   .option-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
   .option-grid > label.option-card{display:grid;grid-template-columns:24px 1fr;align-items:center;column-gap:10px;padding:10px 14px;min-height:var(--capsule-h);background:#fff;border:var(--capsule-border) solid var(--line);border-radius:var(--capsule-radius);box-shadow:0 2px 8px rgba(0,0,0,.04);font-size:1rem;line-height:1.25;cursor:pointer}
   .option-grid > label.option-card.selected{border-color:var(--brand);background:#eef2ff;box-shadow:0 4px 12px rgba(37,99,235,.12)}
+
+/* === final-booking 按鈕一致化 === */
+.nav{ display:flex; gap:12px; max-width:960px; margin:18px auto; padding:0 16px; }
+.nav a, .nav button {
+  flex:1; text-align:center; padding:12px 16px;
+  background:var(--brand); color:#fff;
+  border-radius:10px; text-decoration:none; border:none; cursor:pointer;
+  font:500 16px/1.5 "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+.nav a:hover, .nav button:hover{ background: var(--brand-700); }
+
+/* === 快速回首頁 FAB === */
+.fab-home {
+  position:fixed; right:18px; bottom:72px; width:54px; height:54px;
+  background:var(--brand); color:#fff; border-radius:50%;
+  box-shadow:0 2px 12px rgba(37,99,235,0.08);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.1em; z-index:1010; text-decoration:none;
+  transition: background .13s, transform .13s; border:none;
+}
+.fab-home:active { background:#1d4ed8; transform:scale(0.92); }
+@media (min-width:768px){ .fab-home { display:none; } }
+
 </style>
 </head>
 <body>
@@ -255,5 +279,6 @@
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
 </script>
+<a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 </body>
 </html>
