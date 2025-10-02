@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#2563eb" />
-  <title>冷氣清洗｜預約表單</title>
+  <title>冷氣清洗｜預約表單（獨立版）</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
 
   <!--
@@ -40,13 +40,14 @@
     .acv2 p.help { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
 
     /* ===== Group & Option Cards ===== */
-    .acv2 .group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
-    .acv2 .group.model-group { flex-direction: column; }
+    .acv2 .group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 10px; }
+    .acv2 .group.model-group { display: flex; flex-direction: column; gap: 12px; }
+    @media (max-width: 640px) { .acv2 .group { grid-template-columns: 1fr; } }
 
     /* 二欄自適應卡片（非依賴外部 CSS） */
-    .acv2 .group:not(.model-group) { flex-wrap: wrap; flex-direction: row; gap: 12px; justify-content: space-between; }
-    .acv2 .group:not(.model-group) .option-card { flex: 1 1 calc(50% - 6px); max-width: calc(50% - 6px); }
-    @media (max-width: 640px) { .acv2 .group:not(.model-group) .option-card { flex-basis: 100%; max-width: 100%; } }
+    
+    .acv2 .option-card { width: 100%; }
+    
 
     .acv2 .option-card { display: flex; align-items: center; gap: 14px; background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 16px 14px; font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04); cursor: pointer; min-height: 48px; transition: border .13s, box-shadow .13s, background .12s; position: relative; }
     .acv2 .option-card:active { background: #e0e7ff; border-color: var(--brand); }
@@ -55,8 +56,9 @@
     .acv2 .option-card img.opt-img { width: 88px; border-radius: 10px; margin-top: 0; border:1px solid var(--line); padding:2px; background:#fff; }
 
     /* ===== Hidden inputs for "其他" ===== */
-    .acv2 .hidden-input { display: none; margin: 8px 0 0 28px; }
-    .acv2 .hidden-input input { width: 320px; max-width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 8px; }
+    .acv2 .hidden-input { display: none; margin: 8px 0 0 0; }
+    $1
+    .acv2 .hidden-input input::placeholder { color: #9ca3af; font-size: 1rem; }
 
     /* ===== Aside / Tips ===== */
     .acv2 .aside { display: grid; gap: 6px; margin-top: 8px; }
