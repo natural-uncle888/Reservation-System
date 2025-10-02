@@ -4,9 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#2563eb" />
-  <title>自然大叔｜預約清洗服務（膠囊卡片版）</title>
+  <title>自然大叔｜預約清洗服務</title>
   <style>
-    /* ===== 重置與基礎設定 ===== */
     html, body {
       margin: 0;
       padding: 0;
@@ -16,7 +15,6 @@
     }
     *, *::before, *::after { box-sizing: border-box; }
 
-    /* ===== 頁首 ===== */
     header {
       background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
       color: #fff;
@@ -26,45 +24,46 @@
     header h1 { margin: 0; font-size: 2rem; font-weight: 800; }
     header p { margin: 8px 0 0; font-size: 1rem; opacity: .95; }
 
-    /* ===== 膠囊卡片容器（維持兩欄，含手機） ===== */
+    /* ===== 服務選項（明顯膠囊卡片） ===== */
     .service-grid {
       max-width: 1100px; margin: 32px auto; padding: 0 16px;
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;
     }
     @media (max-width: 640px){ .service-grid { gap: 16px; } }
 
-    /* ===== 膠囊卡片樣式（整卡可點、置中、選取態、滑鼠動畫） ===== */
     a.card {
-      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      background: #fff; border-radius: 9999px; padding: 24px 22px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
-      border: 2px solid transparent; text-decoration: none; color: inherit; cursor: pointer;
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 6px 20px rgba(37,99,235,.1);
+      border: 3px solid transparent;
+      text-decoration: none; color: inherit; cursor: pointer;
       transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
       overflow: hidden;
     }
     a.card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.35); }
-    .card h3{ margin: 0 0 6px; font-size: 1.2rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px; justify-content: center; }
-    .card p{ margin: 0; font-size: .95rem; color: #475569; line-height: 1.6; }
-    .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 18px; border-radius: 9999px; font-weight: 600; }
+    .card h3{ margin: 0 0 6px; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px; justify-content: center; }
+    .card p{ margin: 0; font-size: 1rem; color: #475569; line-height: 1.6; }
+    .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 9999px; font-weight: 600; }
     .card .cta:hover{ background:#1d4ed8; }
 
-    /* 滑鼠滑過動畫（亮斑跟隨） */
-    .card::after{ content: ""; position:absolute; inset:0; background: radial-gradient(120px 120px at var(--mx,-100px) var(--my,-100px), rgba(99,102,241,.12), transparent 45%); pointer-events:none; transition: opacity .2s ease; opacity:0; }
-    .card:hover{ transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
+    /* 滑鼠效果 */
+    .card::after{ content: ""; position:absolute; inset:0; background: radial-gradient(140px 140px at var(--mx,-100px) var(--my,-100px), rgba(37,99,235,.1), transparent 40%); pointer-events:none; transition: opacity .2s ease; opacity:0; }
+    .card:hover{ transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 28px rgba(37,99,235,.2); }
     .card:hover::after{ opacity:1; }
+    .card.selected{ border-color:#2563eb; background:#e0f2fe; box-shadow: 0 10px 32px rgba(37,99,235,.25); }
 
-    /* 選取態：藍框 + 淡藍底 */
-    .card.selected{ border-color:#60a5fa; background:#eff6ff; box-shadow: 0 8px 26px rgba(37,99,235,.16); }
-
-    /* ===== 流程說明：卡片式區塊，置中，兩欄（含手機） ===== */
+    /* ===== 流程說明：卡片式區塊，白底淺陰影，但較輕淡 ===== */
     .notes-wrap{ max-width:1100px; margin: 28px auto 8px; padding: 0 16px; text-align:center; }
-    .notes-title{ margin: 0 0 14px; font-size: 1.08rem; font-weight: 800; color:#1e293b; }
+    .notes-title{ margin: 0 0 18px; font-size: 1.1rem; font-weight: 800; color:#1e293b; }
     .notes-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:16px; justify-items:center; }
     @media (max-width:640px){ .notes-grid{ gap:12px; } }
-    .note-card{ width:100%; background:#fff; border-radius: 22px; padding: 18px 16px; box-shadow: 0 3px 10px rgba(0,0,0,.06); border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; min-height:72px; }
-    .note-card .num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:9999px; background:#2563eb; color:#fff; font-weight:700; margin-right:10px; }
+    .note-card{ width:100%; background:#ffffff; border-radius: 16px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,.05); border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; min-height:60px; }
+    .note-card .num{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:9999px; background:#2563eb; color:#fff; font-weight:700; margin-right:10px; }
     .note-card p{ margin:0; color:#475569; }
 
-    /* ===== 頁尾 ===== */
     footer{ text-align:center; padding:16px; font-size:.9rem; color:#64748b; border-top:1px solid #e2e8f0; margin-top: 24px; }
   </style>
 </head>
@@ -110,7 +109,6 @@
   <footer>© 自然大叔 預約系統</footer>
 
   <script>
-    // 儲存選擇並在導航前加上選取樣式
     const KEY = 'BOOKING_DATA';
     function save(k, v) {
       try {
@@ -119,7 +117,6 @@
       } catch (e) {}
     }
 
-    // 亮斑跟隨滑鼠 & 點擊整卡即進入
     document.querySelectorAll('a.card').forEach(card => {
       card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
@@ -131,7 +128,6 @@
         card.classList.add('selected');
         const svc = card.getAttribute('data-service');
         if (svc) save('service_category', svc);
-        // 不阻止預設行為，瀏覽器會前往 href
       });
     });
   </script>
