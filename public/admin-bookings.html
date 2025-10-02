@@ -52,6 +52,39 @@
 .btn-primary{background:#0f172a;color:#fff;border:1px solid #111827;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
 .btn-primary:disabled{opacity:.6;cursor:not-allowed}
 .login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
+
+/* === Login Dialog 輸入框在手機時不全螢幕 === */
+@media (max-width: 640px){
+  .login-dialog{
+    max-width: 360px;
+    width: calc(100% - 32px);
+    margin: 0 auto;              /* 置中 */
+    border-radius: 16px;
+  }
+  .login-input input{
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+
+/* === 頁面標題與說明置中 === */
+header {
+  text-align: center;
+}
+
+header h1 {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+header .sub {
+  text-align: center;
+  display: block;
+  margin-bottom: 12px;
+  color: #64748b;
+}
+
 </style>
 
 <style>
