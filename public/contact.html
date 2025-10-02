@@ -200,6 +200,38 @@
 /* 極限下仍防溢出 */
 .group > *{ min-width: 0; }
 
+
+/* === 手機兩欄：圓角膠囊卡片（與你提供的樣式接近） === */
+@media (max-width: 520px){
+  .group{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  label.option-card, .group .option-card, .group label{
+    display: grid;
+    grid-template-columns: 24px 1fr;  /* 圈圈 + 文字 */
+    align-items: center;
+    column-gap: 10px;
+    padding: 10px 14px;
+    min-height: 52px;                 /* 固定高度感受 */
+    font-size: 1rem;
+    line-height: 1.25;
+    border: 2px solid #e5e7eb;
+    border-radius: 18px;               /* 膠囊圓角 */
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  }
+  .group input[type="radio"], .group input[type="checkbox"]{
+    width: 20px; height: 20px; margin: 0;
+  }
+  /* 單行顯示，避免撐高；太長以省略號處理 */
+  label.option-card span, .group .option-card span, .group label span{
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 上下留白收斂，讓整體長度縮短 */
+  .section{ padding: 12px; }
+  .row{ gap: 8px; }
+}
+/* 仍保留兩欄不溢出 */
+.group > *{ min-width: 0; }
+
 </style>
 <link rel="stylesheet" href="mobile-2col.css"/>
 </head>
