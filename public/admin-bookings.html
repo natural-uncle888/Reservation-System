@@ -192,6 +192,7 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 
+<style>.card.fullview .card-b{display:block !important;}</style>
 </head>
 <body>
 
@@ -447,9 +448,7 @@ $("#emailApply").onclick = async ()=>{
 
   // 只顯示在詳情面板（不寫回）
   const pv = $("#preview");
-  const prev = pv.innerHTML;
-
-  const toRows = (o)=> Object.keys(o).length
+const toRows = (o)=> Object.keys(o).length
     ? Object.entries(o).map(([k,v]) => `<div class="row"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join("")
     : `<div class="row"><div class="k">解析結果</div><div class="v">（未偵測到可用欄位）</div></div>`;
 
@@ -467,7 +466,7 @@ $("#emailApply").onclick = async ()=>{
       <div class="card-b">${toRows(ctx)}</div>
     </div>`;
 
-  pv.innerHTML = `<div class="fullview-wrap">${rawCard}${parsedCard}${prev}</div>`;
+  pv.innerHTML = `<div class="fullview-wrap">${rawCard}${parsedCard}</div>`;
 
   // 提示＋關閉視窗
   msg.textContent = "已顯示在右側詳情（未寫回）";
