@@ -232,6 +232,53 @@
 /* 仍保留兩欄不溢出 */
 .group > *{ min-width: 0; }
 
+
+/* === Capsule style aligned with 'other-service' page === */
+:root{
+  --capsule-h: 52px;
+  --capsule-radius: 18px;
+  --capsule-border: 2px;
+}
+/* 兩欄固定（桌機與手機） */
+.group{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; align-items:stretch; }
+.group > *{ min-width:0; }
+
+/* 膠囊卡片本體 */
+label.option-card, .group .option-card, .group label{
+  display:grid;
+  grid-template-columns: 24px 1fr; /* 控制圈圈與文字對齊 */
+  align-items:center;
+  column-gap:10px;
+  padding:10px 14px;
+  min-height:var(--capsule-h);
+  border: var(--capsule-border) solid #e5e7eb;
+  border-radius: var(--capsule-radius);
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  font-size:1rem; line-height:1.25;
+}
+.group input[type="radio"], .group input[type="checkbox"]{
+  width:20px; height:20px; margin:0;
+}
+/* 單行呈現，避免高度被撐長 */
+label.option-card span, .group .option-card span, .group label span{
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* 選中效果一致 */
+.group .option-card.selected, .group label.selected{
+  border-color:#2563eb;
+  box-shadow:0 4px 12px rgba(37,99,235,.12);
+  background:#eef2ff;
+}
+
+/* 其他輸入顯示：跨兩欄 */
+.other-input.show{ grid-column:1 / -1; }
+
+/* 收斂每段的上下留白，縮短整體長度 */
+.section{ padding:12px; }
+.row{ gap:8px; }
+
 </style>
 <link rel="stylesheet" href="mobile-2col.css"/>
 </head>
