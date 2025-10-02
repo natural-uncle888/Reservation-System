@@ -19,31 +19,35 @@
 
     /* ===== Form sections (stacked) ===== */
     form { max-width: 960px; margin: 16px auto; padding: 0 16px; }
-    .section { background: var(--card); border:1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; overflow: hidden; }
+    .section { background: var(--card); border:1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; overflow:hidden; }
     .section h2 { margin: 0 0 8px; color: var(--brand); font-size: 1.1rem; }
     .section h2.req::after { content: " *"; color:#dc2626; margin-left:4px; font-weight:700; }
     p.help { margin: 6px 0 0; color: var(--muted); font-size:.95rem; }
 
     /* ===== Option cards (checkbox/radio) ===== */
-    .group { display:flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
-    label.option-card { display:flex; align-items:center; gap:14px; background:#fff; border:2px solid #e5e7eb; border-radius:16px; padding:16px 14px; font-size:1.06rem; box-shadow:0 1px 8px rgba(0,0,0,0.04); cursor:pointer; min-height:48px; transition: border .13s, box-shadow .13s, background .12s; }
+    .two-col { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:12px; }
+    .two-col .full { grid-column: 1 / -1; }
+    label.option-card { display:flex; align-items:center; gap:14px; background:#fff; border:2px solid #e5e7eb; border-radius:16px; padding:16px 14px; font-size:1.06rem; font-weight:500; box-shadow:0 1px 8px rgba(0,0,0,0.04); cursor:pointer; min-height:48px; transition: border .13s, box-shadow .13s, background .12s; }
     label.option-card:active { background:#e0e7ff; border-color:#2563eb; }
     label.option-card input[type="checkbox"], label.option-card input[type="radio"] { accent-color:#2563eb; width:22px; height:22px; margin:0 6px 0 0; flex-shrink:0; }
     .option-card.selected { border: 2.5px solid #2563eb; background:#e0e7ff; box-shadow:0 2px 12px rgba(37,99,235,0.10); }
 
-    /* ===== Hidden extra inputs (for "其他") ===== */
-    .hidden-input { display:none; margin: 2px 0 0 34px; }
-    .hidden-input input, .hidden-input textarea { width: 100%; max-width: 100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; font-size:1.06rem; line-height:1.5; min-height:48px; }
+    /* ===== Inputs unified style ===== */
+    input[type="text"], textarea, select {
+      width: 100%; max-width: 100%; padding:14px 16px; border:1px solid #cbd5e1; border-radius:12px;
+      font-size:1.1rem; font-weight:500; line-height:1.5; min-height:48px; background:#fff;
+    }
+    ::placeholder { color:#94a3b8; }
+    input:focus, select:focus, textarea:focus {
+      border-color:#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.18);
+    }
 
-    /* ===== Textarea / table ===== */
-    textarea { width: 100%; padding: 10px; border:1px solid #cbd5e1; border-radius: 8px; }
+    /* ===== Table ===== */
     table { width: 100%; border-collapse: collapse; font-size: .98rem; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
     th, td { border-bottom: 1px solid #eee; padding: 10px 12px; text-align:left; vertical-align: top; }
     th { width: 34%; color:#334155; background:#f8fafc; }
 
     /* ===== Tips / details ===== */
-    .aside { display:grid; gap:6px; margin-top: 8px; }
-    .aside .tip { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; color:var(--muted); font-size:.92rem; }
     details { background:#fff; border:1px dashed var(--line); border-radius:10px; padding:10px; }
     details>summary { cursor:pointer; font-weight:700; color:var(--ink); }
 
@@ -54,39 +58,15 @@
 
     /* ===== Active micro-interactions ===== */
     .card:active, .go:active, button:active { box-shadow:0 2px 12px rgba(37,99,235,0.12); filter:brightness(0.98); transition: box-shadow .05s; }
-    button, .go, .card { transition: box-shadow .18s, transform .10s, filter .10s; cursor:pointer; }
-
-    /* ===== Responsive safe-guards ===== */
-    body, html { max-width:100%; overflow-x:hidden; }
-    img { max-width:100%; height:auto; }
-    table, input, select, textarea, button { max-width:100%; box-sizing:border-box; }
 
     /* ===== FAB (mobile only) ===== */
     .fab-home { position:fixed; right:18px; bottom:72px; width:54px; height:54px; background:#2563eb; color:#fff; border-radius:50%; box-shadow:0 2px 12px rgba(37,99,235,0.08); display:flex; align-items:center; justify-content:center; font-size:2.1em; z-index:1010; text-decoration:none; transition: background .13s, transform .13s; border:none; }
     .fab-home:active { background:#1d4ed8; transform:scale(0.92); }
     @media (min-width: 768px) { .fab-home { display:none; } }
 
-    /* ===== Error state (可對接驗證) ===== */
+    /* ===== Error state ===== */
     .input-error { color:#dc2626; background:#fef2f2; border-radius:8px; padding:6px 10px; margin-top:6px; font-size:.93rem; font-weight:600; }
     .form-row.error input, .form-row.error textarea, .form-row.error select { border: 2px solid #dc2626; background:#fef2f2; }
-      /* ===== Two-column layout for upper part ===== */
-    .two-col { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
-    .two-col .full { grid-column: 1 / -1; }
-    
-    .option-card{ width:100%; }
-    .two-col .hidden-input{ grid-column: 1 / -1; }
-    /* ==== Unified form control sizing to match option cards ==== */
-    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select {
-      width: 100%; padding: 12px 14px; border:1px solid #cbd5e1; border-radius:12px;
-      font-size: 1.06rem; line-height: 1.5; min-height:48px; background:#fff;
-    }
-    ::placeholder { color:#94a3b8; }
-    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select, textarea {
-      box-shadow: none; outline: none;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color:#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.18);
-    }
   </style>
 </head>
 <body>
@@ -124,20 +104,18 @@
       <textarea name="note" rows="4" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊"></textarea>
     </div>
 
-    <!-- 送出前預覽（移到最下面） -->
+    <!-- 送出前預覽 -->
     <div class="section">
       <h2>送出前預覽</h2>
       <table id="preview"><tbody></tbody></table>
     </div>
 
-    <!-- 導覽按鈕 -->
     <div class="nav">
       <a id="back" href="contact.html">← 返回上一步</a>
       <button id="submit" type="button">完成填寫並送出</button>
     </div>
   </form>
 
-  <!-- 提交成功彈窗 -->
   <div class="ok" id="ok" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center;">
     <div class="modal" style="background:#fff; border-radius:12px; padding:24px; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
       <h3>已送出</h3>
@@ -146,7 +124,6 @@
     </div>
   </div>
 
-  <!-- FAB 回首頁（行動版） -->
   <a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 
   <script>
@@ -196,7 +173,6 @@
           tr.innerHTML = '<th>'+label+'</th><td>'+txt+'</td>';
           tbody.appendChild(tr);
         };
-        // === 舊版完整欄位回填 ===
         show('service_category','服務類別');
         show('ac_type','冷氣類型');
         show('ac_count','清洗數量');
@@ -217,7 +193,6 @@
         show('address','地址');
         show('housing_type','居住地型態');
         show('contact_time_preference','方便聯繫時間');
-        // 本頁欄位
         show('timeslot','可安排時段');
         show('note','備註');
       }
@@ -235,7 +210,6 @@
         preview(p);
       }
 
-      // 初始狀態
       ['timeslot'].forEach(n=>{
         form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
           el.addEventListener('change', ()=>{ toggleOtherWrap(n); refresh(); save(); });
@@ -248,7 +222,6 @@
         try { localStorage.setItem(KEY, JSON.stringify(buildPayload())); } catch(e){}
       }
 
-      // 樣式同步：選中時給卡片高亮
       document.addEventListener('DOMContentLoaded', function(){
         document.querySelectorAll('.group').forEach(function(group){
           group.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(input){
@@ -262,10 +235,8 @@
         });
       });
 
-      // 返回鍵：保留資料
       document.getElementById('back')?.addEventListener('click', ()=>{ save(); }, {capture:true});
 
-      // 送出
       document.getElementById('submit')?.addEventListener('click', async ()=>{
         const payload = buildPayload();
         try{
@@ -279,7 +250,6 @@
         }
       });
 
-      // 初次渲染
       refresh();
     })();
   </script>
