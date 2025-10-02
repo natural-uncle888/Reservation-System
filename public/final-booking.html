@@ -33,7 +33,7 @@
 
     /* ===== Hidden extra inputs (for "其他") ===== */
     .hidden-input { display:none; margin: 2px 0 0 34px; }
-    .hidden-input input, .hidden-input textarea { width: 100%; max-width: 100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; }
+    .hidden-input input, .hidden-input textarea { width: 100%; max-width: 100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; font-size:1.06rem; line-height:1.5; min-height:48px; }
 
     /* ===== Textarea / table ===== */
     textarea { width: 100%; padding: 10px; border:1px solid #cbd5e1; border-radius: 8px; }
@@ -75,6 +75,18 @@
     
     .option-card{ width:100%; }
     .two-col .hidden-input{ grid-column: 1 / -1; }
+    /* ==== Unified form control sizing to match option cards ==== */
+    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select {
+      width: 100%; padding: 12px 14px; border:1px solid #cbd5e1; border-radius:12px;
+      font-size: 1.06rem; line-height: 1.5; min-height:48px; background:#fff;
+    }
+    ::placeholder { color:#94a3b8; }
+    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select, textarea {
+      box-shadow: none; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color:#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.18);
+    }
   </style>
 </head>
 <body>
@@ -120,7 +132,7 @@
 
     <!-- 導覽按鈕 -->
     <div class="nav">
-      <a id="back" href="contact-info.html">← 返回上一步</a>
+      <a id="back" href="contact.html">← 返回上一步</a>
       <button id="submit" type="button">完成填寫並送出</button>
     </div>
   </form>
