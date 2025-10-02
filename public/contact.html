@@ -148,7 +148,7 @@
 /* === 手機修正：說明文字縮小以符合畫面比例 === */
 @media (max-width: 520px) {
   .intro {
-    font-size: 12px !important;
+    font-size: 14px !important;
     line-height: 1.5 !important;
   }
 }
@@ -335,5 +335,84 @@
   })();
 </script>
 <a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
+
+<script>
+  // === 必填驗證 ===
+  document.addEventListener('DOMContentLoaded', function () {
+    const nextBtn = document.getElementById('next');
+
+    nextBtn.addEventListener('click', function (e) {
+      let valid = true;
+      let msg = '';
+
+      // 1️⃣ 驗證「與我們聯繫方式」必填
+      const contactSelected = document.querySelector('input[name="contact_method"]:checked');
+      if (!contactSelected) {
+        valid = false;
+        msg = '請選擇一個聯繫方式（LINE / Facebook / 電話 / 其他）';
+      }
+
+      // 2️⃣ 驗證「LINE 或 Facebook 名稱」若選 LINE / Facebook 時必填
+      if (valid && (contactSelected?.value === 'LINE' || contactSelected?.value === 'Facebook')) {
+        const socialName = document.querySelector('input[name="social_name"]');
+        if (!socialName.value.trim()) {
+          valid = false;
+          msg = '您選擇了 ' + contactSelected.value + '，請填寫名稱';
+        }
+      }
+
+      // 3️⃣ 驗證「顧客姓名」必填
+      if (valid) {
+        const nameField = document.querySelector('input[name="name"]');
+        if (!nameField.value.trim()) {
+          valid = false;
+          msg = '請輸入顧客姓名';
+        }
+      }
+
+      // 4️⃣ 驗證「聯繫電話」必填
+      if (valid) {
+        const phoneField = document.querySelector('input[name="phone"]');
+        if (!phoneField.value.trim()) {
+          valid = false;
+          msg = '請輸入聯繫電話';
+        }
+      }
+
+      // 5️⃣ 驗證「清洗保養地址」必填
+      if (valid) {
+        const addressField = document.querySelector('input[name="address"]');
+        if (!addressField.value.trim()) {
+          valid = false;
+          msg = '請輸入清洗保養地址';
+        }
+      }
+
+      // 6️⃣ 驗證「居住地型態」必填
+      if (valid) {
+        const housingSelected = document.querySelector('input[name="housing_type"]:checked');
+        if (!housingSelected) {
+          valid = false;
+          msg = '請選擇居住地型態';
+        }
+      }
+
+
+      // 7️⃣ 驗證「方便聯繫時間」必填
+      if (valid) {
+        const contactTimeChecked = document.querySelectorAll('input[name="contact_time_preference"]:checked');
+        if (contactTimeChecked.length === 0) {
+          valid = false;
+          msg = '請至少選擇一個方便聯繫時間';
+        }
+      }
+      if (!valid) {
+        e.preventDefault(); // 阻止跳轉
+        alert(msg);
+      }
+    });
+  });
+</script>
+
 </body>
 </html>
