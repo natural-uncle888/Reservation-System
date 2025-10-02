@@ -128,12 +128,8 @@ html,body,.page{ width:100%; overflow-x:hidden }
 <style>
 
 /* === FAB 調整：僅手機顯示（<=767px），圓形 54px，底部 72px === */
-.fab-home{
-  width:54px; height:54px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center; font-size:2.1em;
-  bottom:72px; right:18px;
-}
-@media (min-width:768px){ .fab-home{ display:none; } }
+.fab-home:active { background:#1d4ed8; transform:scale(0.92); }
+@media (min-width:768px){ .fab-home { display:none; } }
 
 </style>
 </head>
