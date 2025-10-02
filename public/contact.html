@@ -164,6 +164,42 @@
     word-break: break-word;
   }
 
+
+/* === 超緊湊卡片（手機兩欄、最小高度 36px） === */
+@media (max-width: 520px){
+  .group{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  label.option-card, .group .option-card, .group label{
+    display: grid;
+    grid-template-columns: 20px 1fr; /* 控制圈圈+文字佈局，減少額外間距 */
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 0;
+    padding: 6px 8px;
+    font-size: 0.88rem;
+    line-height: 1.2;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    min-height: 36px; /* 比前一版更矮 */
+  }
+  .group input[type="radio"], .group input[type="checkbox"]{
+    width: 16px; height: 16px; margin: 0; /* 交由 grid 控距 */
+    justify-self: start; align-self: center;
+  }
+  /* 文字控制：預設單行省略，必要時允許換行（避免硬撐高度） */
+  label.option-card span, .group .option-card span, .group label span{
+    max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  /* 其他輸入框也跟著更緊湊 */
+  .other-input.show{ padding: 10px 10px; font-size: .95rem; }
+  .row{ gap: 6px; }
+  .section{ padding: 10px; }
+}
+
+/* 極限下仍防溢出 */
+.group > *{ min-width: 0; }
+
 </style>
 <link rel="stylesheet" href="mobile-2col.css"/>
 </head>
