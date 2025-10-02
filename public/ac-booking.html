@@ -202,7 +202,7 @@
       
       <div class="nav">
         <a href="index.html" id="back">回首頁</a>
-        <a href="addon-service.html" id="next">下一步</a>
+        <a href="#" id="next" data-next-href="addon-service.html">下一步</a>
       </div>
     </form>
 
@@ -289,19 +289,6 @@
   <script>
     // 卡片選中視覺狀態（僅限 .acv2 內部）
     document.addEventListener('DOMContentLoaded', function () {
-
-  // 先把 <a id="next"> 的預設導頁關掉，避免任何其他監聽器或瀏覽器預設動作把你帶走
-  (function(){
-    const a = document.getElementById('next');
-    if (a) {
-      const href = a.getAttribute('href');
-      if (href && href !== '#' && href !== 'javascript:void(0)') {
-        a.dataset.nextHref = href;
-        a.setAttribute('href', '#');
-      }
-    }
-  })();
-
       const root = document.querySelector('.acv2');
       root.querySelectorAll('.group').forEach(function(group) {
         group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
@@ -317,24 +304,27 @@
   </script>
 
   <script>
-    (function(){
-      var form = document.getElementById('booking-form');
-      var next = document.getElementById('next');
-      if(next && form){
-        next.addEventListener('click', function(e){
-          e.preventDefault();
-          if (form.requestSubmit) form.requestSubmit();
-          else form.submit();
-        }, {capture:true});
-      }
-    })();
+    
   </script>
 
-
 <script>
-// 共享驗證與防重複彈窗工具（改為使用全域去抖版本）
+// === 統一：單一彈窗、依頁面順序、阻止舊邏輯干擾 ===
+
+// 防重複彈窗 / 提交抖動
+window.__ALERT_LAST_MSG__ = '';
+window.__ALERT_LAST_TS__ = 0;
+window.__BLOCK_SUBMIT_UNTIL__ = 0;
+function showOnceAlert(msg){
+  var now = Date.now();
+  if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) return;
+  window.__ALERT_LAST_MSG__ = msg;
+  window.__ALERT_LAST_TS__ = now;
+  alert(msg);
+  window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
+}
+
+// 驗證（依 DOM 出現順序）
 function runValidation(){
-  // 需要的工具函式（與原本一致）
   function requireRadio(name, label){
     var picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
     if(!picked){ return { ok:false, msg:'請選擇『'+label+'』' }; }
@@ -374,201 +364,84 @@ function runValidation(){
     }
     return { ok:true };
   }
+  function groupRoot(name){
+    var el = document.querySelector('input[name="'+name+'"], input[name="'+name+'[]"]');
+    if(!el) return null;
+    var sec = el.closest && el.closest('.section');
+    return sec || (el.closest && el.closest('.form-row')) || el.parentElement || el;
+  }
 
-  var r, valid = true, msg = '';
-
-  // 0) 是否為變形金剛系列（radio）
-  r = requireRadio('ac_transformer_series','是否為變形金剛系列'); if(!r.ok){ valid=false; msg=r.msg; }
-
-  // 1) 冷氣類型（radio）
-  if(valid){ r = requireRadio('ac_type','冷氣類型'); if(!r.ok){ valid=false; msg=r.msg; } }
-
-  // 2) 清洗數量（radio）
-  if(valid){ r = requireRadio('ac_count','清洗數量'); if(!r.ok){ valid=false; msg=r.msg; } }
-
-  // 3) 室內機所在樓層（checkbox 群組）：至少一個
-  if(valid){ r = requireCheckbox('indoor_floor','室內機所在樓層'); if(!r.ok){ valid=false; msg=r.msg; } }
-
-  // 4) 冷氣品牌（checkbox 群組）：至少一個
-  if(valid){ r = requireCheckbox('ac_brand','冷氣品牌'); if(!r.ok){ valid=false; msg=r.msg; } }
-
-  // 5) 顯示中的「其他」輸入框需填寫
-  if(valid){ r = requireVisibleOthers(); if(!r.ok){ valid=false; msg=r.msg; } }
-
-  return { ok: valid, msg: msg };
-}
-</script>
-<script>
-  // === 統一與 contact 相同：按下「下一步」才做驗證；失敗 alert，成功才前進 ===
-  document.addEventListener('DOMContentLoaded', function () {
-
-  // 先把 <a id="next"> 的預設導頁關掉，避免任何其他監聽器或瀏覽器預設動作把你帶走
-  (function(){
-    const a = document.getElementById('next');
-    if (a) {
-      const href = a.getAttribute('href');
-      if (href && href !== '#' && href !== 'javascript:void(0)') {
-        a.dataset.nextHref = href;
-        a.setAttribute('href', '#');
-      }
-    }
-  })();
-
-    const nextBtn = document.getElementById('next');
-    const form = document.querySelector('form');
-    if (!nextBtn || !form) return;
-
-    // 工具：檢查 radio 群組是否已選
-    function requireRadio(name, label){
-      const picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
-      if(!picked){
-        return { ok:false, msg:'請選擇『'+label+'』' };
-      }
-      const oid = picked && picked.dataset.otherId;
-      if(oid){
-        const other = document.getElementById(oid);
-        if(other){
-          const v = (other.value||'').trim();
-          if(!v){
-            return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明' };
-          }
-        }
-      }
-      return { ok:true };
-    }
-
-    // 工具：檢查 checkbox 群組至少勾一個
-    function requireCheckbox(name, label){
-      // 支援 name="group" 與 name="group[]"
-      const checked = document.querySelectorAll('input[type="checkbox"][name="'+name+'"]:checked,'+
-                                                'input[type="checkbox"][name="'+name+'[]"]:checked');
-      if(checked.length===0){
-        return { ok:false, msg:'請至少勾選一個『'+label+'』' };
-      }
-      for(const el of checked){
-        const oid = el.dataset.otherId;
-        if(oid){
-          const other = document.getElementById(oid);
-          if(other && other.offsetParent !== null){ // 顯示中才要求
-            const v = (other.value||'').trim();
-            if(!v){
-              return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明' };
-            }
-          }
-        }
-      }
-      return { ok:true };
-    }
-
-    // 工具：任何顯示中的 .other-input 需有值（保險）
-    function requireVisibleOthers(){
-      const visibles = Array.from(document.querySelectorAll('.other-input')).filter(i=>{
-        return (i.classList.contains('show') || i.offsetParent !== null);
-      });
-      for(const i of visibles){
-        if(!(i.value||'').trim()){
-          return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明' };
-        }
-      }
-      return { ok:true };
-    }
-
-    // 成功時前往下一步：若 <a id="next" href="..."> 則導向；否則提交 form
-    function proceed(){
-      if (nextBtn.tagName.toLowerCase()==='a' && (nextBtn.dataset.nextHref || nextBtn.getAttribute('href'))) {
-        window.location.href = (nextBtn.dataset.nextHref || nextBtn.getAttribute('href'));
-      } else {
-        // 使用 novalidate 的表單，避免原生泡泡；統一 alert 體驗
-        if (form.requestSubmit) form.requestSubmit();
-        else form.submit();
-      }
-    }
-
-    nextBtn.addEventListener('click', function (e) {
-      let r, valid = true, msg = '';
-
-      // 1) 冷氣類型（radio）— 包含「是否為變形金剛系列」等同組別
-      r = requireRadio('ac_type','冷氣類型');
-      if(!r.ok){ valid=false; msg=r.msg; }
-
-      // 2) 清洗數量（radio）
-      if(valid){
-        r = requireRadio('ac_count','清洗數量');
-        if(!r.ok){ valid=false; msg=r.msg; }
-      }
-
-      // 3) 室內機所在樓層（checkbox 群組）：至少一個
-      if(valid){
-        r = requireCheckbox('indoor_floor','室內機所在樓層');
-        if(!r.ok){ valid=false; msg=r.msg; }
-      }
-
-      // 4) 冷氣品牌（checkbox 群組）：至少一個
-      if(valid){
-        r = requireCheckbox('ac_brand','冷氣品牌');
-        if(!r.ok){ valid=false; msg=r.msg; }
-      }
-
-      // 5) 顯示中的「其他」輸入框需填寫
-      if(valid){
-        r = requireVisibleOthers();
-        if(!r.ok){ valid=false; msg=r.msg; }
-      }
-
-      if(!valid){
-        // 阻止預設與其他 click 監聽（避免被其他監聽 submit/導頁）
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        showOnceAlert(msg);
-        return false;
-      }else{
-        // 一律由我們掌控跳轉，避免其他監聽介入
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        proceed();
-        return false;
-      }
-    }, true /* useCapture: 先於其他監聽執行 */);
+  var groups = [
+    {name:'ac_transformer_series', label:'是否為變形金剛系列', type:'radio'},
+    {name:'ac_type', label:'冷氣類型', type:'radio'},
+    {name:'ac_count', label:'清洗數量', type:'radio'},
+    {name:'indoor_floor', label:'室內機所在樓層', type:'checkbox'},
+    {name:'ac_brand', label:'冷氣品牌', type:'checkbox'}
+  ];
+  groups.forEach(function(g){ g.root = groupRoot(g.name); });
+  groups = groups.filter(function(g){ return !!g.root; });
+  groups.sort(function(a,b){
+    if (a.root === b.root) return 0;
+    var pos = a.root.compareDocumentPosition(b.root);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+    return 0;
   });
-</script>
 
-<script>
-// 全域提交守門：凡是 #booking-form 的提交，一律走同一組驗證；不通過就攔截
-document.addEventListener('submit', function(e){
-  var form = e.target;
-  if (!form || form.id !== 'booking-form') return;
-  // 若剛剛已因為 click 失敗而設置了 BLOCK_SUBMIT window，這裡只攔截，不再 alert
-  if (Date.now() < (window.__BLOCK_SUBMIT_UNTIL__ || 0)) {
-    e.preventDefault(); e.stopImmediatePropagation();
-    return false;
+  for (var i=0;i<groups.length;i++){
+    var g = groups[i], r;
+    if (g.type === 'radio') r = requireRadio(g.name, g.label);
+    else r = requireCheckbox(g.name, g.label);
+    if (!r.ok) return { ok:false, msg:r.msg };
   }
-  var res = runValidation();
-  if(!res.ok){
-    e.preventDefault(); e.stopImmediatePropagation();
-    showOnceAlert(res.msg);
-    return false;
-  }
-}, true);
-</script>
 
-<script>
-// 更嚴謹的防重複彈窗 / 提交抖動
-window.__ALERT_LAST_MSG__ = '';
-window.__ALERT_LAST_TS__ = 0;
-window.__BLOCK_SUBMIT_UNTIL__ = 0; // 當 invalid 時，短時間內擋掉後續 submit，不再重複 alert
+  var ro = requireVisibleOthers();
+  if(!ro.ok) return { ok:false, msg:ro.msg };
 
-function showOnceAlert(msg){
-  var now = Date.now();
-  // 同訊息在 2 秒內不重複彈
-  if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) {
-    return;
-  }
-  window.__ALERT_LAST_MSG__ = msg;
-  window.__ALERT_LAST_TS__ = now;
-  alert(msg);
-  // 之後 1.2 秒內的 submit 一律攔下但不再 alert（避免 click 與 submit 兩條路徑重複）
-  window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
+  return { ok:true, msg:'' };
 }
+
+// 下一步控制
+document.addEventListener('DOMContentLoaded', function(){
+  var form = document.getElementById('booking-form');
+  var nextBtn = document.getElementById('next');
+  if(!form || !nextBtn) return;
+
+  // click：先驗證，不過就攔截且只彈一次；通過才前進
+  nextBtn.addEventListener('click', function(e){
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg);
+      return false;
+    } else {
+      e.preventDefault(); e.stopImmediatePropagation();
+      // 正確前往 data-next-href 或提交
+      var href = nextBtn.getAttribute('data-next-href') || nextBtn.getAttribute('href');
+      if (href && href !== '#') window.location.href = href;
+      else if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+      return false;
+    }
+  }, true); // capture 先於其他監聽執行
+
+  // 全域 submit 捕獲：任何提交路徑都必須通過驗證
+  document.addEventListener('submit', function(e){
+    var f = e.target;
+    if (!f || f.id !== 'booking-form') return;
+
+    if (Date.now() < (window.__BLOCK_SUBMIT_UNTIL__ || 0)) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      return false;
+    }
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg);
+      return false;
+    }
+  }, true);
+});
 </script>
 </body>
 </html>
