@@ -125,19 +125,6 @@ header .sub {
   display: none !important;
 }
 
-
-/* === 互動詳情面板（覆寫全域隱藏） === */
-.panel.detail-panel{ display:block !important; }
-.detail-panel{
-  background: var(--c-panel, #fff);
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
-  padding: 12px;
-}
-@media (max-width: 1024px){
-  .detail-panel{ grid-column: 1 / -1; }
-}
 </style>
 
 <style>
@@ -254,14 +241,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
           <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
           <tbody></tbody>
         </table></div>
-<!-- Dynamic Detail Panel -->
-<div class="panel detail-panel" id="detailPanel" style="display:none;">
-  <div class="card fullview">
-    <div class="card-h">預約詳情</div>
-    <div class="card-b" id="detailContent"></div>
-  </div>
-</div>
-
         <div id="foot" style="margin-top:8px;color:#6b7280"></div>
       </div>
       <div class="panel">
@@ -508,71 +487,5 @@ $("#emailApply").onclick = async ()=>{
   });
 </script>
 
-
-<script>
-(function(){
-  function toLabel(key){
-    const map = {
-      name: "姓名", phone: "電話", service: "服務", createdat: "建立時間",
-      created: "建立時間", time: "時間", email: "Email", address: "地址",
-      note: "備註", context: "context", metadata: "metadata"
-    };
-    const norm = String(key).toLowerCase().replace(/[\s\-_]/g,'');
-    return map[norm] || key;
-  }
-
-  function renderDetailFromDataset(ds){
-    const entries = Object.entries(ds).filter(([k,v]) => v != null && String(v).trim() !== '');
-    if(entries.length === 0){
-      return '<div style="padding:8px;color:#64748b;">此筆沒有可顯示的資料</div>';
-    }
-    return entries.map(([k,v]) => {
-      return (
-        '<div class="row">' +
-          '<div class="k">' + toLabel(k) + '</div>' +
-          '<div class="v">' + String(v) + '</div>' +
-        '</div>'
-      );
-    }).join('');
-  }
-
-  function setupDetailPanel(){
-    const panel = document.getElementById('detailPanel');
-    const content = document.getElementById('detailContent');
-    if(!panel || !content) return;
-
-    function handleRowClick(e){
-      const tr = e.currentTarget;
-      const ds = tr.dataset || {};
-      const html = renderDetailFromDataset(ds);
-      content.innerHTML = html;
-      panel.style.display = 'block';
-      panel.scrollIntoView({behavior:'smooth', block:'start'});
-    }
-
-    function bindRows(){
-      document.querySelectorAll('table#tbl tbody tr').forEach(tr => {
-        if(!tr.__detailBound){
-          tr.addEventListener('click', handleRowClick);
-          tr.__detailBound = true;
-        }
-      });
-    }
-
-    bindRows();
-    const tbody = document.querySelector('table#tbl tbody');
-    if(tbody){
-      const mo = new MutationObserver(bindRows);
-      mo.observe(tbody, {childList:true, subtree:true});
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setupDetailPanel);
-  }else{
-    setupDetailPanel();
-  }
-})();
-</script>
 </body>
 </html>
