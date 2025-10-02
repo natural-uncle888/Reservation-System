@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#2563eb" />
-  <title>自然大叔｜預約清洗服務</title>
+  <title>自然大叔｜預約清洗服務（膠囊卡片版）</title>
   <style>
     /* ===== 重置與基礎設定 ===== */
     html, body {
@@ -23,134 +23,49 @@
       padding: 32px 16px;
       text-align: center;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 800;
-    }
-    header p {
-      margin: 8px 0 0;
-      font-size: 1rem;
-      opacity: .95;
-    }
+    header h1 { margin: 0; font-size: 2rem; font-weight: 800; }
+    header p { margin: 8px 0 0; font-size: 1rem; opacity: .95; }
 
-    /* ===== 膠囊卡片容器 ===== */
+    /* ===== 膠囊卡片容器（維持兩欄，含手機） ===== */
     .service-grid {
-      max-width: 1100px;
-      margin: 32px auto;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 24px;
-      padding: 0 16px;
+      max-width: 1100px; margin: 32px auto; padding: 0 16px;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;
     }
+    @media (max-width: 640px){ .service-grid { gap: 16px; } }
 
-    /* 即使在手機也維持兩欄 */
-    @media (max-width: 640px){
-      .service-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-    }
-
-    /* ===== 膠囊卡片樣式（置中、選取態、滑鼠動畫） ===== */
-    .card {
-      position: relative;
-      background: #fff;
-      border-radius: 9999px;
-      padding: 24px 22px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.06);
-      border: 2px solid transparent; /* 用於選取時變色 */
-      display: flex;
-      flex-direction: column;
-      align-items: center;      /* 元素置中 */
-      justify-content: center;
-      text-align: center;       /* 文字置中 */
+    /* ===== 膠囊卡片樣式（整卡可點、置中、選取態、滑鼠動畫） ===== */
+    a.card {
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      background: #fff; border-radius: 9999px; padding: 24px 22px; box-shadow: 0 4px 12px rgba(0,0,0,.06);
+      border: 2px solid transparent; text-decoration: none; color: inherit; cursor: pointer;
       transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
-      cursor: pointer;
-      overflow: hidden;         /* 給滑鼠動畫用 */
+      overflow: hidden;
     }
-    .card h3 {
-      margin: 0 0 6px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #1e293b;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      justify-content: center;
-    }
-    .card p {
-      margin: 0 0 12px;
-      font-size: .95rem;
-      color: #475569;
-      line-height: 1.5;
-    }
-    .card .btn {
-      display: inline-block;
-      background: #2563eb;
-      color: #fff;
-      padding: 8px 18px;
-      border-radius: 9999px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background .2s, transform .1s;
-    }
-    .card .btn:hover { background: #1d4ed8; }
-    .card .btn:active { transform: scale(.96); }
+    a.card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.35); }
+    .card h3{ margin: 0 0 6px; font-size: 1.2rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 6px; justify-content: center; }
+    .card p{ margin: 0; font-size: .95rem; color: #475569; line-height: 1.6; }
+    .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 18px; border-radius: 9999px; font-weight: 600; }
+    .card .cta:hover{ background:#1d4ed8; }
 
-    /* 滑鼠滑過動畫（亮斑掃過） */
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(120px 120px at var(--mx, -100px) var(--my, -100px), rgba(99, 102, 241, .12), transparent 45%);
-      pointer-events: none;
-      transition: opacity .2s ease;
-      opacity: 0;
-    }
-    .card:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
-    .card:hover::after { opacity: 1; }
+    /* 滑鼠滑過動畫（亮斑跟隨） */
+    .card::after{ content: ""; position:absolute; inset:0; background: radial-gradient(120px 120px at var(--mx,-100px) var(--my,-100px), rgba(99,102,241,.12), transparent 45%); pointer-events:none; transition: opacity .2s ease; opacity:0; }
+    .card:hover{ transform: translateY(-2px) scale(1.01); box-shadow: 0 8px 22px rgba(0,0,0,.10); }
+    .card:hover::after{ opacity:1; }
 
-    /* 選取態：淡藍底 + 藍框 */
-    .card.selected {
-      border-color: #60a5fa;
-      background: #eff6ff;
-      box-shadow: 0 8px 26px rgba(37,99,235,.16);
-    }
+    /* 選取態：藍框 + 淡藍底 */
+    .card.selected{ border-color:#60a5fa; background:#eff6ff; box-shadow: 0 8px 26px rgba(37,99,235,.16); }
 
-    /* ===== 流程說明（置中） ===== */
-    .notes {
-      max-width: 1100px;
-      margin: 24px auto;
-      padding: 0 16px;
-      font-size: .95rem;
-      color: #475569;
-      text-align: center;   /* 內容置中 */
-    }
-    .notes h4 {
-      margin: 0 0 10px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-    .notes ol {
-      margin: 0 auto;
-      padding: 0;
-      list-style-position: inside; /* 數字也置中對齊 */
-      line-height: 1.7;
-      display: inline-block; /* 使列表寬度隨內容，並可置中 */
-      text-align: center;
-    }
+    /* ===== 流程說明：卡片式區塊，置中，兩欄（含手機） ===== */
+    .notes-wrap{ max-width:1100px; margin: 28px auto 8px; padding: 0 16px; text-align:center; }
+    .notes-title{ margin: 0 0 14px; font-size: 1.08rem; font-weight: 800; color:#1e293b; }
+    .notes-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:16px; justify-items:center; }
+    @media (max-width:640px){ .notes-grid{ gap:12px; } }
+    .note-card{ width:100%; background:#fff; border-radius: 22px; padding: 18px 16px; box-shadow: 0 3px 10px rgba(0,0,0,.06); border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; min-height:72px; }
+    .note-card .num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:9999px; background:#2563eb; color:#fff; font-weight:700; margin-right:10px; }
+    .note-card p{ margin:0; color:#475569; }
 
     /* ===== 頁尾 ===== */
-    footer {
-      text-align: center;
-      padding: 16px;
-      font-size: .9rem;
-      color: #64748b;
-      border-top: 1px solid #e2e8f0;
-      margin-top: 24px;
-    }
+    footer{ text-align:center; padding:16px; font-size:.9rem; color:#64748b; border-top:1px solid #e2e8f0; margin-top: 24px; }
   </style>
 </head>
 <body>
@@ -160,64 +75,63 @@
   </header>
 
   <main class="service-grid" id="serviceGrid">
-    <div class="card" data-service="冷氣清洗">
+    <a class="card" data-service="冷氣清洗" href="ac-booking.html">
       <h3>❄️ 冷氣清洗</h3>
       <p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
-      <a href="ac-booking.html" class="btn">開始</a>
-    </div>
-    <div class="card" data-service="其他保養清洗">
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="其他保養清洗" href="other-service.html">
       <h3>🧺 其他保養清洗</h3>
       <p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
-      <a href="other-service.html" class="btn">開始</a>
-    </div>
-    <div class="card" data-service="團購預約清洗">
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="團購預約清洗" href="group-booking.html">
       <h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
       <p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
-      <a href="group-booking.html" class="btn">開始</a>
-    </div>
-    <div class="card" data-service="大量清洗需求">
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="大量清洗需求" href="bulk-booking.html">
       <h3>🏢 大量清洗需求</h3>
       <p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
-      <a href="bulk-booking.html" class="btn">開始</a>
-    </div>
+      <span class="cta">開始</span>
+    </a>
   </main>
 
-  <section class="notes">
-    <h4>流程說明</h4>
-    <ol>
-      <li>依序填寫各頁問題並點下一步。</li>
-      <li>最終頁可預覽與備註。按送出後將寄出通知信。</li>
-      <li>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</li>
-    </ol>
+  <section class="notes-wrap">
+    <h4 class="notes-title">流程說明</h4>
+    <div class="notes-grid">
+      <div class="note-card"><span class="num">1</span><p>依序填寫各頁問題並點下一步。</p></div>
+      <div class="note-card"><span class="num">2</span><p>最終頁可預覽與備註。按送出後將寄出通知信。</p></div>
+      <div class="note-card"><span class="num">3</span><p>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</p></div>
+      <div class="note-card"><span class="num">4</span><p>如需修改資料，回信或於聯繫時提供更新即可。</p></div>
+    </div>
   </section>
 
   <footer>© 自然大叔 預約系統</footer>
 
   <script>
-    // 儲存選擇並加上選取樣式
+    // 儲存選擇並在導航前加上選取樣式
     const KEY = 'BOOKING_DATA';
     function save(k, v) {
       try {
         const prev = JSON.parse(localStorage.getItem(KEY) || '{}');
-        prev[k] = v;
-        localStorage.setItem(KEY, JSON.stringify(prev));
+        prev[k] = v; localStorage.setItem(KEY, JSON.stringify(prev));
       } catch (e) {}
     }
 
-    // hover 亮斑跟隨滑鼠
-    document.querySelectorAll('.card').forEach(card => {
+    // 亮斑跟隨滑鼠 & 點擊整卡即進入
+    document.querySelectorAll('a.card').forEach(card => {
       card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
         card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
       });
-
-      // 點擊卡片即標記為選取（藍框+淡藍底）並記錄類別
       card.addEventListener('click', () => {
         document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
         const svc = card.getAttribute('data-service');
         if (svc) save('service_category', svc);
+        // 不阻止預設行為，瀏覽器會前往 href
       });
     });
   </script>
