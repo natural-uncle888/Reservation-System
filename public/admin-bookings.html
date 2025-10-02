@@ -611,80 +611,71 @@ $("#emailApply").onclick = async ()=>{
 </script>
 
 <script>
-// Demo: Insert one booking row parsed from a Brevo email (structured)
+/**
+ * Append a booking row parsed from Brevo.
+ * Accepts any keys; all keys are written to dataset for the detail panel.
+ * Required visible columns: name, phone, service, createdAt.
+ */
+function appendBookingFromBrevo(data){
+  const tbody = document.querySelector('table#tbl tbody');
+  if(!tbody) return;
+
+  const tr = document.createElement('tr');
+  tr.tabIndex = 0;
+
+  // Write all keys to dataset (camelCase works with dataset).
+  Object.keys(data || {}).forEach(k => {
+    const v = data[k];
+    if(v != null && String(v).trim() !== ''){
+      tr.dataset[k] = String(v);
+    }
+  });
+
+  tr.innerHTML = `
+    <td>${data.name || ''}</td>
+    <td>${data.phone || ''}</td>
+    <td>${data.service || ''}</td>
+    <td>${data.createdAt || ''}</td>
+  `;
+
+  tbody.prepend(tr);
+}
+
+// --- Demo: use parsed data from the uploaded Brevo email ---
 (function(){
-  function insertBrevoBookingRow(){
-    const tbody = document.querySelector('table#tbl tbody');
-    if(!tbody) return;
-
-    // Summarized primary fields for the table
-    const name = "林奕騰";
-    const phone = "0912356331";
-    const service = "冷氣清洗 / 洗衣機清洗 / 水管清洗 / 水塔清洗";
-    const createdAt = "2025-10-02";
-
-    // Build the detail payload (English keys; toLabel() in detail panel will map common keys)
-    const detail = {
-      name,
-      phone,
-      service,
-      createdAt,
-      address: "宜蘭一路17號",
-      contact: "jesnkimo6@hotmail.com / LINE: jesnkimo",
-      note: "讚啦",
-      pdf: "https://res.cloudinary.com/dvz4druzc/raw/upload/v1759411285/booking_6fef52fe9133_booking.pdf",
-
-      serviceCategory: "冷氣清洗",
-      acType: "分離式冷氣",
-      acCount: "5台以上：12",
-      indoorFloors: "2樓、3樓、4樓、5樓、5樓以上：10",
-      acBrands: "HITACHI 日立、Panasonic 國際牌、DAIKIN 大金、MITSUBISHI 三菱、FUJITSU 富士通、LG、TECO 東元、SANLUX 三洋、SAMPO 聲寶、Heran 禾聯、Kolin 歌林、TATUNG 大同、其他：不知道",
-      isTransformerSeries: "不清楚（現場由人員判斷）",
-
-      acAntimold: "需要",
-      ozoneDisinfection: "需要",
-
-      washerCount: "4台",
-      washerFloors: "2F、1F、4F、5F",
-      waterPipeCleaning: "無廚一衛",
-      waterPipeReasons: "異味、混濁、水壓變小、長時間未清洗、新屋、健康考量、預防性保養、其他：水啦",
-      waterTankCount: "2顆",
-
-      contactMethod: "其他：jesnkimo6@hotmail.com",
-      socialName: "jesnkimo",
-
-      timeSlots: "平日、假日、上午、下午、晚上、皆可、其他指定時間：20號",
-      contactTime: "平日、晚上",
-
-      residenceType: "其他：天空"
-    };
-
-    const tr = document.createElement('tr');
-    tr.tabIndex = 0;
-
-    // Fill dataset
-    Object.keys(detail).forEach(k => {
-      if (detail[k] != null && String(detail[k]).trim() !== '') {
-        // dataset uses camelCase; ok since we're using English keys
-        tr.dataset[k] = String(detail[k]);
-      }
-    });
-
-    // Four visible columns in table
-    tr.innerHTML = `
-      <td>${name}</td>
-      <td>${phone}</td>
-      <td>${service}</td>
-      <td>${createdAt}</td>
-    `;
-
-    tbody.prepend(tr);
-  }
+  const booking = {
+    name: "林奕騰",
+    phone: "0912356331",
+    service: "冷氣清洗 / 洗衣機清洗 / 水管清洗 / 水塔清洗",
+    createdAt: "2025-10-02",
+    address: "宜蘭一路17號",
+    contact: "jesnkimo6@hotmail.com / LINE: jesnkimo",
+    note: "讚啦",
+    pdf: "https://res.cloudinary.com/dvz4druzc/raw/upload/v1759411285/booking_6fef52fe9133_booking.pdf",
+    serviceCategory: "冷氣清洗",
+    acType: "分離式冷氣",
+    acCount: "5台以上：12",
+    indoorFloors: "2樓、3樓、4樓、5樓、5樓以上：10",
+    acBrands: "HITACHI 日立、Panasonic 國際牌、DAIKIN 大金、MITSUBISHI 三菱、FUJITSU 富士通、LG、TECO 東元、SANLUX 三洋、SAMPO 聲寶、Heran 禾聯、Kolin 歌林、TATUNG 大同、其他：不知道",
+    isTransformerSeries: "不清楚（現場由人員判斷）",
+    acAntimold: "需要",
+    ozoneDisinfection: "需要",
+    washerCount: "4台",
+    washerFloors: "2F、1F、4F、5F",
+    waterPipeCleaning: "無廚一衛",
+    waterPipeReasons: "異味、混濁、水壓變小、長時間未清洗、新屋、健康考量、預防性保養、其他：水啦",
+    waterTankCount: "2顆",
+    contactMethod: "其他：jesnkimo6@hotmail.com",
+    socialName: "jesnkimo",
+    timeSlots: "平日、假日、上午、下午、晚上、皆可、其他指定時間：20號",
+    contactTime: "平日、晚上",
+    residenceType: "其他：天空"
+  };
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', insertBrevoBookingRow);
+    document.addEventListener('DOMContentLoaded', ()=>appendBookingFromBrevo(booking));
   }else{
-    insertBrevoBookingRow();
+    appendBookingFromBrevo(booking);
   }
 })();
 </script>
