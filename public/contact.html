@@ -98,6 +98,35 @@
   }
   .nav a:hover{ background:#1e40af; }
 
+
+  /* === 防止手機兩欄超出邊框 === */
+  * { box-sizing: border-box; }
+  .group > * { min-width: 0; } /* 讓 grid 子元素可以縮 */
+  .section { overflow: hidden; } /* 避免陰影造成視覺溢出 */
+  @media (max-width: 520px){
+    .wrap{ padding-left: 10px !important; padding-right: 10px !important; }
+    .section{ padding: 12px; border-radius: 12px; }
+    .group{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    label.option-card, .group .option-card, .group label{
+      margin: 0;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .group input[type="radio"], .group input[type="checkbox"]{
+      width: 18px; height: 18px; margin-right: 8px;
+    }
+  }
+  /* 任何長字自動換行 */
+  .group .option-card, .group label{
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+  }
+
 </style>
 <link rel="stylesheet" href="mobile-2col.css"/>
 </head>
@@ -173,12 +202,10 @@
   </div>
 
   <div class="nav">
-    <a href="other-service.html" id="back">返回上一步</a>
-    <a href="final-booking.html" id="next">下一步</a>
+    <a href="other-service.html" id="back">← 返回上一步</a>
+    <a href="final-booking.html" id="next">下一步 ➜ 安排時段填寫</a>
   </div>
 </div>
-
-<a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 
 <script>
   (function(){
