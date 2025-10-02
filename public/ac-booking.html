@@ -7,15 +7,9 @@
   <title>冷氣清洗｜預約表單</title>
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
 
-  <!--
-    關鍵差異（完全獨立、不受外部 CSS 影響）：
-    1) 沒有載入 mobile-2col.css
-    2) 以 .acv2 作為樣式作用域前綴，所有樣式僅套用在 .acv2 內
-    3) 在 .acv2 內提供輕量 reset 與互動元件還原，降低外部樣式汙染
-  -->
   <style>
     /* ===== Scoped Reset (只作用在 .acv2) ===== */
-    .acv2, .acv2 * , .acv2 *::before, .acv2 *::after { box-sizing: border-box; }
+    .acv2, .acv2 *, .acv2 *::before, .acv2 *::after { box-sizing: border-box; }
     .acv2 { line-height: 1.5; -webkit-text-size-adjust: 100%; color: #111827; }
     .acv2 h1, .acv2 h2, .acv2 h3, .acv2 h4, .acv2 p { margin: 0; }
     .acv2 img { max-width: 100%; height: auto; display: block; }
@@ -40,29 +34,39 @@
     .acv2 p.help { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
 
     /* ===== Group & Option Cards ===== */
-    .acv2 .group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 10px; }
+    .acv2 .group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 10px; }
     .acv2 .group.model-group { display: flex; flex-direction: column; gap: 12px; }
-    @media (max-width: 640px) { .acv2 .group { grid-template-columns: 1fr; } }
 
-    /* 二欄自適應卡片（非依賴外部 CSS） */
-    
+    /* 手機：預設所有群組維持 2 欄，僅 .onecol-mobile 改為 1 欄 */
+    @media (max-width: 640px) {
+      .acv2 .group { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .acv2 .group.onecol-mobile { grid-template-columns: 1fr; }
+    }
+
     .acv2 .option-card { width: 100%; }
-    
-
     .acv2 .option-card { display: flex; align-items: center; gap: 14px; background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 16px 14px; font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04); cursor: pointer; min-height: 48px; transition: border .13s, box-shadow .13s, background .12s; position: relative; }
     .acv2 .option-card:active { background: #e0e7ff; border-color: var(--brand); }
     .acv2 .option-card input[type="radio"], .acv2 .option-card input[type="checkbox"] { accent-color: var(--brand); width: 22px; height: 22px; margin-right: 6px; margin-left: 0; flex-shrink: 0; }
     .acv2 .option-card.selected { border: 2.5px solid var(--brand); background: #e0e7ff; box-shadow: 0 2px 12px rgba(37,99,235,0.10); }
     .acv2 .option-card img.opt-img { width: 88px; border-radius: 10px; margin-top: 0; border:1px solid var(--line); padding:2px; background:#fff; }
 
-    /* ===== Hidden inputs for "其他" ===== */
-    .acv2 .hidden-input { display: none; margin: 8px 0 0 0; }
-    $1
+    /* ===== Hidden inputs for "其他" - 膠囊式 ===== */
+    .acv2 .hidden-input { display: none; margin: 10px 0 0 0; grid-column: 1 / -1; }
+    .acv2 .hidden-input input {
+      width: 100%;
+      max-width: 520px;
+      padding: 12px 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 9999px;
+      font: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
     .acv2 .hidden-input input::placeholder { color: #9ca3af; font-size: 1rem; }
 
     /* ===== Aside / Tips ===== */
     .acv2 .aside { display: grid; gap: 6px; margin-top: 8px; }
-    .acv2 .aside .tip { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; color: var(--muted); font-size: .92rem; }
+    .acv2 .aside .tip { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; color: #6b7280; font-size: .92rem; }
     .acv2 details { background: #fff; border: 1px dashed var(--line); border-radius: 10px; padding: 10px; }
     .acv2 details > summary { cursor: pointer; font-weight: 700; color: var(--ink); }
     .acv2 .aside .tip img.opt-img { width: 450px; height: auto; border:1px solid var(--line); border-radius:8px; margin-top:6px; padding:2px; background:#fff; }
@@ -97,7 +101,7 @@
 
       <div class="section">
         <h2 class="req">冷氣類型</h2>
-        <div class="group">
+        <div class="group onecol-mobile">
           <label class="option-card">
             <input type="radio" name="ac_type" value="分離式冷氣" required />分離式冷氣
             <img class="opt-img" alt="分離式冷氣示意圖" src="imagessplit-ac.jpg" />
@@ -123,7 +127,6 @@
             <input type="number" id="ac_count_other" name="ac_count_other" min="6" placeholder="請輸入實際台數（≥6）" />
           </div>
         </div>
-        <div class="aside"><div class="tip">團體或社區聯合可改走「團購預約清洗」。</div></div>
       </div>
 
       <div class="section">
@@ -139,7 +142,6 @@
             <input type="text" id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" />
           </div>
         </div>
-        <p class="help">若樓高特殊或其他因素，請事先告知說明。</p>
       </div>
 
       <div class="section">
@@ -171,13 +173,6 @@
           <label class="option-card"><input type="radio" name="ac_transformer_series" value="否" />否</label>
           <label class="option-card"><input type="radio" name="ac_transformer_series" value="不清楚（現場由人員判斷）" />不清楚（現場由人員判斷）</label>
         </div>
-        <div class="aside">
-          <div class="tip">
-            <strong>什麼是「變形金剛系列」？</strong>
-            <p class="help">特定系列之機型拆裝流程較不同。若不確定請選「不清楚」，由現場人員協助判斷。</p>
-            <img class="opt-img" alt="常見變形金剛系列參考照片" src="imagestransformer-ac.jpg" />
-          </div>
-        </div>
       </div>
 
       <div class="nav">
@@ -189,9 +184,6 @@
     <a class="fab-home" href="index.html" aria-label="回首頁">🏠</a>
   </div>
 
-  <!--
-    交互腳本同樣只選取 #booking-form 內部，避免受外部腳本影響。
-  -->
   <script>
     (function(){
       const KEY = 'BOOKING_DATA';
