@@ -30,6 +30,39 @@ function basicAuthHeader(key, secret) {
   return `Basic ${token}`;
 }
 
+function normalize(x) {
+  const c = (x.context && (x.context.custom || x.context)) || {};
+  const m = x.metadata || {};
+  const pick = (keys) => {
+    for (const k of keys) {
+      if (c && c[k] != null && String(c[k]).trim() !== "") return String(c[k]).trim();
+      if (m && m[k] != null && String(m[k]).trim() !== "") return String(m[k]).trim();
+    }
+    return "";
+  };
+  return {
+    name:        pick(["name","姓名","customer_name","fullname"]),
+    phone:       pick(["phone","電話","phone_number","mobile","tel"]),
+    service:     pick(["service","服務","service_category","service_item","select_service"]),
+    address:     pick(["address","地址"]),
+    brand:       pick(["brand","冷氣品牌"]),
+    ac_type:     pick(["ac_type","冷氣類型"]),
+    count:       pick(["count","清洗數量","quantity"]),
+    floor:       pick(["floor","樓層","室內機所在樓層"]),
+    is_inverter: pick(["is_inverter","變頻","是否為變頻機型系列","是否為變形金剛系列"]),
+    antifungus:  pick(["antifungus","防霉抗菌處理","冷氣防霉抗菌處理"]),
+    ozone:       pick(["ozone","臭氧消毒","臭氧殺菌消毒","臭氧空間消毒"]),
+    extra_service: pick(["extra_service","其他清洗服務"]),
+    line:        pick(["line_id","line","LINE","聯絡Line","line 或 facebook 名稱","LINE 或 Facebook 名稱"]),
+    fb:          pick(["fb_name","facebook","FB"]),
+    date:        pick(["date","預約日期"]),
+    timeslot:    pick(["timeslot","預約時段","時段","可安排時段"]),
+    contact_time:pick(["contact_time","方便聯繫時間"]),
+    note:        pick(["note","備註","其他備註"]),
+    pdf:         pick(["pdf","pdf_url","PDF連結","PDF"]),
+  };
+}
+
 exports.handler = async (event, context) => {
   try {
     if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
@@ -109,6 +142,8 @@ exports.handler = async (event, context) => {
       metadata: x.metadata || null,
       width: x.width,
       height: x.height,
+   ,
+      normalized: normalize(x)
     }));
 
     return {
