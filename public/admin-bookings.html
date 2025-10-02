@@ -85,6 +85,30 @@ header .sub {
   color: #64748b;
 }
 
+
+/* === 手機字體與可點性優化 === */
+@media (max-width: 640px){
+  html { font-size: 17px; }          /* 提升整體字級 */
+  body { line-height: 1.6; }
+
+  /* 標題與副標 */
+  header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  header .sub { font-size: 15px; line-height: 1.4; }
+
+  /* 表單輸入與按鈕 */
+  .input input { font-size: 16px; height: 48px; padding: 0 12px; }
+  .btn, .btn.primary { font-size: 16px; height: 48px; }
+
+  /* 表格可讀性 */
+  th { font-size: 15px; font-weight: 600; }
+  td { font-size: 15px; line-height: 1.5; }
+  tr { min-height: 48px; }
+
+  /* 詳情面板 key/value */
+  .card.fullview .k { font-size: 14px; }
+  .card.fullview .v { font-size: 16px; }
+}
+
 </style>
 
 <style>
@@ -184,7 +208,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 
   <header>
     <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」。</div>
+    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
   </header>
   <div class="wrap">
     <div class="row">
