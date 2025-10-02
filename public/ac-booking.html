@@ -110,14 +110,14 @@
       </div>
     </div>
 
-    <form id="booking-form" action="addon-service.html" method="get">
+    <form id="booking-form" action="addon-service.html" method="get" novalidate>
       <input type="hidden" name="service_category" value="冷氣清洗" />
 
       <div class="section">
         <h2 class="req">冷氣類型</h2>
         <div class="group onecol-mobile">
           <label class="option-card">
-            <input type="radio" name="ac_type" value="分離式冷氣" required />分離式冷氣
+            <input type="radio" name="ac_type" value="分離式冷氣"  />分離式冷氣
             <img class="opt-img" alt="分離式冷氣示意圖" src="imagessplit-ac.jpg" />
           </label>
           <label class="option-card">
@@ -131,7 +131,7 @@
       <div class="section">
         <h2 class="req">清洗數量</h2>
         <div class="group">
-          <label class="option-card"><input type="radio" name="ac_count" value="1台" required />1 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="1台"  />1 台</label>
           <label class="option-card"><input type="radio" name="ac_count" value="2台" />2 台</label>
           <label class="option-card"><input type="radio" name="ac_count" value="3台" />3 台</label>
           <label class="option-card"><input type="radio" name="ac_count" value="4台" />4 台</label>
@@ -183,7 +183,7 @@
       <div class="section">
         <h2 class="req">是否為「變形金剛系列」冷氣機型？</h2>
         <div class="group model-group">
-          <label class="option-card"><input type="radio" name="ac_transformer_series" value="是" required />是</label>
+          <label class="option-card"><input type="radio" name="ac_transformer_series" value="是"  />是</label>
           <label class="option-card"><input type="radio" name="ac_transformer_series" value="否" />否</label>
           <label class="option-card"><input type="radio" name="ac_transformer_series" value="不清楚（現場由人員判斷）" />不清楚（現場由人員判斷）</label>
         
@@ -270,7 +270,7 @@
         toggleOtherWrap(n);
       });
       form.addEventListener('input', ()=> save(collect()));
-      form.addEventListener('submit', ()=> save(collect()), {capture:true});
+      
 
       window.debugCollectAC = ()=>collect();
       window.debugLS = ()=>JSON.parse(localStorage.getItem(KEY)||'{}');
@@ -282,41 +282,26 @@
       function anyChecked(name) {
         return Array.from(form.querySelectorAll('input[name="' + name + '"]')).some(i=> i.checked);
       }
-      function clearValidity(name) {
-        const first = form.querySelector('input[name="' + name + '"]');
-        if (first) first.setCustomValidity('');
-      }
-      function ensureGroup(name, msg) {
-        const first = form.querySelector('input[name="' + name + '"]');
-        if (!first) return true;
-        first.setCustomValidity('');
-        if (!anyChecked(name)) { first.setCustomValidity(msg); return false; }
-        return true;
-      }
-
-      document.addEventListener('change', function(e){
-        if (e.target && (e.target.name === 'indoor_floor' || e.target.name === 'ac_brand')) {
-          clearValidity('indoor_floor');
-          clearValidity('ac_brand');
-        }
-      });
-
-      if (form) {
-        form.addEventListener('submit', function(e){
-          const ok1 = ensureGroup('indoor_floor', '請至少勾選一個樓層');
-          const ok2 = ensureGroup('ac_brand', '請至少勾選一個品牌');
-          if (!(ok1 && ok2)) {
-            const first = form.querySelector('input[name="' + (ok1 ? 'ac_brand' : 'indoor_floor') + '"]');
-            if (first && first.reportValidity) first.reportValidity();
-            e.preventDefault();
-          }
-        }, true);
+      , true);
       }
     })();
   </script>
   <script>
     // 卡片選中視覺狀態（僅限 .acv2 內部）
     document.addEventListener('DOMContentLoaded', function () {
+
+  // 先把 <a id="next"> 的預設導頁關掉，避免任何其他監聽器或瀏覽器預設動作把你帶走
+  (function(){
+    const a = document.getElementById('next');
+    if (a) {
+      const href = a.getAttribute('href');
+      if (href && href !== '#' && href !== 'javascript:void(0)') {
+        a.dataset.nextHref = href;
+        a.setAttribute('href', '#');
+      }
+    }
+  })();
+
       const root = document.querySelector('.acv2');
       root.querySelectorAll('.group').forEach(function(group) {
         group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
@@ -344,5 +329,246 @@
       }
     })();
   </script>
+
+
+<script>
+// 共享驗證與防重複彈窗工具（改為使用全域去抖版本）
+function runValidation(){
+  // 需要的工具函式（與原本一致）
+  function requireRadio(name, label){
+    var picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
+    if(!picked){ return { ok:false, msg:'請選擇『'+label+'』' }; }
+    var oid = picked && picked.dataset.otherId;
+    if(oid){
+      var other = document.getElementById(oid);
+      if(other && !(other.value||'').trim()){
+        return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明' };
+      }
+    }
+    return { ok:true };
+  }
+  function requireCheckbox(name, label){
+    var checked = document.querySelectorAll('input[type="checkbox"][name="'+name+'"]:checked,'+
+                                            'input[type="checkbox"][name="'+name+'[]"]:checked');
+    if(checked.length===0){ return { ok:false, msg:'請至少勾選一個『'+label+'』' }; }
+    for(var i=0;i<checked.length;i++){
+      var el = checked[i];
+      var oid = el.dataset.otherId;
+      if(oid){
+        var other = document.getElementById(oid);
+        if(other && other.offsetParent !== null && !(other.value||'').trim()){
+          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明' };
+        }
+      }
+    }
+    return { ok:true };
+  }
+  function requireVisibleOthers(){
+    var nodes = document.querySelectorAll('.other-input');
+    for (var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      var vis = el.classList.contains('show') || el.offsetParent !== null;
+      if(vis && !(el.value||'').trim()){
+        return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明' };
+      }
+    }
+    return { ok:true };
+  }
+
+  var r, valid = true, msg = '';
+
+  // 0) 是否為變形金剛系列（radio）
+  r = requireRadio('ac_transformer_series','是否為變形金剛系列'); if(!r.ok){ valid=false; msg=r.msg; }
+
+  // 1) 冷氣類型（radio）
+  if(valid){ r = requireRadio('ac_type','冷氣類型'); if(!r.ok){ valid=false; msg=r.msg; } }
+
+  // 2) 清洗數量（radio）
+  if(valid){ r = requireRadio('ac_count','清洗數量'); if(!r.ok){ valid=false; msg=r.msg; } }
+
+  // 3) 室內機所在樓層（checkbox 群組）：至少一個
+  if(valid){ r = requireCheckbox('indoor_floor','室內機所在樓層'); if(!r.ok){ valid=false; msg=r.msg; } }
+
+  // 4) 冷氣品牌（checkbox 群組）：至少一個
+  if(valid){ r = requireCheckbox('ac_brand','冷氣品牌'); if(!r.ok){ valid=false; msg=r.msg; } }
+
+  // 5) 顯示中的「其他」輸入框需填寫
+  if(valid){ r = requireVisibleOthers(); if(!r.ok){ valid=false; msg=r.msg; } }
+
+  return { ok: valid, msg: msg };
+}
+</script>
+<script>
+  // === 統一與 contact 相同：按下「下一步」才做驗證；失敗 alert，成功才前進 ===
+  document.addEventListener('DOMContentLoaded', function () {
+
+  // 先把 <a id="next"> 的預設導頁關掉，避免任何其他監聽器或瀏覽器預設動作把你帶走
+  (function(){
+    const a = document.getElementById('next');
+    if (a) {
+      const href = a.getAttribute('href');
+      if (href && href !== '#' && href !== 'javascript:void(0)') {
+        a.dataset.nextHref = href;
+        a.setAttribute('href', '#');
+      }
+    }
+  })();
+
+    const nextBtn = document.getElementById('next');
+    const form = document.querySelector('form');
+    if (!nextBtn || !form) return;
+
+    // 工具：檢查 radio 群組是否已選
+    function requireRadio(name, label){
+      const picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
+      if(!picked){
+        return { ok:false, msg:'請選擇『'+label+'』' };
+      }
+      const oid = picked && picked.dataset.otherId;
+      if(oid){
+        const other = document.getElementById(oid);
+        if(other){
+          const v = (other.value||'').trim();
+          if(!v){
+            return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明' };
+          }
+        }
+      }
+      return { ok:true };
+    }
+
+    // 工具：檢查 checkbox 群組至少勾一個
+    function requireCheckbox(name, label){
+      // 支援 name="group" 與 name="group[]"
+      const checked = document.querySelectorAll('input[type="checkbox"][name="'+name+'"]:checked,'+
+                                                'input[type="checkbox"][name="'+name+'[]"]:checked');
+      if(checked.length===0){
+        return { ok:false, msg:'請至少勾選一個『'+label+'』' };
+      }
+      for(const el of checked){
+        const oid = el.dataset.otherId;
+        if(oid){
+          const other = document.getElementById(oid);
+          if(other && other.offsetParent !== null){ // 顯示中才要求
+            const v = (other.value||'').trim();
+            if(!v){
+              return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明' };
+            }
+          }
+        }
+      }
+      return { ok:true };
+    }
+
+    // 工具：任何顯示中的 .other-input 需有值（保險）
+    function requireVisibleOthers(){
+      const visibles = Array.from(document.querySelectorAll('.other-input')).filter(i=>{
+        return (i.classList.contains('show') || i.offsetParent !== null);
+      });
+      for(const i of visibles){
+        if(!(i.value||'').trim()){
+          return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明' };
+        }
+      }
+      return { ok:true };
+    }
+
+    // 成功時前往下一步：若 <a id="next" href="..."> 則導向；否則提交 form
+    function proceed(){
+      if (nextBtn.tagName.toLowerCase()==='a' && (nextBtn.dataset.nextHref || nextBtn.getAttribute('href'))) {
+        window.location.href = (nextBtn.dataset.nextHref || nextBtn.getAttribute('href'));
+      } else {
+        // 使用 novalidate 的表單，避免原生泡泡；統一 alert 體驗
+        if (form.requestSubmit) form.requestSubmit();
+        else form.submit();
+      }
+    }
+
+    nextBtn.addEventListener('click', function (e) {
+      let r, valid = true, msg = '';
+
+      // 1) 冷氣類型（radio）— 包含「是否為變形金剛系列」等同組別
+      r = requireRadio('ac_type','冷氣類型');
+      if(!r.ok){ valid=false; msg=r.msg; }
+
+      // 2) 清洗數量（radio）
+      if(valid){
+        r = requireRadio('ac_count','清洗數量');
+        if(!r.ok){ valid=false; msg=r.msg; }
+      }
+
+      // 3) 室內機所在樓層（checkbox 群組）：至少一個
+      if(valid){
+        r = requireCheckbox('indoor_floor','室內機所在樓層');
+        if(!r.ok){ valid=false; msg=r.msg; }
+      }
+
+      // 4) 冷氣品牌（checkbox 群組）：至少一個
+      if(valid){
+        r = requireCheckbox('ac_brand','冷氣品牌');
+        if(!r.ok){ valid=false; msg=r.msg; }
+      }
+
+      // 5) 顯示中的「其他」輸入框需填寫
+      if(valid){
+        r = requireVisibleOthers();
+        if(!r.ok){ valid=false; msg=r.msg; }
+      }
+
+      if(!valid){
+        // 阻止預設與其他 click 監聽（避免被其他監聽 submit/導頁）
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showOnceAlert(msg);
+        return false;
+      }else{
+        // 一律由我們掌控跳轉，避免其他監聽介入
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        proceed();
+        return false;
+      }
+    }, true /* useCapture: 先於其他監聽執行 */);
+  });
+</script>
+
+<script>
+// 全域提交守門：凡是 #booking-form 的提交，一律走同一組驗證；不通過就攔截
+document.addEventListener('submit', function(e){
+  var form = e.target;
+  if (!form || form.id !== 'booking-form') return;
+  // 若剛剛已因為 click 失敗而設置了 BLOCK_SUBMIT window，這裡只攔截，不再 alert
+  if (Date.now() < (window.__BLOCK_SUBMIT_UNTIL__ || 0)) {
+    e.preventDefault(); e.stopImmediatePropagation();
+    return false;
+  }
+  var res = runValidation();
+  if(!res.ok){
+    e.preventDefault(); e.stopImmediatePropagation();
+    showOnceAlert(res.msg);
+    return false;
+  }
+}, true);
+</script>
+
+<script>
+// 更嚴謹的防重複彈窗 / 提交抖動
+window.__ALERT_LAST_MSG__ = '';
+window.__ALERT_LAST_TS__ = 0;
+window.__BLOCK_SUBMIT_UNTIL__ = 0; // 當 invalid 時，短時間內擋掉後續 submit，不再重複 alert
+
+function showOnceAlert(msg){
+  var now = Date.now();
+  // 同訊息在 2 秒內不重複彈
+  if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) {
+    return;
+  }
+  window.__ALERT_LAST_MSG__ = msg;
+  window.__ALERT_LAST_TS__ = now;
+  alert(msg);
+  // 之後 1.2 秒內的 submit 一律攔下但不再 alert（避免 click 與 submit 兩條路徑重複）
+  window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
+}
+</script>
 </body>
 </html>

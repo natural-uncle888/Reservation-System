@@ -153,6 +153,22 @@
   }
 }
 
+
+/* === 必填標題紅色星號 (統一與 ac-booking) === */
+.section h2.req::after {
+  content: " *";
+  color: #dc2626;
+  margin-left: 4px;
+  font-weight: 700;
+}
+/* row 內的小標題若標記 .req 也顯示星號 */
+.row > .req::after {
+  content: " *";
+  color: #dc2626;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
 </style>
 </head>
 <body>
@@ -166,7 +182,7 @@
   </div>
 
   <div class="section">
-    <h2>與我們聯繫方式</h2>
+    <h2 class="req">與我們聯繫方式</h2>
     <div class="option-grid" id="contact-method">
       <label class="option-card"><input type="radio" name="contact_method" value="LINE"/><span>LINE</span></label>
       <label class="option-card"><input type="radio" name="contact_method" value="Facebook"/><span>Facebook</span></label>
@@ -178,7 +194,7 @@
   </div>
 
   <div class="section">
-    <h2>LINE 或 Facebook 名稱</h2>
+    <h2 class="req">LINE 或 Facebook 名稱</h2>
     <div class="row social-row" style="align-items:center;">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <div>名稱</div>
@@ -189,21 +205,21 @@
   </div>
 
   <div class="section">
-    <h2>基本資料</h2>
+    <h2 class="req">基本資料</h2>
     <div class="row">
-      <div>顧客姓名</div>
+      <div class="req">顧客姓名</div>
       <input type="text" name="name" placeholder="姓名"/>
     </div>
     <div class="row">
-      <div>聯繫電話</div>
+      <div class="req">聯繫電話</div>
       <input type="tel" name="phone" placeholder="手機或市話"/>
     </div>
     <div class="row">
-      <div>清洗保養地址</div>
+      <div class="req">清洗保養地址</div>
       <input type="text" name="address" placeholder="縣市區 + 路名門牌"/>
     </div>
     <div class="row">
-      <div>居住地型態</div>
+      <div class="req">居住地型態</div>
       <div class="option-grid" id="housing-type">
         <label class="option-card"><input type="radio" name="housing_type" value="透天屋"/><span>透天屋</span></label>
         <label class="option-card"><input type="radio" name="housing_type" value="大樓（有電梯）"/><span>大樓（有電梯）</span></label>
@@ -213,7 +229,7 @@
       </div>
     </div>
     <div class="row">
-      <div>方便聯繫時間（可複選）</div>
+      <div class="req">方便聯繫時間（可複選）</div>
       <div class="option-grid" id="contact-time">
         <label class="option-card"><input type="checkbox" name="contact_time_preference" value="平日"/><span>平日</span></label>
         <label class="option-card"><input type="checkbox" name="contact_time_preference" value="假日"/><span>假日</span></label>
