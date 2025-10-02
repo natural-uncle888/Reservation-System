@@ -1,172 +1,152 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="#2563eb" name="theme-color"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#2563eb"/>
 <title>聯繫名稱說明</title>
-<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
 <style>
-    :root{--brand:#2563eb;--ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb}
-    body{font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;margin:0;color:var(--ink)}
-    .wrap{max-width:960px;margin:0 auto;padding:18px 16px}
-    h1{margin:0 0 8px;color:var(--brand)}
-    p.desc{margin:0 0 12px;color:var(--muted)}
-    .section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
-    .section h2{margin:0 0 8px;color:var(--brand);font-size:1.1rem}
-    .group{display:flex;flex-direction:column;gap:8px}
-    label{display:flex;align-items:center;gap:8px}
-    input[type="text"],input[type="tel"],textarea{padding:10px;border:1px solid #d1d5db;border-radius:8px;width:100%;max-width:560px}
-    .row{display:grid;grid-template-columns:160px 1fr;gap:10px;align-items:center}
-    .nav{display:flex;gap:12px;margin-top:22px}
-    .nav a{flex:1;text-align:center;padding:12px 16px;background:var(--brand);color:#fff;border-radius:10px;text-decoration:none}
-    .nav a:hover{background:#1e40af}
-    details{background:#fff;border:1px dashed var(--line);border-radius:10px;padding:10px;margin-top:8px}
-    details>summary{cursor:pointer;font-weight:700}
+  :root{
+    --brand:#2563eb;--brand-600:#2563eb;--brand-700:#1e40af;
+    --ink:#111827;--muted:#6b7280;--card:#f9fafb;--line:#e5e7eb;
+    --field-font:16px; /* 讓行動裝置不會自動放大，且提升可讀性 */
+    --radius:14px;
+  }
+  html,body{height:100%}
+  body{
+    font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    margin:0;color:var(--ink);background:#fff;font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:20px 16px}
+  h1{margin:0 0 8px;color:var(--brand)}
+  p.desc{margin:0 0 12px;color:var(--muted)}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+  .section h2{margin:0 0 10px;color:var(--brand);font-size:1.15rem}
+  .row{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:center}
+  @media (max-width: 520px){ .row{grid-template-columns:1fr;gap:6px} }
+  /* 基本文字輸入體驗一致化 */
+  input[type="text"],input[type="tel"],textarea,select,.other-input{
+    padding:12px 12px;border:1.5px solid #d1d5db;border-radius:10px;width:100%;max-width:640px;
+    font-size:var(--field-font);line-height:1.5;box-sizing:border-box;
+  }
+  input::placeholder,textarea::placeholder{color:#9ca3af}
+  /* 選項群組卡片化 */
+  .group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:10px;align-items:start}
+  .group .option-card, .group label{max-width:100%;
+    min-width:220px;
+    display:flex;align-items:center;gap:10px;background:#fff;border:2px solid #e5e7eb;border-radius:16px;
+    padding:14px 12px;font-size:1.05rem;box-shadow:0 1px 8px rgba(0,0,0,.03);cursor:pointer;transition:border .13s, box-shadow .13s, background .12s;
+  }
   
-  input.other-input{padding:10px;border:1px solid #d1d5db;border-radius:8px;width:100%;max-width:560px}
+  .group .option-card:active,.group label:active{background:#e0e7ff;border-color:var(--brand)}
+  .group input[type="radio"], .group input[type="checkbox"]{accent-color:var(--brand);width:22px;height:22px;margin-right:6px;margin-left:0;flex-shrink:0}
+  .group .option-card.selected,.group label.selected{border:2.5px solid var(--brand);background:#e0e7ff;box-shadow:0 2px 12px rgba(37,99,235,.10)}
+  /* 其他輸入框：預設隱藏，點選「其他」才顯示 */
+  .other-input{display:none}
+  .other-input.show{display:block;margin-top:8px}
+
+  .group .other-input.show{grid-column:1 / -1;}
+
+  /* 導航按鈕一致化 */
+  .nav{display:flex;gap:12px;margin-top:22px}
+  .nav a{
+    flex:1;text-align:center;padding:14px 16px;background:var(--brand-600);color:#fff;border-radius:12px;text-decoration:none;
+    font-weight:600;border:1px solid var(--brand-600);box-shadow:0 1px 6px rgba(37,99,235,.16);
+    transition:background .15s, transform .05s, box-shadow .15s;
+  }
+  .nav a:hover{background:var(--brand-700)}
+  .nav a:active{transform:translateY(1px)}
+  /* 範例圖片：支援桌機與手機適當尺寸 */
+  .example-img{
+    width:clamp(220px, 60vw, 460px); height:auto; border:1px solid #d1d5db;border-radius:10px; display:block;
+  }
+  @media (max-width:520px){
+    .example-img{width:100%}
+  }
+  /* 外圍padding微調 */
+  .wrap, main, form{padding-left:8px !important; padding-right:8px !important}
 </style>
-<link href="mobile-2col.css" rel="stylesheet"/>
-<style>
-/* === 雙欄卡片群組 === */
-.group {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  gap: 12px;
-  margin-bottom: 10px;
-  justify-content: space-between;
-}
-.group .option-card, .group label {
-  flex: 1 1 calc(50% - 6px);
-  min-width: 0;
-  box-sizing: border-box;
-  margin-bottom: 0 !important;
-  max-width: calc(50% - 6px);
-  display: flex; align-items: center; gap: 10px;
-  background: #fff;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 14px 10px;
-  font-size: 1.12rem;
-  box-shadow: 0 1px 8px rgba(0,0,0,0.03);
-  cursor: pointer;
-  transition: border .13s, box-shadow .13s, background .12s;
-  position: relative;
-}
-.group .option-card:active, .group label:active {
-  background: #e0e7ff;
-  border-color: #2563eb;
-}
-.group input[type="radio"],
-.group input[type="checkbox"] {
-  accent-color: #2563eb;
-  width: 22px;
-  height: 22px;
-  margin-right: 6px;
-  margin-left: 0;
-  flex-shrink: 0;
-}
-.group .option-card.selected, .group label.selected {
-  border: 2.5px solid #2563eb;
-  background: #e0e7ff;
-  box-shadow: 0 2px 12px rgba(37,99,235,0.10);
-}
-/* 例外處理 for group 內 input[type=text] 讓它獨占一行 */
-.group input[type="text"], .group input[type="tel"] {
-  max-width: 100%;
-  margin-top: 8px;
-  flex: 1 1 100%;
-  border-radius: 9px;
-  box-shadow: none;
-  border: 1.5px solid #e5e7eb;
-  padding: 12px 10px;
-}
-/* 其他欄位、row區塊維持原寬度與間距 */
-.row {
-  display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 10px;
-  align-items: center;
-}
-@media (max-width: 520px) {
-  .row { grid-template-columns: 1fr; gap: 2px;}
-}
-/* 外圍padding */
-.wrap, main, form { padding-left: 8px !important; padding-right: 8px !important; }
-</style></head>
+<link rel="stylesheet" href="mobile-2col.css"/>
+</head>
 <body>
 <div class="wrap">
-<h1>聯繫名稱說明</h1>
-<div class="intro">
-<p>為了加快預約與資料比對速度，煩請您提供下列聯繫名稱：</p>
-<p>✅ 使用 LINE 聯繫者：請填寫您的 LINE 顯示名稱（非ID）</p>
-<p>✅ 使用 Facebook 粉絲專頁或私訊聯繫者：請填寫您或粉專的 Facebook 名稱</p>
-<p>📌 若未提供名稱，可能導致我們無法順利對應您的預約紀錄。敬請協助填寫，感謝您的配合與支持！</p>
-<div class="section">
-<h2>與我們聯繫方式</h2>
-<div class="group" id="contact-method">
-<label class="option-card"><input name="contact_method" type="radio" value="LINE"/>LINE</label>
-<label class="option-card"><input name="contact_method" type="radio" value="Facebook"/>Facebook</label>
-<label class="option-card"><input name="contact_method" type="radio" value="電話"/>電話</label>
-<label class="option-card"><input data-other-id="contact_method_other" name="contact_method" type="radio" value="其他"/>其他</label>
-<input class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式" type="text"/>
+  <h1>聯繫名稱說明</h1>
+  <div class="intro">
+    <p>為了加快預約與資料比對速度，煩請您提供下列聯繫名稱：</p>
+    <p>✅ 使用 LINE 聯繫者：請填寫您的 LINE 顯示名稱（非ID）</p>
+    <p>✅ 使用 Facebook 粉絲專頁或私訊聯繫者：請填寫您或粉專的 Facebook 名稱</p>
+    <p>📌 若未提供名稱，可能導致我們無法順利對應您的預約紀錄。敬請協助填寫，感謝您的配合與支持！</p>
+  </div>
+
+  <div class="section">
+    <h2>與我們聯繫方式</h2>
+    <div class="group" id="contact-method">
+      <label class="option-card"><input type="radio" name="contact_method" value="LINE"/>LINE</label>
+      <label class="option-card"><input type="radio" name="contact_method" value="Facebook"/>Facebook</label>
+      <label class="option-card"><input type="radio" name="contact_method" value="電話"/>電話</label>
+      <label class="option-card"><input type="radio" name="contact_method" value="其他" data-other-id="contact_method_other"/>其他</label>
+      <input type="text" class="other-input" id="contact_method_other" name="contact_method_other" placeholder="請輸入其他聯繫方式"/>
+    </div>
+    <details><summary>小提醒</summary><p>若偏好非電話聯繫，請在下方名稱處提供 LINE 或 FB 名稱。</p></details>
+  </div>
+
+  <div class="section">
+    <h2>LINE 或 Facebook 名稱</h2>
+    <div class="row" style="align-items:center;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>名稱</div>
+        <img src="imagesexample.jpg" alt="範例圖片：如何找到 LINE 或 Facebook 名稱" class="example-img"/>
+      </div>
+      <input type="text" name="social_name" placeholder="請輸入名稱（若選 LINE/FB 請務必填寫）"/>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>基本資料</h2>
+    <div class="row">
+      <div>顧客姓名</div>
+      <input type="text" name="name" placeholder="姓名"/>
+    </div>
+    <div class="row">
+      <div>聯繫電話</div>
+      <input type="tel" name="phone" placeholder="手機或市話"/>
+    </div>
+    <div class="row">
+      <div>清洗保養地址</div>
+      <input type="text" name="address" placeholder="縣市區 + 路名門牌"/>
+    </div>
+    <div class="row">
+      <div>居住地型態</div>
+      <div class="group" id="housing-type">
+        <label class="option-card"><input type="radio" name="housing_type" value="透天屋"/>透天屋</label>
+        <label class="option-card"><input type="radio" name="housing_type" value="大樓（有電梯）"/>大樓（有電梯）</label>
+        <label class="option-card"><input type="radio" name="housing_type" value="大樓（無電梯）"/>大樓（無電梯）</label>
+        <label class="option-card"><input type="radio" name="housing_type" value="其他" data-other-id="housing_type_other"/>其他</label>
+        <input type="text" class="other-input" id="housing_type_other" name="housing_type_other" placeholder="請輸入型態"/>
+      </div>
+    </div>
+    <div class="row">
+      <div>方便聯繫時間（可複選）</div>
+      <div class="group">
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="平日"/>平日</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="假日"/>假日</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="上午"/>上午</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="下午"/>下午</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="晚上"/>晚上</label>
+        <label class="option-card"><input type="checkbox" name="contact_time_preference" value="皆可"/>皆可</label>
+      </div>
+    </div>
+    <details><summary>隱私說明</summary><p>聯繫資訊僅用於預約溝通與派工，不做其他用途。</p></details>
+  </div>
+
+  <div class="nav">
+    <a href="other-service.html" id="back">← 返回上一步</a>
+    <a href="final-booking.html" id="next">下一步 ➜ 安排時段填寫</a>
+  </div>
 </div>
-<details><summary>小提醒</summary><p>若偏好非電話聯繫，請在下方名稱處提供 LINE 或 FB 名稱。</p></details>
-</div>
-<div class="section">
-<h2>LINE 或 Facebook 名稱</h2>
-<div class="row" style="align-items:center;">
-<div style="display:flex;align-items:center;gap:8px;">
-<div>名稱</div>
-<img alt="範例圖片：如何找到 LINE 或 Facebook 名稱" src="imagesexample.jpg" style="max-width:140px;border:1px solid #d1d5db;border-radius:8px;"/>
-</div>
-<input name="social_name" placeholder="請輸入名稱（若選 LINE/FB 請務必填寫）" type="text"/>
-</div>
-</div>
-<div class="section">
-<h2>基本資料</h2>
-<div class="row">
-<div>顧客姓名</div>
-<input name="name" placeholder="姓名" type="text"/>
-</div>
-<div class="row">
-<div>聯繫電話</div>
-<input name="phone" placeholder="手機或市話" type="tel"/>
-</div>
-<div class="row">
-<div>清洗保養地址</div>
-<input name="address" placeholder="縣市區 + 路名門牌" type="text"/>
-</div>
-<div class="row">
-<div>居住地型態</div>
-<div class="group">
-<label class="option-card"><input name="housing_type" type="radio" value="透天屋"/>透天屋</label>
-<label class="option-card"><input name="housing_type" type="radio" value="大樓（有電梯）"/>大樓（有電梯）</label>
-<label class="option-card"><input name="housing_type" type="radio" value="大樓（無電梯）"/>大樓（無電梯）</label>
-<label class="option-card"><input data-other-id="housing_type_other" name="housing_type" type="radio" value="其他"/>其他</label>
-<input class="other-input" id="housing_type_other" name="housing_type_other" placeholder="請輸入型態" type="text"/>
-</div>
-</div>
-<div class="row">
-<div>方便聯繫時間（可複選）</div>
-<div class="group">
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="平日"/>平日</label>
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="假日"/>假日</label>
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="上午"/>上午</label>
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="下午"/>下午</label>
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="晚上"/>晚上</label>
-<label class="option-card"><input name="contact_time_preference" type="checkbox" value="皆可"/>皆可</label>
-</div>
-</div>
-<details><summary>隱私說明</summary><p>聯繫資訊僅用於預約溝通與派工，不做其他用途。</p></details>
-</div>
-<div class="nav">
-<a href="other-service.html" id="back">← 返回上一步</a>
-<a href="final-booking.html" id="next">下一步 ➜ 安排時段填寫</a>
-</div>
-</div>
+
 <script>
   (function(){
     const KEY='BOOKING_DATA';
@@ -191,7 +171,7 @@
           let v=el.value;
           const oid=el.dataset.otherId;
           if(oid){
-            const extra=($('#'+oid)?.value||'').trim();
+            const extra=(document.getElementById(oid)?.value||'').trim();
             if(extra) v = v+'：'+extra;
           }
           out[n]=v;
@@ -202,32 +182,76 @@
       });
       return out;
     }
+
+    // 其他輸入框顯示/隱藏控制
+    function setupOtherFieldToggle(){
+      document.querySelectorAll('input[type="radio"][data-other-id]').forEach(function(radio){
+        const targetId = radio.getAttribute('data-other-id');
+        const target = document.getElementById(targetId);
+        if(!target) return;
+
+        function toggle(){
+          if(radio.checked){
+            target.classList.add('show');
+            // 聚焦到輸入框
+            setTimeout(()=>target.focus(), 0);
+          }else{
+            target.classList.remove('show');
+            // 清空避免殘留
+            if(!document.querySelector('input[type="radio"][data-other-id][name="'+radio.name+'"]:checked')){
+              target.value='';
+            }
+          }
+        }
+        // 初始狀態
+        toggle();
+        // 當同組任一 radio 變動時更新
+        document.querySelectorAll('input[type="radio"][name="'+radio.name+'"]').forEach(function(r){
+          r.addEventListener('change', toggle);
+        });
+      });
+    }
+
+    // 卡片選中樣式控制（radio/checkbox）
+    function setupCardSelection(){
+      document.querySelectorAll('.group').forEach(function(group){
+        group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+          function refresh(){
+            if(input.type==="radio"){
+              group.querySelectorAll('.option-card, label').forEach(function(card){
+                card.classList.remove('selected');
+              });
+              const checked = group.querySelector('input[type="radio"]:checked');
+              if(checked){ checked.closest('label')?.classList.add('selected'); }
+            }else{
+              if(input.checked) input.closest('label')?.classList.add('selected');
+              else input.closest('label')?.classList.remove('selected');
+            }
+          }
+          input.addEventListener('change', refresh);
+          // 初始狀態
+          if(input.checked) input.closest('label')?.classList.add('selected');
+        });
+      });
+    }
+
     document.addEventListener('change', ()=> save(collect()));
     ['back','next'].forEach(id=>{
       const a=document.getElementById(id);
       if(!a) return;
       a.addEventListener('click', ()=> save(collect()), {capture:true});
     });
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function(){
+      setupOtherFieldToggle();
+      setupCardSelection();
+    });
+
+    // 偵錯輔助
     window.debugContact=()=>collect();
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
-  </script>
-</div><script>
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.group').forEach(function(group) {
-    group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
-      input.addEventListener('change', function(){
-        if(input.type==="radio"){
-          group.querySelectorAll('.option-card').forEach(function(card){card.classList.remove('selected')});
-          group.querySelectorAll('label').forEach(function(card){card.classList.remove('selected')});
-        }
-        if(input.checked) input.closest('label').classList.add('selected');
-        else input.closest('label').classList.remove('selected');
-      });
-      // 預設選中的也要上色
-      if(input.checked) input.closest('label').classList.add('selected');
-    });
-  });
-});
-</script></body>
+</script>
+</body>
 </html>
