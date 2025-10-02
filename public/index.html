@@ -24,7 +24,7 @@
     header h1 { margin: 0; font-size: 2rem; font-weight: 800; }
     header p { margin: 8px 0 0; font-size: 1rem; opacity: .95; }
 
-    /* ===== 服務選項（明顯膠囊卡片） ===== */
+    /* ===== 服務選項（漸層淡灰背景＋粗陰影） ===== */
     .service-grid {
       max-width: 1100px; margin: 32px auto; padding: 0 16px;
       display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;
@@ -34,10 +34,10 @@
     a.card {
       position: relative;
       display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      background: linear-gradient(145deg, #f9fafb 0%, #e5e7eb 100%);
       border-radius: 24px;
       padding: 28px 24px;
-      box-shadow: 0 6px 20px rgba(37,99,235,.1);
+      box-shadow: 0 8px 28px rgba(0,0,0,.15);
       border: 3px solid transparent;
       text-decoration: none; color: inherit; cursor: pointer;
       transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
@@ -49,13 +49,12 @@
     .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 9999px; font-weight: 600; }
     .card .cta:hover{ background:#1d4ed8; }
 
-    /* 滑鼠效果 */
     .card::after{ content: ""; position:absolute; inset:0; background: radial-gradient(140px 140px at var(--mx,-100px) var(--my,-100px), rgba(37,99,235,.1), transparent 40%); pointer-events:none; transition: opacity .2s ease; opacity:0; }
-    .card:hover{ transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 28px rgba(37,99,235,.2); }
+    .card:hover{ transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 34px rgba(0,0,0,.2); }
     .card:hover::after{ opacity:1; }
-    .card.selected{ border-color:#2563eb; background:#e0f2fe; box-shadow: 0 10px 32px rgba(37,99,235,.25); }
+    .card.selected{ border-color:#2563eb; background:#f3f4f6; box-shadow: 0 12px 36px rgba(37,99,235,.25); }
 
-    /* ===== 流程說明：卡片式區塊，白底淺陰影，但較輕淡 ===== */
+    /* ===== 流程說明：卡片式區塊 ===== */
     .notes-wrap{ max-width:1100px; margin: 28px auto 8px; padding: 0 16px; text-align:center; }
     .notes-title{ margin: 0 0 18px; font-size: 1.1rem; font-weight: 800; color:#1e293b; }
     .notes-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:16px; justify-items:center; }
