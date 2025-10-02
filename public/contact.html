@@ -106,6 +106,19 @@
   }
 }
 
+/* === 桌機：社群名稱區改為直向排列，避免 Grid 造成高度塌陷 === */
+@media (min-width: 768px) {
+  .row.social-row {
+    display: block;           /* 直接使用標準文流 */
+  }
+  .row.social-row > * {
+    margin-bottom: 10px;      /* 子元素間距 */
+  }
+  .row.social-row input[name="social_name"]{
+    max-width: 420px;         /* 輸入框不會過寬 */
+  }
+}
+
 </style>
 </head>
 <body>
