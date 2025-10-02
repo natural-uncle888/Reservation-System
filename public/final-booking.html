@@ -102,7 +102,7 @@
   <form id="booking-form" action="#" onsubmit="return false;">
     <!-- 可安排時段 -->
     <div class="section">
-      <h2 class="req">可安排時段（可複選）</h2>
+      <h2 class="req req">可安排時段（可複選）</h2>
       <div class="group two-col" id="timeslot">
         <label class="option-card"><input type="checkbox" name="timeslot" value="平日" />平日</label>
         <label class="option-card"><input type="checkbox" name="timeslot" value="假日" />假日</label>
@@ -149,151 +149,182 @@
   <!-- FAB 回首頁（行動版） -->
   <a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 
-  
-<script>
-(function(){
-  const KEY='BOOKING_DATA';
-  const FN='/submit';
-  const form = document.getElementById('booking-form');
-  const $ = s => document.querySelector(s);
+  <script>
+    (function(){
+      const KEY='BOOKING_DATA';
+      const FN='/submit';
+      const form = document.getElementById('booking-form');
+      const $ = s => document.querySelector(s);
 
-  function toggleOtherWrap(name){
-    form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
-      const id = el.dataset.otherId;
-      const wrap = id && document.getElementById(id + '_wrap');
-      if (wrap) wrap.style.display = el.checked ? 'block' : 'none';
-    });
-  }
+      function toggleOtherWrap(name){
+        form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
+          const id = el.dataset.otherId;
+          const wrap = id && document.getElementById(id + '_wrap');
+          if (wrap) wrap.style.display = el.checked ? 'block' : 'none';
+        });
+      }
 
-  function collect(){
-    const out = {};
-    form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
-      const n = el.name; if(!n) return;
-      if (el.type === 'checkbox') {
-        if (!el.checked) return;
-        let v = el.value || '';
-        const oid = el.dataset.otherId;
-        if (oid) {
-          const extra = (form.querySelector('#'+oid)?.value||'').trim();
-          if (extra) v = v + '：' + extra;
+      function collect(){
+        const out = {};
+        form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
+          const n = el.name; if(!n) return;
+          if (el.type === 'checkbox') {
+            if (!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if (oid) {
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if (extra) v = v + '：' + extra;
+            }
+            (out[n]||(out[n]=[])).push(v);
+          } else {
+            const v = (el.value||'').trim();
+            if (v) out[n]=v;
+          }
+        });
+        return out;
+      }
+
+      function preview(payload){
+        const tbody = document.querySelector('#preview tbody');
+        tbody.innerHTML = '';
+        const show = (k,label)=>{
+          const v = payload[k];
+          if(v==null || v==='' || (Array.isArray(v)&&!v.length)) return;
+          const txt = Array.isArray(v) ? v.join('、') : v;
+          const tr = document.createElement('tr');
+          tr.innerHTML = '<th>'+label+'</th><td>'+txt+'</td>';
+          tbody.appendChild(tr);
+        };
+        // === 舊版完整欄位回填 ===
+        show('service_category','服務類別');
+        show('ac_type','冷氣類型');
+        show('ac_count','清洗數量');
+        show('indoor_floor','室內機所在樓層');
+        show('ac_brand','冷氣品牌');
+        show('ac_transformer_series','是否為變形金剛系列');
+        show('anti_mold','防霉抗菌');
+        show('ozone','臭氧消毒');
+        show('washer_count','洗衣機台數');
+        show('washer_floor','洗衣機樓層');
+        show('tank_count','水塔顆數');
+        show('pipe_service','水管清洗戶型');
+        show('pipe_reason','水管清洗原因');
+        show('contact_method','聯繫方式');
+        show('social_name','LINE/FB 名稱');
+        show('name','顧客姓名');
+        show('phone','聯繫電話');
+        show('address','地址');
+        show('housing_type','居住地型態');
+        show('contact_time_preference','方便聯繫時間');
+        // 本頁欄位
+        show('timeslot','可安排時段');
+        show('note','備註');
+      }
+
+      function buildPayload(){
+        let prev = {};
+        try { prev = JSON.parse(localStorage.getItem(KEY)||'{}'); } catch(e){}
+        const formData = collect();
+        return Object.assign({}, prev, formData, { _page:{title:document.title,path:location.pathname,url:location.href}, _final:true });
+      }
+
+      function refresh(){
+        const p = buildPayload();
+        window.lastPayload = p;
+        preview(p);
+      }
+
+      // 初始狀態
+      ['timeslot'].forEach(n=>{
+        form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
+          el.addEventListener('change', ()=>{ toggleOtherWrap(n); refresh(); save(); });
+        });
+        toggleOtherWrap(n);
+      });
+      form.addEventListener('input', ()=>{ refresh(); save(); });
+
+      function save(){
+        try { localStorage.setItem(KEY, JSON.stringify(buildPayload())); } catch(e){}
+      }
+
+      // 樣式同步：選中時給卡片高亮
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.group').forEach(function(group){
+          group.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(input){
+            function sync(){
+              if(input.checked) input.closest('.option-card')?.classList.add('selected');
+              else input.closest('.option-card')?.classList.remove('selected');
+            }
+            input.addEventListener('change', sync);
+            sync();
+          });
+        });
+      });
+
+      // 返回鍵：保留資料
+      document.getElementById('back')?.addEventListener('click', ()=>{ save(); }, {capture:true});
+
+      // 送出
+      document.getElementById('submit')?.addEventListener('click', async ()=>{
+        const payload = buildPayload();
+        try{
+          const res = await fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          const t = await res.text();
+          if(!res.ok) throw new Error('['+res.status+'] '+t);
+          document.getElementById('ok').style.display='flex';
+          setTimeout(()=>{ localStorage.removeItem(KEY); location.href='index.html'; }, 1200);
+        }catch(err){
+          alert('提交失敗：'+err.message);
         }
-        (out[n]||(out[n]=[])).push(v);
-      } else {
-        const v = (el.value||'').trim();
-        if (v) out[n]=v;
+      });
+
+      // 初次渲染
+      refresh();
+    })();
+  </script>
+<script>
+  // === 必填驗證：可安排時段（可複選） — 強化版：阻止預設並阻止事件傳遞 ===
+  (function () {
+    function timeslotValid() {
+      var checked = document.querySelectorAll('input[name="timeslot"]:checked');
+      return checked && checked.length > 0;
+    }
+    function ensureGroupInView() {
+      var grp = document.getElementById('timeslot-group');
+      if (grp && grp.scrollIntoView) grp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function guardAndBlock(e) {
+      if (!timeslotValid()) {
+        if (e) {
+          e.preventDefault();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          else if (e.stopPropagation) e.stopPropagation();
+        }
+        alert('請至少選擇一個可安排時段');
+        ensureGroupInView();
+        return false;
+      }
+      return true;
+    }
+
+    // 1) 攔截提交按鈕 click（捕獲階段，先於其他監聽器執行）
+    document.addEventListener('DOMContentLoaded', function () {
+      var submitBtn = document.getElementById('submit') ||
+                      document.querySelector('button[type="submit"], input[type="submit"], [data-role="submit"]');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function (e) {
+          guardAndBlock(e);
+        }, true); // 捕獲
       }
     });
-    return out;
-  }
 
-  function preview(payload){
-    const tbody = document.querySelector('#preview tbody');
-    tbody.innerHTML = '';
-    const show = (k,label)=>{
-      const v = payload[k];
-      if(v==null || v==='' || (Array.isArray(v)&&!v.length)) return;
-      const txt = Array.isArray(v) ? v.join('、') : v;
-      const tr = document.createElement('tr');
-      tr.innerHTML = '<th>'+label+'</th><td>'+txt+'</td>';
-      tbody.appendChild(tr);
-    };
-    show('service_category','服務類別');
-    show('ac_type','冷氣類型');
-    show('ac_count','清洗數量');
-    show('indoor_floor','室內機所在樓層');
-    show('ac_brand','冷氣品牌');
-    show('ac_transformer_series','是否為變形金剛系列');
-    show('anti_mold','防霉抗菌');
-    show('ozone','臭氧消毒');
-    show('washer_count','洗衣機台數');
-    show('washer_floor','洗衣機樓層');
-    show('tank_count','水塔顆數');
-    show('pipe_service','水管清洗戶型');
-    show('pipe_reason','水管清洗原因');
-    show('contact_method','聯繫方式');
-    show('social_name','LINE/FB 名稱');
-    show('name','顧客姓名');
-    show('phone','聯繫電話');
-    show('address','地址');
-    show('housing_type','居住地型態');
-    show('contact_time_preference','方便聯繫時間');
-    show('timeslot','可安排時段');
-    show('note','備註');
-  }
+    // 2) 同時攔截表單 submit（無論透過鍵盤或程式呼叫）
+    document.addEventListener('submit', function (e) {
+      if (!guardAndBlock(e)) return false;
+    }, true); // 捕獲
 
-  function buildPayload(){
-    let prev = {};
-    try { prev = JSON.parse(localStorage.getItem(KEY)||'{}'); } catch(e){}
-    const formData = collect();
-    return Object.assign({}, prev, formData, { _page:{title:document.title,path:location.pathname,url:location.href}, _final:true });
-  }
-
-  function refresh(){
-    const p = buildPayload();
-    window.lastPayload = p;
-    preview(p);
-  }
-
-  ['timeslot'].forEach(n=>{
-    form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
-      el.addEventListener('change', ()=>{ toggleOtherWrap(n); refresh(); save(); });
-    });
-    toggleOtherWrap(n);
-  });
-  form.addEventListener('input', ()=>{ refresh(); save(); });
-
-  function save(){
-    try { localStorage.setItem(KEY, JSON.stringify(buildPayload())); } catch(e){}
-  }
-
-  document.addEventListener('DOMContentLoaded', function(){
-    document.querySelectorAll('.group').forEach(function(group){
-      group.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(input){
-        function sync(){
-          if(input.checked) input.closest('.option-card')?.classList.add('selected');
-          else input.closest('.option-card')?.classList.remove('selected');
-        }
-        input.addEventListener('change', sync);
-        sync();
-      });
-    });
-  });
-
-  document.getElementById('back')?.addEventListener('click', ()=>{ save(); }, {capture:true});
-
-  document.getElementById('submit')?.addEventListener('click', async ()=>{
-    const section = document.querySelector('#timeslot').closest('.section');
-    section.querySelector('.input-error')?.remove();
-    const checked = document.querySelectorAll('input[name="timeslot"]:checked');
-
-    if (checked.length === 0) {
-      const err = document.createElement('div');
-      err.className = 'input-error';
-      err.textContent = '請至少選擇一個可安排時段';
-      section.appendChild(err);
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      return;
-    }
-
-    const payload = buildPayload();
-    try{
-      const res = await fetch(FN, { 
-        method:'POST', 
-        headers:{'Content-Type':'application/json'}, 
-        body: JSON.stringify(payload) 
-      });
-      const t = await res.text();
-      if(!res.ok) throw new Error('['+res.status+'] '+t);
-      document.getElementById('ok').style.display='flex';
-      setTimeout(()=>{ localStorage.removeItem(KEY); location.href='index.html'; }, 1200);
-    }catch(err){
-      alert('提交失敗：'+err.message);
-    }
-  });
-
-  refresh();
-})();
+  })();
 </script>
-
 </body>
 </html>
