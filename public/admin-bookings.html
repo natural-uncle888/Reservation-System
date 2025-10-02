@@ -109,6 +109,16 @@ header .sub {
   .card.fullview .v { font-size: 16px; }
 }
 
+
+/* === 隱藏詳情面板內容 === */
+.card.fullview .card-b {
+  display: none;    /* 隱藏內容區 */
+}
+
+.card.fullview .card-h::after {
+  content: '';      
+}
+
 </style>
 
 <style>
