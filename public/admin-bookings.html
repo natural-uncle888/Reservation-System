@@ -238,16 +238,11 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
         <div id="foot" style="margin-top:8px;color:#6b7280"></div>
       </div>
       <div class="panel">
-        <h3 id="dv-title">詳情</h3>
         <div id="preview" style="min-height:120px;"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
           <button id="btnPaste" class="btn">貼上信件內容（僅顯示）</button>
         </div>
-        <details style="margin-top:10px;">
-          <summary>context / metadata</summary>
-          <pre id="ctxpre" style="background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px;overflow:auto;"></pre>
-        </details>
-      </div>
+        </div>
     </div>
   </div>
 
@@ -376,8 +371,10 @@ async function doSearch(){
 
 function openDetails(item){
   CURRENT_ITEM = item;
-  $("#dv-title").textContent = (item.public_id || "") + (item.format ? ("."+item.format) : "");
-  $("#ctxpre").textContent = JSON.stringify({ context:item.context??null, metadata:item.metadata??null }, null, 2);
+  const pv = $("#preview");
+  if (pv) pv.innerHTML = "";
+}
+, null, 2);
   renderFullContent(item, $("#preview"));
 }
 
