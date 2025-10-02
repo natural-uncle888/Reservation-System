@@ -100,36 +100,17 @@ html,body,.page{ width:100%; overflow-x:hidden }
 
 <style>
 
-/* === FAB：快速回首頁 === */
-.fab-home{
-  position:fixed; z-index:60;
-  right:clamp(12px,3vw,16px);
-  bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
-  display:inline-flex; align-items:center; gap:10px;
-  padding:12px 16px; border-radius:9999px;
-  background:var(--brand, #2563eb); color:#fff; text-decoration:none; font-weight:700;
-  box-shadow:0 8px 24px rgba(37,99,235,.25), 0 2px 6px rgba(0,0,0,.08);
-  border:1px solid var(--brand, #2563eb);
-  transition:transform .08s ease, box-shadow .15s ease, background .15s ease;
+/* === 快速回首頁 FAB === */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px; width: 54px; height: 54px;
+  background: var(--brand); color: #fff; border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em; z-index: 1010; text-decoration: none;
+  transition: background .13s, transform .13s; border: none;
 }
-.fab-home:active{ transform:translateY(1px) }
-.fab-home:hover{ background:var(--brand-700, #1d4ed8) }
-.fab-home__icon{ font-size:18px; line-height:1 }
-.fab-home__label{ font-size:15px }
-
-/* 讓頁面底部不被 FAB 擋到（約 88px 高度緩衝） */
-.sections{ padding-bottom:88px }
-@supports (bottom: env(safe-area-inset-bottom)){
-  .sections{ padding-bottom:calc(88px + env(safe-area-inset-bottom, 0px)) }
-}
-
-</style>
-
-<style>
-
-/* === FAB 調整：僅手機顯示（<=767px），圓形 54px，底部 72px === */
-.fab-home:active { background:#1d4ed8; transform:scale(0.92); }
-@media (min-width:768px){ .fab-home { display:none; } }
+.fab-home:active { background: #1d4ed8; transform: scale(0.92); }
+@media (min-width: 768px) { .fab-home { display: none; } } /* 桌機隱藏 */
 
 </style>
 </head>
@@ -319,13 +300,7 @@ html,body,.page{ width:100%; overflow-x:hidden }
     window.debugOther=()=>collect();
     window.debugLS=()=>JSON.parse(localStorage.getItem(KEY)||'{}');
   })();
-</script>
 
-<a class="fab-home" href="index.html" id="fab-home" aria-label="快速回首頁">
-  <span class="fab-home__icon">🏠</span>
-</a>
-
-<script>
 // 讓點擊 FAB 也會保存表單資料再離開
 (function(){
   const fab = document.getElementById('fab-home');
@@ -367,5 +342,6 @@ html,body,.page{ width:100%; overflow-x:hidden }
   }, {capture:true});
 })();
 </script>
+<a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 </body>
 </html>
