@@ -241,7 +241,8 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
       <div class="panel">
         <div id="preview" style="min-height:120px;"></div>
         <div style="margin-top:8px;display:flex;gap:8px">
-          </div>
+          <button id="btnPaste" class="btn">貼上信件內容（僅顯示）</button>
+        </div>
         </div>
     </div>
   </div>
@@ -576,6 +577,18 @@ const toRows = (o)=> Object.keys(o).length
       setTimeout(()=>{ e.target.scrollIntoView({block:'center'}); }, 100);
     }
   });
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(btn => {
+    if (btn.textContent.includes("貼上信件內容（僅顯示）")) {
+      btn.style.display = "none";
+    }
+  });
+});
 </script>
 
 </body>
