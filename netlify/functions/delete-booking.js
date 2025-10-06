@@ -55,19 +55,23 @@ exports.handler = async function (event) {
   }
 
   try {
-    const result = await cloudinary.api.delete_resources([public_id]);
+    const attempt_ids = [public_id, public_id.replace(/\.pdf$/, "")];
 
-    if (result.deleted?.[public_id] !== "deleted") {
-      return {
-        statusCode: 404,
-        body: JSON.stringify({ error: "Cloudinary 回傳未刪除，可能 public_id 有誤或檔案不存在", result }),
-        headers: { "Content-Type": "application/json" },
-      };
+    for (const id of attempt_ids) {
+      const result = await cloudinary.api.delete_resources([id]);
+
+      if (result.deleted?.[id] === "deleted") {
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ success: true, deleted_id: id, result }),
+          headers: { "Content-Type": "application/json" },
+        };
+      }
     }
 
     return {
-      statusCode: 200,
-      body: JSON.stringify({ success: true, result }),
+      statusCode: 404,
+      body: JSON.stringify({ error: "Cloudinary 無法刪除：可能 public_id 錯誤或不存在", attempted_ids: attempt_ids }),
       headers: { "Content-Type": "application/json" },
     };
   } catch (e) {
