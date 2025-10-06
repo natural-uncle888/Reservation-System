@@ -261,6 +261,8 @@
 
       // 送出
       document.getElementById('submit')?.addEventListener('click', async ()=>{
+  const loading = document.getElementById('loading');
+  loading.style.display = 'flex';
         const payload = buildPayload();
         try{
           const res = await fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
