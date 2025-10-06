@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -10,18 +12,20 @@ exports.handler = async (event) => {
   try {
     const booking = JSON.parse(event.body);
 
-    // 用一個最小的空檔案內容（這裡用 text/plain 也行）
-    const fakeFile = "data:text/plain;base64,"; // 空檔案
+    // 建立一個臨時檔案作為 raw 上傳內容
+    const tempFilePath = "/tmp/empty.txt";
+    fs.writeFileSync(tempFilePath, "booking-data");
 
-    // 上傳到 Cloudinary
-    const result = await cloudinary.uploader.upload(fakeFile, {
+    const result = await cloudinary.uploader.upload(tempFilePath, {
       resource_type: "raw",
-      context: { custom: booking }, // 這裡會完整存你傳的所有欄位
+      context: { custom: booking },
       folder: "bookings",
       public_id: booking["預約單編號"] || undefined
     });
 
-    // 回傳 cloudinary 實際 response（你可以直接看到 public_id, url, context.custom）
+    // 刪除臨時檔案
+    fs.unlinkSync(tempFilePath);
+
     return {
       statusCode: 200,
       body: JSON.stringify({ cloudinary: result })
