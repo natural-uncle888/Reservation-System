@@ -341,22 +341,15 @@ function normalizeContext(item){
 
 function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
 function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
-function renderFullContent(item, mount) {
-  function renderObject(obj, prefix = "") {
-    let html = "";
-    Object.entries(obj || {}).forEach(([k, v]) => {
-      const label = prefix ? `${prefix}.${k}` : k;
-      if (v && typeof v === "object" && !Array.isArray(v)) {
-        html += renderObject(v, label); // 遞迴展開
-      } else {
-        html += `<div class="row"><div class="k">${label}</div><div class="v">${v !== undefined ? v : "—"}</div></div>`;
-      }
-    });
-    return html;
-  }
-
-  const html = renderObject(item);
-  mount.innerHTML = `<div class="card fullview"><div class="card-h">所有原始欄位（多層展開）</div><div class="card-b">${html}</div></div>`;
+function renderFullContent(item, mount){
+  const data = normalizeContext(item);
+  const blocks = [];
+  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
+  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
+  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
+  blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)));
+  blocks.push(sectionCard("預約資訊", kv("預約日期", data.date)+kv("預約時段", data.timeslot)+kv("建立時間", new Date(item.created_at).toLocaleString())));
+  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
 
 async function doSearch(){
