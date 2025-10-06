@@ -1,4 +1,4 @@
-// netlify/functions/delete-booking.js
+
 const cloudinary = require('cloudinary').v2;
 
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
@@ -56,6 +56,15 @@ exports.handler = async function (event) {
 
   try {
     const result = await cloudinary.api.delete_resources([public_id]);
+
+    if (result.deleted?.[public_id] !== "deleted") {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "Cloudinary 回傳未刪除，可能 public_id 有誤或檔案不存在", result }),
+        headers: { "Content-Type": "application/json" },
+      };
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify({ success: true, result }),
