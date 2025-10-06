@@ -341,8 +341,20 @@ function normalizeContext(item){
 
 function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
 function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
-function renderFullContent(item, mount){
-    ...
+function renderFullContent(item, mount) {
+  // 優先用 context.custom > context > metadata
+  const src = item.context?.custom || item.context || item.metadata || {};
+  let html = '';
+  Object.entries(src).forEach(([k, v]) => {
+    html += `<div class="row"><div class="k">${k}</div><div class="v">${v !== undefined ? v : "—"}</div></div>`;
+  });
+  // 再額外把 item 的根層也顯示（例如 id, created_at, ...）
+  Object.entries(item).forEach(([k, v]) => {
+    if (["context", "metadata"].includes(k)) return; // 避免重複
+    if (typeof v === "object") return; // 跳過物件
+    html += `<div class="row"><div class="k">${k}</div><div class="v">${v !== undefined ? v : "—"}</div></div>`;
+  });
+  mount.innerHTML = `<div class="card fullview"><div class="card-h">所有原始欄位</div><div class="card-b">${html}</div></div>`;
 }
 
 async function doSearch(){
