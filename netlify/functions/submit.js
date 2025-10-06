@@ -227,17 +227,9 @@ exports.handler = async (event) => {
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
 
 // 構建 context（摘要欄位：name/phone/service/address/area/source）
-const ctxPairs = {
-  name: p.customer_name || p.name || "",
-  phone: p.phone || "",
-  service: p.service_category || p.service_item || p.select_service || "",
-  address: p.address || "",
-  area: p.area || p.city || p.region || "",
-  source: p.subject || p.page_title || p.page || ""
-};
-const context = Object.entries(ctxPairs)
-  .filter(([k,v]) => v && String(v).trim() !== "")
-  .map(([k,v]) => `${k}=${String(v).replace(/\|/g, "/")}`) // Cloudinary context 用 | 分隔，內容若含 | 先替換
+const context = Object.entries(p)
+  .filter(([k, v]) => v != null && String(v).trim() !== "")
+  .map(([k, v]) => `${k}=${typeof v === "object" ? encodeURIComponent(JSON.stringify(v)) : String(v).replace(/\|/g, "/")}`)
   .join("|");
 
 // 產生簽名（需包含 context）
