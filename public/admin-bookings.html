@@ -192,9 +192,6 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <style>.card.fullview .card-b{display:block !important;}</style>
-<script>
-    window.ADMIN_TOKEN = "my_super_secret_token_2025";
-  </script>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -310,50 +307,25 @@ async function login(){
 function fmtDate(d){ return new Date(d).toLocaleString(); }
 function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
 
-
-function decodeArray(val){
-  try {
-    const decoded = decodeURIComponent(val || "");
-    const parsed = JSON.parse(decoded);
-    if (Array.isArray(parsed)) return parsed.join(", ");
-    return parsed;
-  } catch (e){
-    return val;
-  }
-}
-
-
 function normalizeContext(item){
   const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
   const m = item.metadata || {};
   const get = (names, fb="") => pick(c, names, pick(m, names, fb));
   return {
-    bulk_notes: get(["bulk_notes", "大量清洗備註"]),
-    group_notes: get(["group_notes", "團購備註"]),
-    service_description: get(["service_description", "其他服務說明"]),
-    contact_method: get(["contact_method"]),
-    social_name: get(["social_name"]),
-    housing_type: get(["housing_type"]),
-    contact_time_preference: decodeArray(get(["contact_time_preference"])),
-    washer_count: get(["washer_count"]),
-    washer_floor: decodeArray(get(["washer_floor"])),
-    tank_count: get(["tank_count"]),
-    pipe_service: get(["pipe_service"]),
-    pipe_reason: decodeArray(get(["pipe_reason"])),
     name: get(["name","customer_name","fullname","姓名"]),
     phone: get(["phone","phone_number","mobile","tel","電話"]),
     service: get(["service","service_category","service_item","select_service","服務"]),
     address: get(["address","地址"]),
-    brand: decodeArray(get(["ac_brand","brand","冷氣品牌"])),
+    brand: get(["brand","冷氣品牌"]),
     ac_type: get(["ac_type","冷氣類型"]),
-    count: get(["ac_count","count","quantity","清洗數量"]),
-    floor: decodeArray(get(["indoor_floor","floor","樓層","室內機所在樓層"])),
-    is_inverter: get(["ac_transformer_series","是否為「變形金剛系列」冷氣機型？"]),
-    antifungus: get(["anti_mold","antifungus","冷氣防霉抗菌處理"]),
+    count: get(["count","quantity","清洗數量"]),
+    floor: get(["floor","樓層","室內機所在樓層"]),
+    is_inverter: get(["is_inverter","變頻","是否為變頻機型系列"]),
+    antifungus: get(["antifungus","冷氣防霉抗菌處理"]),
     ozone: get(["ozone","臭氧殺菌消毒"]),
     extra_service: get(["extra_service","其他清洗服務"]),
-    line_id: get(["line_or_fb","line_id","LINE","聯絡Line"]),
-    fb_name: get(["social_name","fb_name","facebook","FB","LINE & Facebook 姓名"]),
+    line_id: get(["line_id","line","LINE","聯絡Line"]),
+    fb_name: get(["fb_name","facebook","FB","LINE & Facebook 姓名"]),
     timeslot: get(["timeslot","預約時段"]),
     date: get(["date","預約日期"]),
     note: get(["note","備註"]),
@@ -365,55 +337,11 @@ function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div c
 function renderFullContent(item, mount){
   const data = normalizeContext(item);
   const blocks = [];
-  
-  
-if (data.service === "冷氣清洗") {
-  blocks.push(sectionCard("服務資訊",
-    kv("服務類別", data.service) +
-    kv("冷氣類型", data.ac_type) +
-    kv("清洗數量", data.count) +
-    kv("室內機所在樓層", data.floor) +
-    kv("冷氣品牌", data.brand) +
-    kv("是否為「變形金剛系列」冷氣機型？", data.is_inverter)
-  ));
-} 
-else {
-  blocks.push(sectionCard("服務資訊",
-    kv("服務類別", data.service)
-  ));
-}
-
-if (data.service === "團購預約清洗" || data.service === "大量清洗需求") {
-  let descTitle = (data.service === "團購預約清洗") ? "團購預約說明" : "大量需求說明";
-  blocks.push(sectionCard(descTitle, kv("內容", data.group_notes || data.bulk_notes)));
-}
-
-
-if (data.service_description) {
-  blocks.push(sectionCard("其他服務說明", kv("內容", data.service_description)));
-}
-
-
-  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要")));
-  blocks.push(sectionCard("其他清洗服務",
-  kv("直立式洗衣機清洗（台數）", data.washer_count) +
-  kv("洗衣機樓層", data.washer_floor) +
-  kv("家用水塔清洗（顆數）", data.tank_count) +
-  kv("自來水管清洗戶型方案", data.pipe_service) +
-  kv("自來水管清洗原因", data.pipe_reason)
-));
-  blocks.push(sectionCard("聯繫資料",
-    kv("聯絡人", data.name) +
-    kv("聯絡電話", data.phone) +
-    kv("與我們聯繫方式", data.contact_method) +
-    kv("LINE 或 Facebook 名稱", (data.contact_method?.includes("LINE") || data.contact_method?.includes("Facebook")) ? data.social_name : "")  +
-    kv("居住地型態", data.housing_type) +
-    kv("方便聯繫時間", data.contact_time_preference) +
-    kv("地址", data.address) +
-    kv("可安排時段", decodeArray(data.timeslot)) +
-    kv("備註", data.note) +
-    kv("建立時間", new Date(item.created_at).toLocaleString())
-  ));
+  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
+  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
+  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
+  blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)));
+  blocks.push(sectionCard("預約資訊", kv("預約日期", data.date)+kv("預約時段", data.timeslot)+kv("建立時間", new Date(item.created_at).toLocaleString())));
   mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
 
@@ -428,7 +356,7 @@ async function doSearch(){
   for (const it of list){
     const ctx = normalizeContext(it);
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}<button onclick="deleteBooking(item.public_id)" title="刪除" style="margin-left:8px;color:red;">🗑</button></td>`;
+    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}</td>`;
     tr.onclick = ()=> openDetails(it);
     tbody.appendChild(tr);
   }
@@ -535,6 +463,31 @@ const toRows = (o)=> Object.keys(o).length
 };
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
+
+function handleDelete(public_id) {
+  if (!public_id) {
+    alert("找不到 public_id，無法刪除。");
+    return;
+  }
+  const ok = confirm("是否確定要刪除此訂單？此操作無法復原！");
+  if (!ok) return;
+
+  fetch("/.netlify/functions/delete-booking?public_id=" + encodeURIComponent(public_id), {
+    method: "DELETE",
+    headers: {
+      "x-admin-token": localStorage.getItem("x-admin-token") || ""
+    }
+  }).then(res => res.json()).then(result => {
+    if (result.success) {
+      alert("刪除成功！");
+      doSearch(); // 重新刷新清單
+    } else {
+      alert("刪除失敗：" + (result.error || "未知錯誤"));
+    }
+  }).catch(err => {
+    alert("刪除失敗：" + err.message);
+  });
+}
 </script>
 <script>
   // 1) 模態開關時鎖定背景捲動
@@ -573,34 +526,5 @@ const toRows = (o)=> Object.keys(o).length
     }
   });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const buttons = document.querySelectorAll("button");
-  buttons.forEach(btn => {
-    if (btn.textContent.includes("貼上信件內容（僅顯示）")) {
-      btn.style.display = "none";
-    }
-  });
-});
-</script>
-<script>
-async function deleteBooking(public_id) {
-        if (!confirm('確定要刪除這筆訂單嗎？')) return;
-
-        try {
-    const res = await fetch(`/.netlify/functions/delete-booking?public_id=${public_id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: 'Bearer ' + ADMIN_TOKEN,
-      },
-    });
-    if (!res.ok) throw new Error('刪除失敗');
-    alert('刪除成功');
-    location.reload();
-  } catch (e) {
-    alert(e.message || '刪除時發生錯誤');
-  }
-}
-    }
-    </script></body>
+</body>
 </html>
