@@ -608,5 +608,30 @@ document.addEventListener("DOMContentLoaded", function () {
           alert("❌ 刪除失敗：" + err.message);
         }
       }
+    </script><script>
+    async function deleteBooking(publicId) {
+      if (!publicId) return alert("無法取得 public_id");
+      if (!confirm("是否確定要刪除這筆訂單？")) return;
+
+      try {
+        const response = await fetch(
+          `/.netlify/functions/delete-booking?public_id=${encodeURIComponent(publicId)}`,
+          {
+            method: "DELETE",
+            headers: {
+              "x-admin-token": window.ADMIN_TOKEN
+            }
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "刪除失敗");
+
+        alert("刪除成功！");
+        location.reload();
+      } catch (err) {
+        alert("❌ 刪除失敗：" + err.message);
+      }
+    }
     </script></body>
 </html>
