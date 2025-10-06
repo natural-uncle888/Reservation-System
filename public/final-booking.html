@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#2563eb" />
-  <title>安排時段填寫</title>
-  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" />
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
+<title>安排時段填寫</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     :root { --brand:#2563eb; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
     * { box-sizing: border-box; }
     body { font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; margin:0; color:var(--ink); background:#fff; }
@@ -90,66 +91,59 @@
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
-    <div class="wrap">
-      <h1>安排時段填寫</h1>
-      <p class="desc">請選擇可安排時段並補充說明。下方提供送出前預覽。</p>
-    </div>
-  </div>
-
-  <!-- Form (stacked sections) -->
-  <form id="booking-form" action="#" onsubmit="return false;">
-    <!-- 可安排時段 -->
-    <div class="section">
-      <h2 class="req req">可安排時段（可複選）</h2>
-      <div class="group two-col" id="timeslot">
-        <label class="option-card"><input type="checkbox" name="timeslot" value="平日" />平日</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="假日" />假日</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="上午" />上午</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="下午" />下午</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="晚上" />晚上</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="皆可" />皆可</label>
-        <label class="option-card"><input type="checkbox" name="timeslot" value="其他指定時間" data-other-id="time_other" />其他指定時間</label>
-        <div class="hidden-input full" id="time_other_wrap">
-          <input id="time_other" name="time_other" placeholder="例如 6/9 09:00–11:00" />
-        </div>
-      </div>
-      <details><summary>送出後流程</summary><p>我司將收到您的預約資料，人員會於「方便聯繫時間」內與您聯絡，確認細節與到府時間。</p></details>
-    </div>
-
-    <!-- 其他備註說明 -->
-    <div class="section">
-      <h2>其他備註說明</h2>
-      <textarea name="note" rows="4" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊"></textarea>
-    </div>
-
-    <!-- 送出前預覽（移到最下面） -->
-    <div class="section">
-      <h2>送出前預覽</h2>
-      <table id="preview"><tbody></tbody></table>
-    </div>
-
-    <!-- 導覽按鈕 -->
-    <div class="nav">
-      <a id="back" href="contact.html">返回上一步</a>
-      <button id="submit" type="button">完成填寫並送出</button>
-    </div>
-  </form>
-
-  <!-- 提交成功彈窗 -->
-  <div class="ok" id="ok" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center;">
-    <div class="modal" style="background:#fff; border-radius:12px; padding:24px; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
-      <h3>已送出</h3>
-      <p>感謝您填寫預約資料🙏</p>
-      <p>我們將盡快與您聯繫，安排最合適的清洗服務時段！</p>
-    </div>
-  </div>
-
-  <!-- FAB 回首頁（行動版） -->
-  <a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
-
-  <script>
+<!-- Header -->
+<div class="header">
+<div class="wrap">
+<h1>安排時段填寫</h1>
+<p class="desc">請選擇可安排時段並補充說明。下方提供送出前預覽。</p>
+</div>
+</div>
+<!-- Form (stacked sections) -->
+<form action="#" id="booking-form" onsubmit="return false;">
+<!-- 可安排時段 -->
+<div class="section">
+<h2 class="req req">可安排時段（可複選）</h2>
+<div class="group two-col" id="timeslot">
+<label class="option-card"><input name="timeslot" type="checkbox" value="平日"/>平日</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="假日"/>假日</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="上午"/>上午</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="下午"/>下午</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="晚上"/>晚上</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="皆可"/>皆可</label>
+<label class="option-card"><input data-other-id="time_other" name="timeslot" type="checkbox" value="其他指定時間"/>其他指定時間</label>
+<div class="hidden-input full" id="time_other_wrap">
+<input id="time_other" name="time_other" placeholder="例如 6/9 09:00–11:00"/>
+</div>
+</div>
+<details><summary>送出後流程</summary><p>我司將收到您的預約資料，人員會於「方便聯繫時間」內與您聯絡，確認細節與到府時間。</p></details>
+</div>
+<!-- 其他備註說明 -->
+<div class="section">
+<h2>其他備註說明</h2>
+<textarea name="note" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊" rows="4"></textarea>
+</div>
+<!-- 送出前預覽（移到最下面） -->
+<div class="section">
+<h2>送出前預覽</h2>
+<table id="preview"><tbody></tbody></table>
+</div>
+<!-- 導覽按鈕 -->
+<div class="nav">
+<a href="contact.html" id="back">返回上一步</a>
+<button id="submit" type="button">完成填寫並送出</button>
+</div>
+</form>
+<!-- 提交成功彈窗 -->
+<div class="ok" id="ok" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center;">
+<div class="modal" style="background:#fff; border-radius:12px; padding:24px; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
+<h3>已送出</h3>
+<p>感謝您填寫預約資料🙏</p>
+<p>我們將盡快與您聯繫，安排最合適的清洗服務時段！</p>
+</div>
+</div>
+<!-- FAB 回首頁（行動版） -->
+<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
+<script>
     (function(){
       const KEY='BOOKING_DATA';
       const FN='/submit';
@@ -326,13 +320,11 @@
 
   })();
 </script>
-
 <!-- 等待動畫區塊 -->
-<div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.75); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-  <div class="spinner"></div>
-  <div style="margin-top:16px; font-size:1.1rem; color:#2563eb; font-weight:500;">資料送出中...請稍候</div>
+<div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.75); z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center;">
+<div class="spinner"></div>
+<div style="margin-top:16px; font-size:1.1rem; color:#2563eb; font-weight:500;">資料送出中...請稍候</div>
 </div>
-
 <!-- CSS -->
 <style>
 .spinner {
@@ -362,6 +354,5 @@
   100% { transform: rotate(360deg); }
 }
 </style>
-
 </body>
 </html>
