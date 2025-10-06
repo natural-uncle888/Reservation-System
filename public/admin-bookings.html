@@ -314,6 +314,19 @@ async function login(){
 function fmtDate(d){ return new Date(d).toLocaleString(); }
 function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
 
+
+function decodeArray(val){
+  try {
+    const decoded = decodeURIComponent(val || "");
+    const parsed = JSON.parse(decoded);
+    if (Array.isArray(parsed)) return parsed.join(", ");
+    return parsed;
+  } catch (e){
+    return val;
+  }
+}
+
+
 function normalizeContext(item){
   const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
   const m = item.metadata || {};
@@ -323,10 +336,10 @@ function normalizeContext(item){
     phone: get(["phone","phone_number","mobile","tel","電話"]),
     service: get(["service","service_category","service_item","select_service","服務"]),
     address: get(["address","地址"]),
-    brand: get(["ac_brand","brand","冷氣品牌"]),
+    brand: decodeArray(get(["ac_brand","brand","冷氣品牌"])),
     ac_type: get(["ac_type","冷氣類型"]),
     count: get(["ac_count","count","quantity","清洗數量"]),
-    floor: get(["indoor_floor","floor","樓層","室內機所在樓層"]),
+    floor: decodeArray(get(["indoor_floor","floor","樓層","室內機所在樓層"])),
     is_inverter: get(["ac_transformer_series","是否為「變形金剛系列」冷氣機型？"]),
     antifungus: get(["anti_mold","antifungus","冷氣防霉抗菌處理"]),
     ozone: get(["ozone","臭氧殺菌消毒"]),
@@ -345,7 +358,7 @@ function renderFullContent(item, mount){
   const data = normalizeContext(item);
   const blocks = [];
   
-  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為變頻機型系列", data.is_inverter)));
+  blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為「變形金剛系列」冷氣機型？", data.is_inverter)));
   blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus)+kv("臭氧殺菌消毒", data.ozone)));
   blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
   blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)+kv("建立時間", new Date(item.created_at).toLocaleString())));
