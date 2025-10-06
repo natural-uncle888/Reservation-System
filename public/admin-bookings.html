@@ -332,6 +332,7 @@ function normalizeContext(item){
   const m = item.metadata || {};
   const get = (names, fb="") => pick(c, names, pick(m, names, fb));
   return {
+    service_description: get(["service_description", "其他服務說明"]),
     contact_method: get(["contact_method"]),
     social_name: get(["social_name"]),
     housing_type: get(["housing_type"]),
@@ -377,11 +378,16 @@ if (data.service === "冷氣清洗") {
     kv("冷氣品牌", data.brand) +
     kv("是否為「變形金剛系列」冷氣機型？", data.is_inverter)
   ));
-} else {
+} 
+else {
   blocks.push(sectionCard("服務資訊",
     kv("服務類別", data.service)
   ));
 }
+if (data.service_description) {
+  blocks.push(sectionCard("其他服務說明", kv("內容", data.service_description)));
+}
+
 
   blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要")));
   blocks.push(sectionCard("其他清洗服務",
