@@ -365,7 +365,13 @@ function renderFullContent(item, mount){
   
   blocks.push(sectionCard("服務資訊", kv("服務類別", data.service)+kv("冷氣類型", data.ac_type)+kv("清洗數量", data.count)+kv("室內機所在樓層", data.floor)+kv("冷氣品牌", data.brand)+kv("是否為「變形金剛系列」冷氣機型？", data.is_inverter)));
   blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要")));
-  blocks.push(sectionCard("其他清洗服務", kv("其他清洗服務", data.extra_service||"無")));
+  blocks.push(sectionCard("其他清洗服務",
+  kv("直立式洗衣機清洗（台數）", data.washer_count) +
+  kv("洗衣機樓層", data.washer_floor) +
+  kv("家用水塔清洗（顆數）", data.tank_count) +
+  kv("自來水管清洗戶型方案", data.pipe_service) +
+  kv("自來水管清洗原因", data.pipe_reason)
+));
   blocks.push(sectionCard("聯繫資料", kv("聯絡人", data.name)+kv("聯絡電話", data.phone)+kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):""))+kv("地址", data.address)+kv("備註", data.note)+kv("建立時間", new Date(item.created_at).toLocaleString())));
   mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
