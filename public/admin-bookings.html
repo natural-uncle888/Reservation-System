@@ -332,6 +332,7 @@ function normalizeContext(item){
   const m = item.metadata || {};
   const get = (names, fb="") => pick(c, names, pick(m, names, fb));
   return {
+    group_notes: get(["group_notes", "團購備註"]),
     service_description: get(["service_description", "其他服務說明"]),
     contact_method: get(["contact_method"]),
     social_name: get(["social_name"]),
@@ -384,6 +385,10 @@ else {
     kv("服務類別", data.service)
   ));
 }
+if (data.service === "團購預約清洗" || data.service === "大量清洗需求") {
+  blocks.push(sectionCard("其他服務說明", kv("內容", data.group_notes)));
+}
+
 if (data.service_description) {
   blocks.push(sectionCard("其他服務說明", kv("內容", data.service_description)));
 }
