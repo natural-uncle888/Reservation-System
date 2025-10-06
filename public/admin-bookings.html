@@ -237,7 +237,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <div id="preview" style="min-height:120px;"></div>
 <div style="margin-top:8px;display:flex;gap:8px">
 <button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
-<button class="btn" id="btnDelete" style="color:#b91c1c;border-color:#fca5a5">🗑</button></div>
+</div>
 </div>
 </div>
 </div>
@@ -533,29 +533,41 @@ const toRows = (o)=> Object.keys(o).length
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 
-document.getElementById("btnDelete").onclick = async () => {
-  if (!CURRENT_ITEM || !CURRENT_ITEM.public_id) {
-    alert("無法刪除：找不到 public_id。");
-    return;
-  }
-  const ok = confirm("是否確定要刪除此訂單？此操作無法復原！");
-  if (!ok) return;
 
-  try {
-    const res = await fetch("/.netlify/functions/delete-booking?public_id=" + encodeURIComponent(CURRENT_ITEM.public_id), {
-      method: "DELETE"
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "刪除失敗");
-
-    alert("刪除成功！");
-    CURRENT_ITEM = null;
-    document.getElementById("preview").innerHTML = "";
-    doSearch();
-  } catch (e) {
-    alert("刪除失敗：" + e.message);
+  // 顯示 public_id
+  const publicIdDisplay = document.getElementById("publicIdDisplay");
+  if (publicIdDisplay && CURRENT_ITEM?.public_id) {
+    publicIdDisplay.textContent = "Cloudinary public_id：" + CURRENT_ITEM.public_id;
   }
-};
+
+  // 🗑 刪除按鈕邏輯
+  document.getElementById("btnDelete").onclick = async () => {
+    if (!CURRENT_ITEM || !CURRENT_ITEM.public_id) {
+      alert("無法刪除：找不到 public_id。");
+      return;
+    }
+    const ok = confirm("是否確定要刪除此訂單？此操作無法復原！");
+    if (!ok) return;
+
+    try {
+      const res = await fetch("/.netlify/functions/delete-booking?public_id=" + encodeURIComponent(CURRENT_ITEM.public_id), {
+        method: "DELETE",
+        headers: {
+          "x-admin-token": ADMIN_TOKEN
+        }
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "刪除失敗");
+
+      alert("刪除成功！");
+      CURRENT_ITEM = null;
+      document.getElementById("preview").innerHTML = "";
+      doSearch();
+    } catch (e) {
+      alert("刪除失敗：" + e.message);
+    }
+  };
+
 </script>
 <script>
   // 1) 模態開關時鎖定背景捲動
