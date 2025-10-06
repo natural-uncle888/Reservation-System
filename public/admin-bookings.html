@@ -332,6 +332,11 @@ function normalizeContext(item){
   const m = item.metadata || {};
   const get = (names, fb="") => pick(c, names, pick(m, names, fb));
   return {
+    washer_count: get(["washer_count"]),
+    washer_floor: decodeArray(get(["washer_floor"])),
+    tank_count: get(["tank_count"]),
+    pipe_service: get(["pipe_service"]),
+    pipe_reason: decodeArray(get(["pipe_reason"])),
     name: get(["name","customer_name","fullname","姓名"]),
     phone: get(["phone","phone_number","mobile","tel","電話"]),
     service: get(["service","service_category","service_item","select_service","服務"]),
