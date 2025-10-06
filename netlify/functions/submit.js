@@ -30,7 +30,10 @@ function buildContext(p){
     contact_time_preference: __pick(p, ["contact_time_preference","聯絡時間"]),
   };
   // 轉為 Cloudinary context（key=value|...），避免 | 造成分隔錯誤
-  const context = `custom=${encodeURIComponent(JSON.stringify(p))}`;
+  const context = Object.entries(ctxPairs)
+    .filter(([k,v]) => v && String(v).trim() !== "")
+    .map(([k,v]) => `${k}=${String(v).replace(/\|/g,'/')}`)
+    .join('|');
   return context;
 }
 // ==== /Injected buildContext ====
