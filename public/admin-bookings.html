@@ -395,7 +395,8 @@ if (data.service === "冷氣清洗") {
     kv("聯絡人", data.name) +
     kv("聯絡電話", data.phone) +
     kv("與我們聯繫方式", data.contact_method) +
-    kv("LINE 或 Facebook 名稱", (data.contact_method?.includes("LINE") || data.contact_method?.includes("Facebook")) ? data.social_name : "") +(data.fb_name?(" / "+data.fb_name):"")) +
+    kv("LINE 或 Facebook 名稱", (data.contact_method?.includes("LINE") || data.contact_method?.includes("Facebook")) ? data.social_name : "") +
+    kv("LINE / Facebook", (data.line_id||"")+(data.fb_name?(" / "+data.fb_name):"")) +
     kv("居住地型態", data.housing_type) +
     kv("方便聯繫時間", data.contact_time_preference) +
     kv("地址", data.address) +
