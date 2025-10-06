@@ -341,8 +341,8 @@ function normalizeContext(item){
 
 function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
 function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
-function renderFullContent(item, mount) {
-  mount.innerHTML = `<pre>${JSON.stringify(item, null, 2)}</pre>`;
+function renderFullContent(item, mount){
+    ...
 }
 
 async function doSearch(){
