@@ -386,9 +386,12 @@ else {
     kv("服務類別", data.service)
   ));
 }
+
 if (data.service === "團購預約清洗" || data.service === "大量清洗需求") {
-  blocks.push(sectionCard("其他服務說明", kv("內容", data.group_notes || data.bulk_notes)));
+  let descTitle = (data.service === "團購預約清洗") ? "團購預約說明" : "大量需求說明";
+  blocks.push(sectionCard(descTitle, kv("內容", data.group_notes || data.bulk_notes)));
 }
+
 
 if (data.service_description) {
   blocks.push(sectionCard("其他服務說明", kv("內容", data.service_description)));
