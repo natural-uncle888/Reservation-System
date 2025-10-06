@@ -7,50 +7,30 @@ cloudinary.config({
 });
 
 exports.handler = async (event) => {
-  // 1. 取得前端送來的表單資料
-  const booking = JSON.parse(event.body);
-
-  // 2. 如果你不需要真的上傳檔案，可以用一個空白檔案（或 text string base64）
-  //    這裡直接丟一個空字串給 raw 檔案（或根據你的應用改成圖片/pdf也行）
-  const fileToUpload = Buffer.from('', 'utf8'); // 空檔
-
-  // 3. 上傳到 Cloudinary，重點 context.custom
   try {
-    const res = await cloudinary.uploader.upload_stream(
-      {
-        resource_type: "raw",
-        context: { custom: booking }, // <<--- 重點
-        folder: "bookings",           // (可選) 你自己的資料夾
-        public_id: booking["預約單編號"] || undefined // (可選) 你想自訂的 id
-      },
-      (error, result) => {
-        if (error) {
-          console.error(error);
-          return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Cloudinary upload error" }),
-          };
-        }
-        return {
-          statusCode: 200,
-          body: JSON.stringify({ cloudinary: result }),
-        };
-      }
-    );
+    const booking = JSON.parse(event.body);
 
-    // 必須寫 stream，這是 Cloudinary raw 檔案的 upload
-    require('stream').Readable.from(fileToUpload).pipe(res);
+    // 用一個最小的空檔案內容（這裡用 text/plain 也行）
+    const fakeFile = "data:text/plain;base64,"; // 空檔案
 
-    // 這裡 netlify function 要等 callback 完才真的回應（可簡化處理）
+    // 上傳到 Cloudinary
+    const result = await cloudinary.uploader.upload(fakeFile, {
+      resource_type: "raw",
+      context: { custom: booking }, // 這裡會完整存你傳的所有欄位
+      folder: "bookings",
+      public_id: booking["預約單編號"] || undefined
+    });
+
+    // 回傳 cloudinary 實際 response（你可以直接看到 public_id, url, context.custom）
     return {
       statusCode: 200,
-      body: JSON.stringify({ msg: "上傳中…" }),
+      body: JSON.stringify({ cloudinary: result })
     };
   } catch (e) {
     console.error(e);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Upload failed" }),
+      body: JSON.stringify({ error: "Upload failed", details: String(e) })
     };
   }
 };
