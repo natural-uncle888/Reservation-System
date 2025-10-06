@@ -30,10 +30,10 @@ function buildContext(p){
     contact_time_preference: __pick(p, ["contact_time_preference","聯絡時間"]),
   };
   // 轉為 Cloudinary context（key=value|...），避免 | 造成分隔錯誤
-  const context = Object.entries(p)
-  .filter(([k, v]) => typeof v !== "object" && String(v).trim() !== "")
-  .map(([k, v]) => `${k}=${String(v).replace(/\|/g, "/")}`)
-  .join("|");
+  const context = Object.entries(ctxPairs)
+    .filter(([k,v]) => v && String(v).trim() !== "")
+    .map(([k,v]) => `${k}=${String(v).replace(/\|/g,'/')}`)
+    .join('|');
   return context;
 }
 // ==== /Injected buildContext ====
@@ -227,7 +227,18 @@ exports.handler = async (event) => {
       const tags = ["reservation", nb(p.service_category)].filter(Boolean).join(",");
 
 // 構建 context（摘要欄位：name/phone/service/address/area/source）
-const context = `custom=${encodeURIComponent(JSON.stringify(p))}`;
+const ctxPairs = {
+  name: p.customer_name || p.name || "",
+  phone: p.phone || "",
+  service: p.service_category || p.service_item || p.select_service || "",
+  address: p.address || "",
+  area: p.area || p.city || p.region || "",
+  source: p.subject || p.page_title || p.page || ""
+};
+const context = Object.entries(ctxPairs)
+  .filter(([k,v]) => v && String(v).trim() !== "")
+  .map(([k,v]) => `${k}=${String(v).replace(/\|/g, "/")}`) // Cloudinary context 用 | 分隔，內容若含 | 先替換
+  .join("|");
 
 // 產生簽名（需包含 context）
 const signParams = context ? { public_id, timestamp, tags, context } : { public_id, timestamp, tags };
