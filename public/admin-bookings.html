@@ -1,11 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>預約資料管理（Cloudinary）</title>
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>預約資料管理（Cloudinary）</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
     header{padding:26px 20px 8px}
     h1{margin:0 0 4px;font-size:22px}
@@ -120,7 +121,6 @@ header .sub {
 }
 
 </style>
-
 <style>
 /* ====== Mobile-first: 通用可用性 ====== */
 :root{
@@ -191,80 +191,71 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 /* ====== iOS 背景鎖定（配合JS在開啟模態時加 body--modal-open） ====== */
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
-
 <style>.card.fullview .card-b{display:block !important;}</style>
-
-  <script>
+<script>
     window.ADMIN_TOKEN = "my_super_secret_token_2025";
   </script>
-
 </head>
 <body>
-
-  
-<div id="loginModal" class="login-backdrop" role="dialog" aria-modal="true">
-  <div class="login-dialog">
-    <div class="login-h">管理登入</div>
-    <div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
-    <div class="login-field">
-      <label class="login-label" for="login-username">帳號</label>
-      <input id="login-username" class="login-input" type="text" placeholder="admin" autocomplete="username" />
-    </div>
-    <div class="login-field">
-      <label class="login-label" for="login-password">密碼</label>
-      <input id="login-password" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-    <div id="login-error" class="login-error">登入失敗，請確認帳號密碼。</div>
-    <div class="login-actions">
-      <button id="login-clear" class="btn-secondary" type="button">清除</button>
-      <button id="login-submit" class="btn-primary" type="button">登入</button>
-    </div>
-  </div>
+<div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
+<div class="login-dialog">
+<div class="login-h">管理登入</div>
+<div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
+<div class="login-field">
+<label class="login-label" for="login-username">帳號</label>
+<input autocomplete="username" class="login-input" id="login-username" placeholder="admin" type="text"/>
 </div>
-
-  <header>
-    <h1>預約資料管理（Cloudinary）</h1>
-    <div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
-  </header>
-  <div class="wrap">
-    <div class="row">
-      <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"></label>
-      <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"></label>
-      <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"></label>
-      <button id="btnSearch" class="btn primary">查詢</button>
-      <button id="btnCsv" class="btn">匯出 CSV</button>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div class="table-wrap"><table id="tbl">
-          <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="foot" style="margin-top:8px;color:#6b7280"></div>
-      </div>
-      <div class="panel">
-        <div id="preview" style="min-height:120px;"></div>
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <button id="btnPaste" class="btn">貼上信件內容（僅顯示）</button>
-        </div>
-        </div>
-    </div>
-  </div>
-
-  <div id="emailModal" class="email-modal">
-    <div class="email-dialog">
-      <h3>貼上信件內容 → 解析並回填</h3>
-      <div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
-      <textarea id="emailPaste"></textarea>
-      <div class="actions">
-        <button id="emailCancel" class="btn">取消</button>
-        <button id="emailApply" class="btn primary">解析並回填</button>
-      </div>
-      <div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
-    </div>
-  </div>
-
+<div class="login-field">
+<label class="login-label" for="login-password">密碼</label>
+<input autocomplete="current-password" class="login-input" id="login-password" placeholder="••••••••" type="password"/>
+</div>
+<div class="login-error" id="login-error">登入失敗，請確認帳號密碼。</div>
+<div class="login-actions">
+<button class="btn-secondary" id="login-clear" type="button">清除</button>
+<button class="btn-primary" id="login-submit" type="button">登入</button>
+</div>
+</div>
+</div>
+<header>
+<h1>預約資料管理（Cloudinary）</h1>
+<div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」或「貼上信件內容並回填」。</div>
+</header>
+<div class="wrap">
+<div class="row">
+<label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
+<label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
+<label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
+<button class="btn primary" id="btnSearch">查詢</button>
+<button class="btn" id="btnCsv">匯出 CSV</button>
+</div>
+<div class="grid">
+<div>
+<div class="table-wrap"><table id="tbl">
+<thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div id="foot" style="margin-top:8px;color:#6b7280"></div>
+</div>
+<div class="panel">
+<div id="preview" style="min-height:120px;"></div>
+<div style="margin-top:8px;display:flex;gap:8px">
+<button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
+</div>
+</div>
+</div>
+</div>
+<div class="email-modal" id="emailModal">
+<div class="email-dialog">
+<h3>貼上信件內容 → 解析並回填</h3>
+<div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
+<textarea id="emailPaste"></textarea>
+<div class="actions">
+<button class="btn" id="emailCancel">取消</button>
+<button class="btn primary" id="emailApply">解析並回填</button>
+</div>
+<div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
+</div>
+</div>
 <script>
 const API_LIST = "/.netlify/functions/list-bookings";
 const API_LOGIN = "/.netlify/functions/auth-login";
@@ -545,7 +536,6 @@ const toRows = (o)=> Object.keys(o).length
 
 (async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch(); })();
 </script>
-
 <script>
   // 1) 模態開關時鎖定背景捲動
   function lockScrollForModal(open){
@@ -583,8 +573,6 @@ const toRows = (o)=> Object.keys(o).length
     }
   });
 </script>
-
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const buttons = document.querySelectorAll("button");
@@ -595,6 +583,30 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+<script>
+      async function deleteBooking(publicId) {
+        if (!publicId) return alert("無法取得 public_id");
+        if (!confirm("是否確定要刪除這筆訂單？")) return;
 
-</body>
+        try {
+          const response = await fetch(
+            `/.netlify/functions/delete-booking?public_id=${encodeURIComponent(publicId)}`,
+            {
+              method: "DELETE",
+              headers: {
+                "x-admin-token": window.ADMIN_TOKEN
+              }
+            }
+          );
+
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || "刪除失敗");
+
+          alert("刪除成功！");
+          location.reload();
+        } catch (err) {
+          alert("❌ 刪除失敗：" + err.message);
+        }
+      }
+    </script></body>
 </html>
