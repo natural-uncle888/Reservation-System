@@ -428,7 +428,7 @@ async function doSearch(){
   for (const it of list){
     const ctx = normalizeContext(it);
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}</td>`;
+    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}<button onclick="deleteBooking(item.public_id)" title="刪除" style="margin-left:8px;color:red;">🗑</button></td>`;
     tr.onclick = ()=> openDetails(it);
     tbody.appendChild(tr);
   }
@@ -448,7 +448,7 @@ $("#btnCsv").onclick = () => {
   const rows = [["姓名","電話","服務","建立時間"]];
   for (const it of CURRENT_LIST){
     const c = normalizeContext(it);
-    rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)"", <button onclick="deleteBooking(item.public_id)" title="刪除" style="margin-left:8px;color:red;">🗑</button>]);
+    rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)]);
   }
   const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
