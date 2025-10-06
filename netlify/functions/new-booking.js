@@ -1,5 +1,4 @@
 const fs = require("fs");
-const path = require("path");
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
@@ -12,18 +11,20 @@ exports.handler = async (event) => {
   try {
     const booking = JSON.parse(event.body);
 
-    // 建立一個臨時檔案作為 raw 上傳內容
-    const tempFilePath = "/tmp/empty.txt";
-    fs.writeFileSync(tempFilePath, "booking-data");
+    // 準備一張最小的空白png
+    const tempFilePath = "/tmp/empty.png";
+    fs.writeFileSync(tempFilePath, Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
+      "base64"
+    ));
 
     const result = await cloudinary.uploader.upload(tempFilePath, {
-      resource_type: "raw",
+      resource_type: "image",  // image格式支援context 100%穩
       context: { custom: booking },
       folder: "bookings",
       public_id: booking["預約單編號"] || undefined
     });
 
-    // 刪除臨時檔案
     fs.unlinkSync(tempFilePath);
 
     return {
