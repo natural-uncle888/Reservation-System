@@ -449,20 +449,31 @@ async function doSearch(){
 
       // 優先使用全域的 handleDeleteBooking；若不存在則直接呼叫 API
       let ok = false;
-      if (typeof window.handleDeleteBooking === 'function') {
-        ok = await handleDeleteBooking(it, btn);
-      } else {
-        try {
-          const url = new URL('/.netlify/functions/delete-booking', location.origin);
-          url.searchParams.set('public_id', it.public_id);
-          if (it.resource_type) url.searchParams.set('resource_type', it.resource_type);
-          const res = await fetch(url.toString(), {
-            method: 'DELETE',
-            headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
-          });
-          ok = res.ok;
-        } catch(e) { ok = false; }
+      // 先確保已登入（避免 401）
+    if (typeof window.needLogin === 'function' && needLogin()) {
+      const loggedIn = await (typeof window.login === 'function' ? login() : Promise.resolve(false));
+      if (!loggedIn && (typeof window.needLogin === 'function' && needLogin())) {
+        btn.disabled = false; btn.dataset.busy = '0';
+        alert('尚未登入或權杖失效，請先登入再刪除。');
+        return;
       }
+    }
+    // 僅走統一的刪除流程，確保會帶 x-admin-token
+    if (typeof window.handleDeleteBooking === 'function') {
+      ok = await handleDeleteBooking(it, btn);
+    } else {
+      // 萬一沒有 helper，仍加上 x-admin-token 後再呼叫
+      try {
+        const url = new URL('/.netlify/functions/delete-booking', location.origin);
+        url.searchParams.set('public_id', it.public_id);
+        if (it.resource_type) url.searchParams.set('resource_type', it.resource_type);
+        const res = await fetch(url.toString(), {
+          method: 'DELETE',
+          headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+        });
+        ok = res.ok;
+      } catch(e) { ok = false; }
+    }
 
       if (ok) {
         tr.remove();
