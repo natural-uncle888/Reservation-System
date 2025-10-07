@@ -633,5 +633,52 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+
+<!-- BEGIN: action column fallback injector -->
+<script>
+(function(){
+  // 確保每列都有「操作」欄與刪除按鈕，即使主程式沒有產生該欄位。
+  function ensureActions(){
+    const tbody = document.querySelector('#tbl tbody');
+    if (!tbody) return;
+    tbody.querySelectorAll('tr').forEach(tr=>{
+      if (tr.querySelector('.btn-del')) return; // 已有按鈕
+      const tds = tr.querySelectorAll('td');
+      const needCell = (tds.length < 5); // 目前表頭有5欄
+      const td = needCell ? document.createElement('td') : tds[4];
+      td.innerHTML = '<button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑</button>';
+      if (needCell) tr.appendChild(td);
+      const btn = td.querySelector('.btn-del');
+      if (btn && !btn.dataset.bound){
+        btn.dataset.bound = '1';
+        btn.addEventListener('click', async (ev)=>{
+          ev.stopPropagation();
+          if (btn.dataset.busy === '1') return;
+          if (!window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。')) return;
+          btn.dataset.busy = '1';
+          btn.disabled = true;
+          const item = (window.CURRENT_ITEM && window.CURRENT_ITEM.public_id) ? window.CURRENT_ITEM : (tr.__item || null);
+          // 嘗試從列表 cell 取得 minimal item（後端會自動偵測資源型態）
+          const it = item || { public_id: (tr.dataset.public_id || '') };
+          const ok = await (window.handleDeleteBooking ? handleDeleteBooking(it, btn) : false);
+          if (ok) tr.remove(); else { btn.disabled=false; btn.dataset.busy='0'; }
+        });
+      }
+    });
+  }
+
+  // 觀察 tbody 變化，自動補「操作」欄
+  const tbody = document.querySelector('#tbl tbody');
+  if (tbody){
+    const mo = new MutationObserver(()=> setTimeout(ensureActions, 0));
+    mo.observe(tbody, { childList: true, subtree: true });
+  }
+  // 首次執行一次
+  document.addEventListener('DOMContentLoaded', ensureActions);
+  setTimeout(ensureActions, 500); // 再補一次防止延遲載入
+})();
+</script>
+<!-- END: action column fallback injector -->
+
 </body>
 </html>
