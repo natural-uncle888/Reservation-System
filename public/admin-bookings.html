@@ -224,29 +224,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <!-- END: btn-del strong style -->
 
-
-<style>
-/* === FINAL MOBILE OVERRIDE (max-width:640px) ===
-   Buttons appear on the line BELOW the end date, side-by-side (50% / 50%). */
-@media (max-width: 640px){
-  .wrap .row{
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-    align-items: end !important;
-  }
-  /* Keyword / Start / End take full rows */
-  .wrap .row label.input:nth-of-type(1),
-  .wrap .row label.input:nth-of-type(2),
-  .wrap .row label.input:nth-of-type(3){
-    grid-column: 1 / -1 !important;
-  }
-  /* Buttons share the next row */
-  #btnSearch, #btnCsv{ width: 100% !important; }
-  #btnSearch{ grid-column: 1 / 2 !important; }
-  #btnCsv{    grid-column: 2 / 3 !important; }
-}
-</style>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -278,7 +255,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
 <button class="btn primary" id="btnSearch">查詢</button>
-<button class="btn" id="btnCsv">匯出 TSV</button>
+<button class="btn" id="btnCsv">匯出 CSV</button>
 </div>
 <div class="grid">
 <div>
@@ -766,36 +743,23 @@ document.addEventListener("DOMContentLoaded", function () {
 </html>
 
 <script>
-function exportCsv(rows){
-  // Build TSV text (Tab-separated), escape tabs/newlines minimally
-  const sanitize = v => String(v ?? '').replace(/	/g, ' ').replace(/
-?
-/g, ' ');
-  const tsvBody = rows.map(r => r.map(sanitize).join('	')).join('
-');
 
-  // Encode to UTF-16LE with BOM so Excel on Windows reads Chinese correctly
-  const text = tsvBody;
+function exportCsv(rows){
+  // Build CSV text with Windows line endings and "sep" hint for Excel
+  const csvBody = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const csvText = 'sep=,\r\n' + csvBody;
+
+  // Encode to UTF-16LE with BOM (Excel reliably detects this)
   const bom = new Uint8Array([0xFF, 0xFE]);
-  const buf = new Uint8Array(bom.length + text.length * 2);
+  const buf = new Uint8Array(bom.length + csvText.length * 2);
   buf.set(bom, 0);
-  for (let i = 0; i < text.length; i++) {
-    const code = text.charCodeAt(i);
-    buf[bom.length + i*2] = code & 0xFF;           // low byte
+  for (let i = 0; i < csvText.length; i++) {
+    const code = csvText.charCodeAt(i);
+    buf[bom.length + i*2] = code & 0xFF;        // low byte
     buf[bom.length + i*2 + 1] = (code >> 8) & 0xFF; // high byte
   }
 
-  const blob = new Blob([buf], {type: 'text/tab-separated-values;charset=utf-16le;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'bookings.tsv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}"`).join(',')).join('\r\n');
-  const blob = new Blob(["\ufeff" + csv], {type: 'text/csv;charset=utf-8;'});
+  const blob = new Blob([buf], {type: 'text/csv;charset=utf-16le;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -805,4 +769,5 @@ function exportCsv(rows){
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
 </script>
