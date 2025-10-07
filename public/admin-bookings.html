@@ -255,7 +255,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
 <button class="btn primary" id="btnSearch">查詢</button>
-<button class="btn" id="btnCsv">匯出 XLSX</button>
+\1匯出 XLSX\3
 </div>
 <div class="grid">
 <div>
@@ -547,10 +547,7 @@ $("#btnCsv").onclick = () => {
     const c = normalizeContext(it);
     rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)]);
   }
-  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob); a.download = "bookings.csv"; a.click(); URL.revokeObjectURL(a.href);
+  exportXlsx(rows);
 };
 
 // paste-from-email modal
@@ -745,9 +742,7 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 function exportXlsx(rows){
   try {
-    // rows: Array<Array<any>>
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    // Optional: set column widths based on first 50 rows
     const colWidths = [];
     const sampleRows = rows.slice(0, 50);
     for (let r of sampleRows){
@@ -764,10 +759,6 @@ function exportXlsx(rows){
     console.error('XLSX export failed:', e);
     alert('匯出 XLSX 失敗：' + e.message);
   }
-}
-// 兼容舊呼叫名稱
-function exportXlsx(rows){
-  return exportXlsx(rows);
 }
 </script>
 </body>
