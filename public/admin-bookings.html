@@ -224,6 +224,27 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <!-- END: btn-del strong style -->
 
+
+<style>
+/* === Mobile layout override: buttons drop BELOW end-date, in one row with two buttons (50% / 50%) === */
+@media (max-width: 640px){
+  .row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* two columns on mobile */
+    gap: 10px;
+    align-items: end;
+  }
+  /* Keyword, Start date, End date: each takes a full row */
+  .row label.input:nth-of-type(1),
+  .row label.input:nth-of-type(2),
+  .row label.input:nth-of-type(3){
+    grid-column: 1 / -1;
+  }
+  /* Buttons share the next row, side-by-side */
+  #btnCsv{ grid-column: 1 / 2; width: 100%; }
+  #btnSearch{ grid-column: 2 / 3; width: 100%; }
+}
+</style>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
