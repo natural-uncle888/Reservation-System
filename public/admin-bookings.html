@@ -122,10 +122,14 @@ header .sub {
 
 
 @media (max-width: 640px){
-  .row{ align-items: center; }
-  #btnCsv{ order: 40; }
-  #btnSearch{ order: 41; }
-  #btnCsv, #btnSearch{ flex: 0 0 auto; }
+  .row{ display:grid; grid-template-columns: 1fr auto auto; align-items:end; gap:10px; }
+  /* 關鍵字、起始日期整行 */
+  .row label.input{ grid-column: 1 / -1; }
+  /* 第三個 label（結束日期）只佔第一欄 */
+  .row label.input:nth-of-type(3){ grid-column: 1 / 2; }
+  /* 讓兩顆按鈕固定在結束日期右側，同一列 */
+  #btnCsv{ grid-column: 2 / 3; grid-row: 3; }
+  #btnSearch{ grid-column: 3 / 4; grid-row: 3; }
 }
 
 </style>
