@@ -467,11 +467,23 @@ async function doSearch(){
         const url = new URL('/.netlify/functions/delete-booking', location.origin);
         url.searchParams.set('public_id', it.public_id);
         if (it.resource_type) url.searchParams.set('resource_type', it.resource_type);
-        const res = await fetch(url.toString(), {
-          method: 'DELETE',
-          headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
-        });
-        ok = res.ok;
+        let resp = await fetch(url.toString(), {
+  method: 'DELETE',
+  headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+});
+if (resp.status === 401 && typeof window.login === 'function') {
+  // Try re-login then retry once
+  const loggedIn = await login();
+  if (loggedIn) {
+    // refresh token
+    try { window.ADMIN_TOKEN = localStorage.getItem('admin_token') || window.ADMIN_TOKEN || ''; } catch(e){}
+    resp = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+    });
+  }
+}
+ok = resp.ok;
       } catch(e) { ok = false; }
     }
 
@@ -668,5 +680,34 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+
+<!-- BEGIN: global fetch interceptor for delete-booking -->
+<script>
+(function(){
+  const _origFetch = window.fetch;
+  window.fetch = function(input, init){
+    try {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      if (/\/\.netlify\/functions\/delete-booking/.test(url)) {
+        init = init || {};
+        init.headers = Object.assign({}, init.headers || {});
+        // ensure token
+        if (!window.ADMIN_TOKEN) {
+          try { window.ADMIN_TOKEN = localStorage.getItem('admin_token') || ''; } catch(e){}
+        }
+        if (!init.headers['x-admin-token']) {
+          init.headers['x-admin-token'] = window.ADMIN_TOKEN || '';
+        }
+        if (!init.headers['x-admin-token']) {
+          console.warn('[delete-booking] missing x-admin-token, request may 401');
+        }
+      }
+    } catch(e) {}
+    return _origFetch.apply(this, arguments);
+  };
+})();
+</script>
+<!-- END: global fetch interceptor for delete-booking -->
+
 </body>
 </html>
