@@ -224,6 +224,32 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <!-- END: btn-del strong style -->
 
+
+<style>
+/* === FINAL MOBILE OVERRIDE (max-width:640px) ===
+   Force: buttons side-by-side on the line BELOW the end date.
+   This wins over any earlier rules. */
+@media (max-width: 640px){
+  .wrap .row{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    align-items: end !important;
+  }
+  /* Keyword / Start / End each on its own line */
+  .wrap .row label.input:nth-of-type(1),
+  .wrap .row label.input:nth-of-type(2),
+  .wrap .row label.input:nth-of-type(3){
+    grid-column: 1 / -1 !important;
+  }
+  /* Buttons share the next row (50% / 50%) */
+  #btnSearch, #btnCsv{
+    width: 100% !important;
+  }
+  #btnSearch{ grid-column: 1 / 2 !important; }
+  #btnCsv{    grid-column: 2 / 3 !important; }
+}
+</style>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -255,7 +281,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
 <button class="btn primary" id="btnSearch">查詢</button>
-\1匯出 XLSX\3
+<button class="btn" id="btnCsv">匯出 CSV</button>
 </div>
 <div class="grid">
 <div>
@@ -547,7 +573,10 @@ $("#btnCsv").onclick = () => {
     const c = normalizeContext(it);
     rows.push([c.name||"", c.phone||"", c.service||"", fmtDate(it.created_at)]);
   }
-  exportXlsx(rows);
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "bookings.csv"; a.click(); URL.revokeObjectURL(a.href);
 };
 
 // paste-from-email modal
@@ -736,30 +765,5 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <!-- END: global fetch interceptor for delete-booking -->
 
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-<script>
-function exportXlsx(rows){
-  try {
-    const ws = XLSX.utils.aoa_to_sheet(rows);
-    const colWidths = [];
-    const sampleRows = rows.slice(0, 50);
-    for (let r of sampleRows){
-      r.forEach((cell, i)=>{
-        const len = String(cell ?? '').length;
-        colWidths[i] = Math.max(colWidths[i]||10, Math.min(50, len + 2));
-      });
-    }
-    if(colWidths.length) ws['!cols'] = colWidths.map(w => ({wch:w}));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'bookings');
-    XLSX.writeFile(wb, 'bookings.xlsx', {compression:true});
-  } catch (e){
-    console.error('XLSX export failed:', e);
-    alert('匯出 XLSX 失敗：' + e.message);
-  }
-}
-</script>
 </body>
 </html>
