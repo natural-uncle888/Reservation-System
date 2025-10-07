@@ -192,29 +192,6 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <style>.card.fullview .card-b{display:block !important;}</style>
-
-<!-- BEGIN: delete button styles -->
-<style>
-  .btn-del{
-    padding: 6px 10px;
-    border: none;
-    border-radius: 8px;
-    background: #e53935; /* red */
-    color: #fff;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform .05s ease, opacity .2s ease, box-shadow .2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,.15);
-  }
-  .btn-del:hover{ opacity:.9; }
-  .btn-del:active{ transform: scale(.98); }
-  .btn-del[disabled]{
-    opacity: .55;
-    cursor: not-allowed;
-  }
-</style>
-<!-- END: delete button styles -->
-
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -448,11 +425,58 @@ async function doSearch(){
   for (const it of list){
     const ctx = normalizeContext(it);
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${ctx.name || "(未填)"}</td><td>${ctx.phone||""}</td><td>${ctx.service||""}</td><td>${fmtDate(it.created_at)}</td>`;
-    tr.onclick = ()=> openDetails(it);
-    tbody.appendChild(tr);
+    tr.innerHTML = `
+    <td>${ctx.name || "(未填)"}</td>
+    <td>${ctx.phone || ""}</td>
+    <td>${ctx.service || ""}</td>
+    <td>${fmtDate(it.created_at)}</td>
+    <td><button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑</button></td>
+  `;
+
+  // 點整列仍可看詳情
+  tr.onclick = ()=> openDetails(it);
+
+  // 綁定刪除按鈕（紅色、確認、連點保護）
+  const btn = tr.querySelector('.btn-del');
+  if (btn) {
+    btn.addEventListener('click', async (ev)=>{
+      ev.stopPropagation();
+      if (btn.dataset.busy === '1') return;
+      const confirmed = window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。');
+      if (!confirmed) return;
+      btn.dataset.busy = '1';
+      btn.disabled = true;
+
+      // 優先使用全域的 handleDeleteBooking；若不存在則直接呼叫 API
+      let ok = false;
+      if (typeof window.handleDeleteBooking === 'function') {
+        ok = await handleDeleteBooking(it, btn);
+      } else {
+        try {
+          const url = new URL('/.netlify/functions/delete-booking', location.origin);
+          url.searchParams.set('public_id', it.public_id);
+          if (it.resource_type) url.searchParams.set('resource_type', it.resource_type);
+          const res = await fetch(url.toString(), {
+            method: 'DELETE',
+            headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+          });
+          ok = res.ok;
+        } catch(e) { ok = false; }
+      }
+
+      if (ok) {
+        tr.remove();
+      } else {
+        btn.disabled = false;
+        btn.dataset.busy = '0';
+        alert('刪除失敗，請稍後再試。');
+      }
+    });
   }
-  $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
+
+  tbody.appendChild(tr);
+}
+$("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
 }
 
 function openDetails(item){
@@ -633,52 +657,5 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
-
-<!-- BEGIN: action column fallback injector -->
-<script>
-(function(){
-  // 確保每列都有「操作」欄與刪除按鈕，即使主程式沒有產生該欄位。
-  function ensureActions(){
-    const tbody = document.querySelector('#tbl tbody');
-    if (!tbody) return;
-    tbody.querySelectorAll('tr').forEach(tr=>{
-      if (tr.querySelector('.btn-del')) return; // 已有按鈕
-      const tds = tr.querySelectorAll('td');
-      const needCell = (tds.length < 5); // 目前表頭有5欄
-      const td = needCell ? document.createElement('td') : tds[4];
-      td.innerHTML = '<button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑</button>';
-      if (needCell) tr.appendChild(td);
-      const btn = td.querySelector('.btn-del');
-      if (btn && !btn.dataset.bound){
-        btn.dataset.bound = '1';
-        btn.addEventListener('click', async (ev)=>{
-          ev.stopPropagation();
-          if (btn.dataset.busy === '1') return;
-          if (!window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。')) return;
-          btn.dataset.busy = '1';
-          btn.disabled = true;
-          const item = (window.CURRENT_ITEM && window.CURRENT_ITEM.public_id) ? window.CURRENT_ITEM : (tr.__item || null);
-          // 嘗試從列表 cell 取得 minimal item（後端會自動偵測資源型態）
-          const it = item || { public_id: (tr.dataset.public_id || '') };
-          const ok = await (window.handleDeleteBooking ? handleDeleteBooking(it, btn) : false);
-          if (ok) tr.remove(); else { btn.disabled=false; btn.dataset.busy='0'; }
-        });
-      }
-    });
-  }
-
-  // 觀察 tbody 變化，自動補「操作」欄
-  const tbody = document.querySelector('#tbl tbody');
-  if (tbody){
-    const mo = new MutationObserver(()=> setTimeout(ensureActions, 0));
-    mo.observe(tbody, { childList: true, subtree: true });
-  }
-  // 首次執行一次
-  document.addEventListener('DOMContentLoaded', ensureActions);
-  setTimeout(ensureActions, 500); // 再補一次防止延遲載入
-})();
-</script>
-<!-- END: action column fallback injector -->
-
 </body>
 </html>
