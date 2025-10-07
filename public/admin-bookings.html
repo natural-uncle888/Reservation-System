@@ -610,5 +610,101 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+
+<!-- BEGIN: delete-booking enhancement -->
+<script>
+/**
+ * Cloudinary delete-booking 前端增強：
+ * 1) 統一建立刪除 URL（自動帶 public_id、可選 resource_type）。
+ * 2) 提供 handleDeleteBooking(item, button) 以更好的 UI 與錯誤提示。
+ * 3) 可選：全域攔截 delete-booking 的 fetch，統一補上 x-admin-token。
+ *    （如不需要，可刪除此段攔截器）
+ */
+
+(function() {
+  function getResourceTypeFromItem(item) {
+    if (item && item.resource_type) return item.resource_type;
+    try {
+      const url = item?.secure_url || item?.url || '';
+      if (/\.(pdf|zip|json|csv|txt|docx?)($|\?)/i.test(url)) return 'raw';
+      if (/\.(mp4|mov|avi|mkv)($|\?)/i.test(url)) return 'video';
+      if (url) return 'image';
+    } catch (e) {}
+    return undefined;
+  }
+
+  function buildDeleteUrl(item) {
+    const url = new URL('/.netlify/functions/delete-booking', location.origin);
+    // 可含或不含副檔名，後端會自動處理
+    url.searchParams.set('public_id', item?.public_id || '');
+    const rt = getResourceTypeFromItem(item) || (window.CURRENT_ITEM && window.CURRENT_ITEM.resource_type);
+    if (rt) url.searchParams.set('resource_type', rt);
+    return url.toString();
+  }
+
+  async function handleDeleteBooking(item, button) {
+    const btn = button || null;
+    const keep = btn ? btn.textContent : null;
+    if (btn) { btn.disabled = true; btn.textContent = '刪除中…'; }
+
+    try {
+      const res = await fetch(buildDeleteUrl(item), {
+        method: 'DELETE',
+        headers: {
+          'x-admin-token': window.ADMIN_TOKEN || ''
+        }
+      });
+      let data = null;
+      try { data = await res.json(); } catch (e) {}
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          alert('刪除失敗（404）：Cloudinary 找不到該資源。\n' +
+                '請確認 public_id 與 resource_type。\n' +
+                '伺服器回應：' + (data?.error || 'Cloudinary not found'));
+        } else if (res.status === 401) {
+          alert('刪除失敗（未授權）：請重新登入管理介面或確認 x-admin-token。');
+        } else {
+          alert('刪除失敗（' + res.status + '）：' + (data?.error || 'Unknown error'));
+        }
+        return false;
+      }
+
+      // 成功：移除 UI
+      if (typeof window.removeItemFromList === 'function') window.removeItemFromList(item);
+      alert('已刪除：' + (data?.deleted_id || item?.public_id || '') + '（' + (data?.resource_type || 'unknown') + '）');
+      return true;
+    } catch (err) {
+      console.error(err);
+      alert('刪除過程發生錯誤：請檢查網路或稍後再試。');
+      return false;
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = keep || '刪除'; }
+    }
+  }
+
+  // 導出到全域以供既有程式呼叫
+  window.buildDeleteUrl = buildDeleteUrl;
+  window.handleDeleteBooking = handleDeleteBooking;
+
+  // （可選）攔截 delete-booking 的 fetch，統一補上 x-admin-token。
+  // 若你已有統一的 fetch 包裝器，可移除此段。
+  const _origFetch = window.fetch;
+  window.fetch = function(input, init) {
+    try {
+      const method = (init && init.method) || (input && input.method) || 'GET';
+      const isDelete = String(method).toUpperCase() === 'DELETE';
+      const urlStr = typeof input === 'string' ? input : (input && input.url) || '';
+      if (isDelete && /\/\.netlify\/functions\/delete-booking/.test(urlStr)) {
+        init = init || {};
+        init.headers = Object.assign({'x-admin-token': window.ADMIN_TOKEN || ''}, init.headers || {});
+      }
+    } catch (e) {}
+    return _origFetch.apply(this, arguments);
+  };
+
+})();
+</script>
+<!-- END: delete-booking enhancement -->
 </body>
 </html>
