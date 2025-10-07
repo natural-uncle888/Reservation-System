@@ -224,6 +224,29 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <!-- END: btn-del strong style -->
 
+
+<style>
+/* === FINAL MOBILE OVERRIDE (max-width:640px) ===
+   Buttons appear on the line BELOW the end date, side-by-side (50% / 50%). */
+@media (max-width: 640px){
+  .wrap .row{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    align-items: end !important;
+  }
+  /* Keyword / Start / End take full rows */
+  .wrap .row label.input:nth-of-type(1),
+  .wrap .row label.input:nth-of-type(2),
+  .wrap .row label.input:nth-of-type(3){
+    grid-column: 1 / -1 !important;
+  }
+  /* Buttons share the next row */
+  #btnSearch, #btnCsv{ width: 100% !important; }
+  #btnSearch{ grid-column: 1 / 2 !important; }
+  #btnCsv{    grid-column: 2 / 3 !important; }
+}
+</style>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
