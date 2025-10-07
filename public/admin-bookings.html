@@ -6,132 +6,30 @@
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <title>預約資料管理（Cloudinary）</title>
 <link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
-<style>
-    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
-    header{padding:26px 20px 8px}
-    h1{margin:0 0 4px;font-size:22px}
-    .sub{color:#64748b;font-size:13px}
-    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
-    .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
-    .input{display:flex;flex-direction:column;gap:6px}
-    .input input{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:220px}
-    .btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
-    .btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
-    .btn:disabled{opacity:.6;cursor:not-allowed}
-    table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
-    th,td{padding:12px 14px;font-size:14px;border-bottom:1px solid #e5e7eb}
-    th{background:#f9fafb;color:#374151;text-align:left;position:sticky;top:0}
-    tr:hover{background:#f6f9ff;cursor:pointer}
-    .grid{display:grid;grid-template-columns: 1fr 380px;gap:16px;align-items:start}
-    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}
-    .panel h3{margin:0 0 10px}
-    .fullview-wrap{display:flex;flex-direction:column;gap:12px}
-    .card.fullview{border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-    .card.fullview .card-h{padding:10px 12px;font-weight:600;color:#3b82f6}
-    .card.fullview .card-b{padding:8px 12px 12px}
-    .card.fullview .row{display:grid;grid-template-columns:160px 1fr;padding:6px 0;border-bottom:1px dotted #eef2f7}
-    .card.fullview .row:last-child{border-bottom:0}
-    .card.fullview .k{color:#6b7280}
-    .card.fullview .v{color:#111827;white-space:pre-wrap}
-    .email-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
-    .email-dialog{width:min(720px,92vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
-    .email-dialog h3{margin:0 0 10px}
-    .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
-    .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-  
-/* === Admin Login Modal === */
-.login-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:999}
-.login-dialog{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.18);width:min(520px,92vw);padding:18px 18px 16px;border:1px solid #e5e7eb}
-.login-h{margin:2px 4px 2px;font-size:20px;font-weight:700;color:#111827}
-.login-sub{margin:0 4px 14px;font-size:14px;color:#6b7280}
-.login-field{display:flex;flex-direction:column;gap:6px;margin:10px 4px}
-.login-label{font-size:13px;color:#374151}
-.login-input{height:40px;border-radius:12px;border:1px solid #e5e7eb;padding:8px 12px;background:#fff;outline:none}
-.login-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-.login-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-.btn-secondary{background:#f3f4f6;border:1px solid #e5e7eb;color:#111827;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
-.btn-primary{background:#0f172a;color:#fff;border:1px solid #111827;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed}
-.login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
-
-/* === Login Dialog 輸入框在手機時不全螢幕 === */
-@media (max-width: 640px){
-  .login-dialog{
-    max-width: 360px;
-    width: calc(100% - 32px);
-    margin: 0 auto;              /* 置中 */
-    border-radius: 16px;
+<style>@media (max-width: 640px){
+  .row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    align-items: end;
   }
-  .login-input input{
-    width: 100%;
-    box-sizing: border-box;
+
+  .row label.input:nth-of-type(1),
+  .row label.input:nth-of-type(2),
+  .row label.input:nth-of-type(3) {
+    grid-column: 1 / -1;
   }
-}
 
+  .row .btn-group {
+    display: flex;
+    gap: 10px;
+    grid-column: 1 / -1;
+  }
 
-/* === 頁面標題與說明置中 === */
-header {
-  text-align: center;
-}
-
-header h1 {
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-header .sub {
-  text-align: center;
-  display: block;
-  margin-bottom: 12px;
-  color: #64748b;
-}
-
-
-/* === 手機字體與可點性優化 === */
-@media (max-width: 640px){
-  html { font-size: 17px; }          /* 提升整體字級 */
-  body { line-height: 1.6; }
-
-  /* 標題與副標 */
-  header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  header .sub { font-size: 15px; line-height: 1.4; }
-
-  /* 表單輸入與按鈕 */
-  .input input { font-size: 16px; height: 48px; padding: 0 12px; }
-  .btn, .btn.primary { font-size: 16px; height: 48px; }
-
-  /* 表格可讀性 */
-  th { font-size: 15px; font-weight: 600; }
-  td { font-size: 15px; line-height: 1.5; }
-  tr { min-height: 48px; }
-
-  /* 詳情面板 key/value */
-  .card.fullview .k { font-size: 14px; }
-  .card.fullview .v { font-size: 16px; }
-}
-
-
-/* === 隱藏詳情面板內容 === */
-.card.fullview .card-b {
-  display: none;    /* 隱藏內容區 */
-}
-
-.card.fullview .card-h::after {
-  content: '';      
-}
-
-
-/* === Mobile layout: put buttons next to end-date === */
-@media (max-width: 640px){
-  .row{ display: grid; grid-template-columns: 1fr auto auto; gap:10px; align-items: end; }
-  .row label.input:nth-of-type(1){ grid-column: 1 / -1; } /* 關鍵字佔整行 */
-  .row label.input:nth-of-type(2){ grid-column: 1 / -1; } /* 起始日期佔整行 */
-  .row label.input:nth-of-type(3){ grid-column: 1 / 2;  } /* 結束日期在第1欄 */
-  #btnCsv{ grid-column: 2 / 3; }                          /* 結束日期右側 */
-  #btnSearch{ grid-column: 3 / 4; }                       /* 最右側且固定 */
-}
-
-</style>
+  .row .btn-group .btn {
+    flex: 1;
+  }
+}</style>
 <style>
 /* ====== Mobile-first: 通用可用性 ====== */
 :root{
@@ -203,7 +101,6 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <style>.card.fullview .card-b{display:block !important;}</style>
-
 <!-- BEGIN: btn-del strong style -->
 <style>
   .btn-del{
@@ -223,7 +120,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   .btn-del[disabled]{ opacity: .55 !important; cursor: not-allowed !important; }
 </style>
 <!-- END: btn-del strong style -->
-
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -254,9 +150,9 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
-<button class="btn primary" id="btnSearch">查詢</button>
-<button class="btn" id="btnCsv">匯出 CSV</button>
-</div>
+
+
+<div class="btn-group"><button class="btn" id="btnCsv">匯出 CSV</button><button class="btn primary" id="btnSearch">查詢</button></div></div>
 <div class="grid">
 <div>
 <div class="table-wrap"><table id="tbl">
@@ -269,7 +165,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <div id="preview" style="min-height:120px;"></div>
 <div style="margin-top:8px;display:flex;gap:8px">
 <button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
-<button id="btnDelete" class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+<button aria-label="刪除此筆預約" class="btn-del" id="btnDelete" title="刪除">🗑 刪除</button>
 </div>
 </div>
 </div>
@@ -710,7 +606,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
-
 <!-- BEGIN: global fetch interceptor for delete-booking -->
 <script>
 (function(){
@@ -738,6 +633,5 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 <!-- END: global fetch interceptor for delete-booking -->
-
-</body>
+</div></body>
 </html>
