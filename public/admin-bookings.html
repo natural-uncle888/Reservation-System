@@ -278,7 +278,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
 <button class="btn primary" id="btnSearch">查詢</button>
-<button class="btn" id="btnCsv">匯出 CSV</button>
+<button class="btn" id="btnCsv">匯出 TSV</button>
 </div>
 <div class="grid">
 <div>
@@ -767,7 +767,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <script>
 function exportCsv(rows){
-  let csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  // Build TSV text (Tab-separated), escape tabs/newlines minimally
+  const sanitize = v => String(v ?? '').replace(/	/g, ' ').replace(/
+?
+/g, ' ');
+  const tsvBody = rows.map(r => r.map(sanitize).join('	')).join('
+');
+
+  // Encode to UTF-16LE with BOM so Excel on Windows reads Chinese correctly
+  const text = tsvBody;
+  const bom = new Uint8Array([0xFF, 0xFE]);
+  const buf = new Uint8Array(bom.length + text.length * 2);
+  buf.set(bom, 0);
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    buf[bom.length + i*2] = code & 0xFF;           // low byte
+    buf[bom.length + i*2 + 1] = (code >> 8) & 0xFF; // high byte
+  }
+
+  const blob = new Blob([buf], {type: 'text/tab-separated-values;charset=utf-16le;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bookings.tsv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}"`).join(',')).join('\r\n');
   const blob = new Blob(["\ufeff" + csv], {type: 'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
