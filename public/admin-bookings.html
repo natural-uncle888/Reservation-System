@@ -121,15 +121,14 @@ header .sub {
 }
 
 
+/* === Mobile layout: put buttons next to end-date === */
 @media (max-width: 640px){
-  .row{ display:grid; grid-template-columns: 1fr auto auto; align-items:end; gap:10px; }
-  /* 關鍵字、起始日期整行 */
-  .row label.input{ grid-column: 1 / -1; }
-  /* 第三個 label（結束日期）只佔第一欄 */
-  .row label.input:nth-of-type(3){ grid-column: 1 / 2; }
-  /* 讓兩顆按鈕固定在結束日期右側，同一列 */
-  #btnCsv{ grid-column: 2 / 3; grid-row: 3; }
-  #btnSearch{ grid-column: 3 / 4; grid-row: 3; }
+  .row{ display: grid; grid-template-columns: 1fr auto auto; gap:10px; align-items: end; }
+  .row label.input:nth-of-type(1){ grid-column: 1 / -1; } /* 關鍵字佔整行 */
+  .row label.input:nth-of-type(2){ grid-column: 1 / -1; } /* 起始日期佔整行 */
+  .row label.input:nth-of-type(3){ grid-column: 1 / 2;  } /* 結束日期在第1欄 */
+  #btnCsv{ grid-column: 2 / 3; }                          /* 結束日期右側 */
+  #btnSearch{ grid-column: 3 / 4; }                       /* 最右側且固定 */
 }
 
 </style>
