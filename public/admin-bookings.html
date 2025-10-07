@@ -224,32 +224,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <!-- END: btn-del strong style -->
 
-
-<style>
-/* === FINAL MOBILE OVERRIDE (max-width:640px) ===
-   Force: buttons side-by-side on the line BELOW the end date.
-   This wins over any earlier rules. */
-@media (max-width: 640px){
-  .wrap .row{
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 10px !important;
-    align-items: end !important;
-  }
-  /* Keyword / Start / End each on its own line */
-  .wrap .row label.input:nth-of-type(1),
-  .wrap .row label.input:nth-of-type(2),
-  .wrap .row label.input:nth-of-type(3){
-    grid-column: 1 / -1 !important;
-  }
-  /* Buttons share the next row (50% / 50%) */
-  #btnSearch, #btnCsv{
-    width: 100% !important;
-  }
-  #btnSearch{ grid-column: 1 / 2 !important; }
-  #btnCsv{    grid-column: 2 / 3 !important; }
-}
-</style>
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
@@ -767,3 +741,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
+
+<script>
+function exportCsv(rows){
+  let csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob = new Blob(["\ufeff" + csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bookings.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
