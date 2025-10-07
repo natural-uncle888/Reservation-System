@@ -255,7 +255,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
 <button class="btn primary" id="btnSearch">查詢</button>
-<button class="btn" id="btnCsv">匯出 CSV</button>
+<button class="btn" id="btnCsv">匯出 XLSX</button>
 </div>
 <div class="grid">
 <div>
@@ -739,35 +739,36 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <!-- END: global fetch interceptor for delete-booking -->
 
-</body>
-</html>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
-
-function exportCsv(rows){
-  // Build CSV text with Windows line endings and "sep" hint for Excel
-  const csvBody = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\r\n');
-  const csvText = 'sep=,\r\n' + csvBody;
-
-  // Encode to UTF-16LE with BOM (Excel reliably detects this)
-  const bom = new Uint8Array([0xFF, 0xFE]);
-  const buf = new Uint8Array(bom.length + csvText.length * 2);
-  buf.set(bom, 0);
-  for (let i = 0; i < csvText.length; i++) {
-    const code = csvText.charCodeAt(i);
-    buf[bom.length + i*2] = code & 0xFF;        // low byte
-    buf[bom.length + i*2 + 1] = (code >> 8) & 0xFF; // high byte
+function exportXlsx(rows){
+  try {
+    // rows: Array<Array<any>>
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    // Optional: set column widths based on first 50 rows
+    const colWidths = [];
+    const sampleRows = rows.slice(0, 50);
+    for (let r of sampleRows){
+      r.forEach((cell, i)=>{
+        const len = String(cell ?? '').length;
+        colWidths[i] = Math.max(colWidths[i]||10, Math.min(50, len + 2));
+      });
+    }
+    if(colWidths.length) ws['!cols'] = colWidths.map(w => ({wch:w}));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'bookings');
+    XLSX.writeFile(wb, 'bookings.xlsx', {compression:true});
+  } catch (e){
+    console.error('XLSX export failed:', e);
+    alert('匯出 XLSX 失敗：' + e.message);
   }
-
-  const blob = new Blob([buf], {type: 'text/csv;charset=utf-16le;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'bookings.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
-
+// 兼容舊呼叫名稱
+function exportXlsx(rows){
+  return exportXlsx(rows);
+}
 </script>
+</body>
+</html>
