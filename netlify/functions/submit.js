@@ -6,7 +6,7 @@ function buildContext(p){
     // 基本
     name: __pick(p, ["customer_name","name","姓名"]),
     phone: __pick(p, ["phone","phone_number","mobile","tel","電話"]),
-    service: __pick(p, ["service","service_category","service_item","select_service","服務"]),
+    service: __pick(p, ["service","service_category","service_item","select_service","服務","服務類別"]),
     address: __pick(p, ["address","地址"]),
     area: __pick(p, ["area","city","region","地區"]),
     source: __pick(p, ["subject","page_title","page","來源"]),
@@ -19,7 +19,7 @@ function buildContext(p){
     // 加購/其他
     antifungus: __pick(p, ["antifungus","冷氣防霉抗菌處理","anti_mold"]),
     ozone: __pick(p, ["ozone","臭氧殺菌消毒"]),
-    extra_service: __pick(p, ["extra_service","其他清洗服務"]),
+    extra_service: __pick(p, ["extra_service","其他清洗服務","其他保養清洗"]),
     // 聯絡
     line_id: __pick(p, ["line_id","line","LINE","聯絡Line"]),
     fb_name: __pick(p, ["fb_name","facebook","FB","LINE & Facebook 姓名"]),
@@ -203,6 +203,45 @@ exports.handler = async (event) => {
   if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
   try{
     const p = parseBody(event);
+    // ---- 服務類別與其他清洗服務：欄位正規化（含同義詞）----
+    const pick = (...keys) => {
+      for (const k of keys) {
+        if (p[k] != null && String(p[k]).trim() !== "") return String(p[k]).trim();
+      }
+      return "";
+    };
+
+    // 主類別：同時接受「服務類別」「service」「service_item」「select_service」「服務」
+    p.service_category = nb(p.service_category) || pick("服務類別","service","service_item","select_service","服務");
+    // 兼容舊表單：若只有 service_category，補到 service；反之亦然
+    p.service = nb(p.service) || p.service_category;
+    if (!p.service_category) p.service_category = nb(p.service);
+
+    // 其他清洗服務（細項）：同時接受「extra_service」「其他清洗服務」「其他保養清洗」
+    (function normalizeExtraService(){
+      const raw = p.extra_service ?? p["其他清洗服務"] ?? p["其他保養清洗"];
+      if (raw == null || raw === "") return;
+      let items = [];
+      if (Array.isArray(raw)) {
+        items = raw;
+      } else if (typeof raw === "string") {
+        try {
+          // 支援 JSON 陣列字串
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) items = parsed;
+          else items = String(raw).split(/[,，、\s]+/);
+        } catch {
+          items = String(raw).split(/[,，、\s]+/);
+        }
+      } else {
+        items = [String(raw)];
+      }
+      // 去重、去空白
+      const set = new Set();
+      items.forEach(v => { const s = String(v).trim(); if (s) set.add(s); });
+      p.extra_service = Array.from(set);
+    })();
+
 
     // 欄位正規化：確保 LINE/FB 名稱能被讀到
     p.customer_name = p.customer_name || p.name;
