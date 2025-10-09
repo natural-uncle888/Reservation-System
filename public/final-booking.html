@@ -179,6 +179,8 @@
       }
 
       function preview(payload){
+        const has = (k)=>{const v=payload[k]; return !(v==null || v==='' || (Array.isArray(v)&&!v.length));};
+        /* SERVICE_FALLBACK */
         const tbody = document.querySelector('#preview tbody');
         tbody.innerHTML = '';
         const show = (k,label)=>{
@@ -191,6 +193,7 @@
         };
         // === 舊版完整欄位回填 ===
         show('service_category','服務類別');
+        if(!has('service_category')) show('service','服務類別');
         show('ac_type','冷氣類型');
         show('ac_count','清洗數量');
         show('indoor_floor','室內機所在樓層');

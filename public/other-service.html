@@ -114,6 +114,7 @@ html,body,.page{ width:100%; overflow-x:hidden }
 </style>
 </head>
 <body>
+<input type="hidden" name="service_category" value="其他保養清洗" />
 <div class="page">
   <div class="wrap">
     <div class="hero">
@@ -213,6 +214,17 @@ html,body,.page{ width:100%; overflow-x:hidden }
 </div>
 
 <script>
+
+    // FORCE_SERVICE_CATEGORY
+    (function(){
+      try{
+        const KEY='BOOKING_DATA';
+        const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+        if(!prev.service_category) prev.service_category = '其他保養清洗';
+        localStorage.setItem(KEY, JSON.stringify(prev));
+      }catch(e){}
+    })();
+    
   (function(){
     const KEY='BOOKING_DATA';
     const $=s=>document.querySelector(s);
