@@ -513,6 +513,7 @@ tr.innerHTML = `
   if (btn) {
     btn.addEventListener('click', async (ev)=>{
       ev.stopPropagation();
+      ev.preventDefault();
       if (btn.dataset.busy === '1') return;
       const confirmed = window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。');
       if (!confirmed) return;
