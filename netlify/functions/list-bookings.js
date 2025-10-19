@@ -1,116 +1,131 @@
-// netlify/functions/list-bookings.js
-const crypto = require("crypto");
 
-function verify(token, secret){
-  if(!token || !secret) return false;
-  const [data, sig] = String(token).split(".");
-  if(!data || !sig) return false;
-  const expect = crypto.createHmac("sha256", secret).update(data).digest("hex");
-  if (expect !== sig) return false;
-  try {
-    const json = JSON.parse(Buffer.from(data.replace(/-/g,"+").replace(/_/g,"/")+"===", "base64").toString("utf8"));
-    if (!json.exp || json.exp < Math.floor(Date.now()/1000)) return false;
-    return true;
-  } catch { return false; }
+// netlify/functions/list-bookings.js
+// 列出 Cloudinary 內以 booking* 為前綴的資產（支援分頁/搜尋/日期區間）
+// 需要環境變數：CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+// 可選：CLOUDINARY_BOOKING_PREFIX（預設 booking）
+// 安全性：如需簡易保護，可在此檢查自訂 header token（見下方 TODO）
+
+const PREFIX = process.env.CLOUDINARY_BOOKING_PREFIX || "booking";
+const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
+const API_KEY = process.env.CLOUDINARY_API_KEY;
+const API_SECRET = process.env.CLOUDINARY_API_SECRET;
+
+const SEARCH_URL = CLOUD_NAME
+  ? `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/resources/search`
+  : null;
+
+function buildExpression({ q, from, to }) {
+  const terms = [];
+  terms.push(`public_id:${PREFIX}*`);
+  if (from) terms.push(`created_at>=${from}`);
+  if (to) terms.push(`created_at<=${to}`);
+  if (q) {
+    // public_id 模糊搜尋
+    terms.push(`public_id~${q}`);
+  }
+  return terms.join(" AND ");
 }
 
-exports.handler = async (event) => {
+function basicAuthHeader(key, secret) {
+  const token = Buffer.from(`${key}:${secret}`).toString("base64");
+  return `Basic ${token}`;
+}
+
+exports.handler = async (event, context) => {
   try {
-    if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
-
-    const {
-      CLOUDINARY_CLOUD_NAME,
-      CLOUDINARY_API_KEY,
-      CLOUDINARY_API_SECRET,
-      ADMIN_JWT_SECRET
-    } = process.env;
-
-    const tok = event.headers["x-admin-token"] || event.headers["X-Admin-Token"];
-    if (!verify(tok, ADMIN_JWT_SECRET)) {
-      return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+    if (!CLOUD_NAME || !API_KEY || !API_SECRET) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Cloudinary credentials are not configured" }),
+        headers: { "Content-Type": "application/json" }
+      };
     }
 
-    let body = {};
-    try { body = JSON.parse(event.body || "{}"); } catch {}
+    // 權限保護：驗證 x-admin-token 簽名與時效
+    const tokenHeader = event.headers["x-admin-token"] || event.headers["X-Admin-Token"] || event.headers["x-Admin-Token"];
+    const SECRET = process.env.ADMIN_JWT_SECRET;
+    function verify(token){
+      if(!token || !SECRET) return false;
+      const [data, sig] = String(token).split(".");
+      if(!data || !sig) return false;
+      const expect = require("crypto").createHmac("sha256", SECRET).update(data).digest("hex");
+      if (expect !== sig) return false;
+      try {
+        const json = JSON.parse(Buffer.from(data.replace(/-/g,"+").replace(/_/g,"/")+"===", "base64").toString("utf8"));
+        if (!json.exp || json.exp < Math.floor(Date.now()/1000)) return false;
+        return true;
+      } catch { return false; }
+    }
+    if (!verify(tokenHeader)) {
+      return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }), headers: { "Content-Type": "application/json" } };
+    }
 
-    const keyword = String(body.keyword || "").toLowerCase().trim();
-    const startDate = body.startDate ? new Date(body.startDate) : null;
-    const endDate = body.endDate ? new Date(body.endDate) : null;
+    const params = new URLSearchParams(event.queryStringParameters || {});
+    const cursor = params.get("cursor") || null;
+    const q = params.get("q") || "";
+    const from = params.get("from") || "";
+    const to = params.get("to") || "";
+    const limitRaw = parseInt(params.get("limit") || "30", 10);
+    const max_results = Math.min(isFinite(limitRaw) ? limitRaw : 30, 100);
 
-    const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/resources/raw?max_results=500`;
-    const auth = "Basic " + Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString("base64");
+    const expression = buildExpression({ q, from, to });
 
-    const rawResp = await fetch(url, {
+    const payload = {
+      expression,
+      max_results,
+      sort_by: [{ created_at: "desc" }],
+      with_field: ["context","metadata"],
+    };
+    if (cursor) payload.next_cursor = cursor;
+
+    const resp = await fetch(SEARCH_URL, {
+      method: "POST",
       headers: {
-        Authorization: auth
-      }
+        "Authorization": basicAuthHeader(API_KEY, API_SECRET),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
 
-    if (!rawResp.ok) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Failed to list resources" }) };
+    if (!resp.ok) {
+      const text = await resp.text();
+      return {
+        statusCode: resp.status,
+        body: JSON.stringify({ error: "Cloudinary search failed", detail: text }),
+        headers: { "Content-Type": "application/json" }
+      };
     }
 
-    const { resources = [] } = await rawResp.json();
-    const result = [];
-
-    for (const it of resources) {
-      let context = {};
-
-      try {
-        if (typeof it.context === "string") {
-          context = Object.fromEntries(
-            it.context.split("|").map(kv => kv.split("=").map(x => decodeURIComponent(x.trim())))
-          );
-        } else if (typeof it.context === "object") {
-          context = it.context.custom || it.context || {};
-        }
-      } catch {}
-
-      const created = new Date(it.created_at);
-      if (startDate && created < startDate) continue;
-      if (endDate && created > endDate) continue;
-
-      const fullText = [
-        context.name,
-        context.phone,
-        context.line,
-        context.address,
-        it.public_id,
-        context.service,
-        context.note
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      if (keyword && !fullText.includes(keyword)) continue;
-
-      result.push({
-        public_id: it.public_id,
-        created_at: it.created_at,
-        context,
-        metadata: it.metadata || {},
-        resource_type: it.resource_type,
-        type: it.type
-      });
-
-      if (result.length >= 50) break;
-    }
+    const data = await resp.json();
+    const items = (data.resources || []).map(x => ({
+      public_id: x.public_id,
+      created_at: x.created_at,
+      bytes: x.bytes,
+      resource_type: x.resource_type, // image / video / raw
+      type: x.type, // upload 等
+      format: x.format, // jpg/json/pdf…
+      url: x.url,
+      secure_url: x.secure_url,
+      context: x.context || null,
+      metadata: x.metadata || null,
+      width: x.width,
+      height: x.height,
+    }));
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        ok: true,
-        result
-      })
+        items,
+        next_cursor: data.next_cursor || null,
+        count: items.length,
+      }),
+      headers: { "Content-Type": "application/json" }
     };
-
   } catch (e) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: e?.message || String(e)
-      })
+      body: JSON.stringify({ error: e && e.message ? e.message : String(e) }),
+      headers: { "Content-Type": "application/json" }
     };
   }
 };
