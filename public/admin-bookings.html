@@ -203,7 +203,6 @@ tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f
 body.body--modal-open{ height:100dvh; overflow:hidden; }
 </style>
 <style>.card.fullview .card-b{display:block !important;}</style>
-
 <!-- BEGIN: btn-del strong style -->
 <style>
   .btn-del{
@@ -223,8 +222,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   .btn-del[disabled]{ opacity: .55 !important; cursor: not-allowed !important; }
 </style>
 <!-- END: btn-del strong style -->
-
-
 <style>
 /* === FINAL MOBILE OVERRIDE (max-width:640px) ===
    Force: buttons side-by-side on the line BELOW the end date.
@@ -295,7 +292,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <div id="preview" style="min-height:120px;"></div>
 <div style="margin-top:8px;display:flex;gap:8px">
 <button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
-<button id="btnDelete" class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+<button aria-label="刪除此筆預約" class="btn-del" id="btnDelete" title="刪除">🗑 刪除</button>
 </div>
 </div>
 </div>
@@ -736,7 +733,6 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
-
 <!-- BEGIN: global fetch interceptor for delete-booking -->
 <script>
 (function(){
@@ -762,8 +758,39 @@ document.addEventListener("DOMContentLoaded", function () {
     return _origFetch.apply(this, arguments);
   };
 })();
+
+
+
+document.body.addEventListener("click", async (ev) => {
+  if (!ev.target.matches(".btn-status")) return;
+  ev.stopPropagation();
+  const btn = ev.target;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  if (!id || !action) return;
+  const confirmed = confirm(`確定要標記為「${action === "scheduled" ? "已安排" : "已取消"}」嗎？`);
+  if (!confirmed) return;
+  const res = await fetch('/.netlify/functions/update-booking-context', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-token": ADMIN_TOKEN
+    },
+    body: JSON.stringify({
+      public_id: id,
+      resource_type: "raw",
+      context: { status: action }
+    })
+  });
+  const result = await res.json();
+  if (res.ok) {
+    alert("✅ 已更新狀態！");
+    doSearch();
+  } else {
+    alert("❌ 更新失敗：" + (result.error || "未知錯誤"));
+  }
+});
 </script>
 <!-- END: global fetch interceptor for delete-booking -->
-
-</body>
+</div></body>
 </html>
