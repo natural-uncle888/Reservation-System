@@ -513,7 +513,6 @@ tr.innerHTML = `
   if (btn) {
     btn.addEventListener('click', async (ev)=>{
       ev.stopPropagation();
-      ev.preventDefault();
       if (btn.dataset.busy === '1') return;
       const confirmed = window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。');
       if (!confirmed) return;
@@ -599,9 +598,11 @@ if (btnStatus) {
           "x-admin-token": ADMIN_TOKEN
         },
         body: JSON.stringify({
-          public_id: it.public_id,
-          context: { status: newStatus }
-        })
+         public_id: it.public_id,
+         resource_type: it.resource_type || "raw",
+         type: it.type || "upload",
+         context: { status: newStatus }
+       })
       });
     } catch (e) {
       alert("更新狀態失敗，請稍後再試");
