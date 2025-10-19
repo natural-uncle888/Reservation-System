@@ -16,13 +16,30 @@ const SEARCH_URL = CLOUD_NAME
 
 function buildExpression({ q, from, to }) {
   const terms = [];
+
+  // 基本條件：public_id 開頭符合 booking*
   terms.push(`public_id:${PREFIX}*`);
+
+  // 日期區間條件
   if (from) terms.push(`created_at>=${from}`);
   if (to) terms.push(`created_at<=${to}`);
+
+  // 關鍵字模糊搜尋（public_id 與 context 欄位）
   if (q) {
-    // public_id 模糊搜尋
-    terms.push(`public_id~${q}`);
+    const keyword = String(q).trim();
+    const fieldsToSearch = [
+      "public_id",
+      "context.name",
+      "context.phone",
+      "context.service",
+      "context.address",
+      "context.brand",
+      "context.note"
+    ];
+    const fuzzySearch = fieldsToSearch.map(field => `${field}~${keyword}`);
+    terms.push(`(${fuzzySearch.join(" OR ")})`);
   }
+
   return terms.join(" AND ");
 }
 
