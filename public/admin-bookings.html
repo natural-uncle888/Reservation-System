@@ -471,7 +471,15 @@ if (data.service_description) {
   ));
   mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
-
+function statusLabel(code) {
+  switch (code) {
+    case "scheduled": return "已安排";
+    case "done": return "已完成";
+    case "cancelled": return "已取消";
+    default: return "未處理"; // pending
+  }
+}
+    
 async function doSearch(){
   const payload = { q: $("#q").value.trim(), start: $("#start").value.trim(), end: $("#end").value.trim(), max: 50 };
   const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
@@ -483,13 +491,19 @@ async function doSearch(){
   for (const it of list){
     const ctx = normalizeContext(it);
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-    <td>${ctx.name || "(未填)"}</td>
-    <td>${ctx.phone || ""}</td>
-    <td>${ctx.service || ""}</td>
-    <td>${fmtDate(it.created_at)}</td>
-    <td><button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button></td>
-  `;
+   // 取得狀態，沒有的話預設顯示「未處理」
+const status = (it.context?.custom?.status || it.context?.status || "pending");
+
+tr.innerHTML = `
+  <td>${ctx.name || "(未填)"}</td>
+  <td>${ctx.phone || ""}</td>
+  <td>${ctx.service || ""}</td>
+  <td>${fmtDate(it.created_at)}</td>
+  <td>
+    <button class="btn-status status-${status}">${statusLabel(status)}</button>
+    <button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+  </td>
+`;
 
   // 點整列仍可看詳情
   tr.onclick = ()=> openDetails(it);
@@ -499,6 +513,7 @@ async function doSearch(){
   if (btn) {
     btn.addEventListener('click', async (ev)=>{
       ev.stopPropagation();
+      ev.preventDefault();
       if (btn.dataset.busy === '1') return;
       const confirmed = window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。');
       if (!confirmed) return;
@@ -552,7 +567,48 @@ ok = resp.ok;
       }
     });
   }
+// === 狀態按鈕行為 ===
+const btnStatus = tr.querySelector(".btn-status");
+if (btnStatus) {
+  btnStatus.addEventListener("click", async (ev) => {
+    ev.stopPropagation(); // 避免觸發點擊列事件
+    ev.preventDefault();
 
+    // 依序切換狀態
+    const nextStatus = {
+      pending: "scheduled",
+      scheduled: "done",
+      done: "cancelled",
+      cancelled: "pending"
+    };
+
+    let current = btnStatus.textContent.trim();
+    let code = Object.keys(nextStatus).find(key => statusLabel(key) === current) || "pending";
+    let newStatus = nextStatus[code];
+
+    // 更新按鈕外觀
+    btnStatus.textContent = statusLabel(newStatus);
+    btnStatus.className = `btn-status status-${newStatus}`;
+
+    // 呼叫 API 更新 Cloudinary
+    try {
+      await fetch("/.netlify/functions/update-booking-context", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": ADMIN_TOKEN
+        },
+        body: JSON.stringify({
+          public_id: it.public_id,
+          context: { status: newStatus }
+        })
+      });
+    } catch (e) {
+      alert("更新狀態失敗，請稍後再試");
+    }
+  });
+}
+      
   tbody.appendChild(tr);
 }
 $("#foot").textContent = `共 ${data.total_count ?? list.length} 筆`;
@@ -736,6 +792,22 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 </script>
+    <style>
+  /* === Status Button 狀態按鈕 === */
+  .btn-status {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  .status-pending { background: #9ca3af; color: white; }   /* 未處理 */
+  .status-scheduled { background: #3b82f6; color: white; } /* 已安排 */
+  .status-done { background: #10b981; color: white; }      /* 已完成 */
+  .status-cancelled { background: #ef4444; color: white; } /* 已取消 */
+</style>
 
 <!-- BEGIN: global fetch interceptor for delete-booking -->
 <script>
