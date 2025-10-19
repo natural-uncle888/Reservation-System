@@ -1,22 +1,44 @@
+
 // netlify/functions/list-bookings.js
 const crypto = require("crypto");
 
-function verify(token, secret){
-  if(!token || !secret) return false;
+function verify(token, secret) {
+  if (!token || !secret) return false;
   const [data, sig] = String(token).split(".");
-  if(!data || !sig) return false;
+  if (!data || !sig) return false;
   const expect = crypto.createHmac("sha256", secret).update(data).digest("hex");
   if (expect !== sig) return false;
   try {
     const json = JSON.parse(Buffer.from(data.replace(/-/g,"+").replace(/_/g,"/")+"===", "base64").toString("utf8"));
     if (!json.exp || json.exp < Math.floor(Date.now()/1000)) return false;
     return true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
+}
+
+function parseContext(rawCtx) {
+  try {
+    if (typeof rawCtx === "object" && rawCtx !== null) {
+      return rawCtx.custom || rawCtx || {};
+    }
+    if (typeof rawCtx === "string") {
+      return Object.fromEntries(
+        rawCtx.split("|")
+          .map(kv => kv.split("="))
+          .filter(kv => kv.length === 2)
+          .map(([k, v]) => [k.trim(), decodeURIComponent(v.trim())])
+      );
+    }
+  } catch {}
+  return {};
 }
 
 exports.handler = async (event) => {
   try {
-    if (event.httpMethod !== "POST") return { statusCode: 405, body: "Method Not Allowed" };
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" };
+    }
 
     const {
       CLOUDINARY_CLOUD_NAME,
@@ -25,8 +47,8 @@ exports.handler = async (event) => {
       ADMIN_JWT_SECRET
     } = process.env;
 
-    const tok = event.headers["x-admin-token"] || event.headers["X-Admin-Token"];
-    if (!verify(tok, ADMIN_JWT_SECRET)) {
+    const token = event.headers["x-admin-token"] || event.headers["X-Admin-Token"];
+    if (!verify(token, ADMIN_JWT_SECRET)) {
       return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
     }
 
@@ -40,36 +62,26 @@ exports.handler = async (event) => {
     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/resources/raw?max_results=500`;
     const auth = "Basic " + Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString("base64");
 
-    const rawResp = await fetch(url, {
-      headers: {
-        Authorization: auth
-      }
+    const resp = await fetch(url, {
+      headers: { Authorization: auth }
     });
 
-    if (!rawResp.ok) {
-      return { statusCode: 500, body: JSON.stringify({ error: "Failed to list resources" }) };
+    if (!resp.ok) {
+      return { statusCode: 500, body: JSON.stringify({ error: "Failed to fetch from Cloudinary" }) };
     }
 
-    const { resources = [] } = await rawResp.json();
+    const { resources = [] } = await resp.json();
     const result = [];
 
     for (const it of resources) {
-      let context = {};
-
-      try {
-        if (typeof it.context === "string") {
-          context = Object.fromEntries(
-            it.context.split("|").map(kv => kv.split("=").map(x => decodeURIComponent(x.trim())))
-          );
-        } else if (typeof it.context === "object") {
-          context = it.context.custom || it.context || {};
-        }
-      } catch {}
-
+      const context = parseContext(it.context);
       const created = new Date(it.created_at);
+
+      // 日期過濾
       if (startDate && created < startDate) continue;
       if (endDate && created > endDate) continue;
 
+      // 建立搜尋文字
       const fullText = [
         context.name,
         context.phone,
@@ -99,18 +111,13 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        ok: true,
-        result
-      })
+      body: JSON.stringify({ ok: true, result })
     };
 
-  } catch (e) {
+  } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: e?.message || String(e)
-      })
+      body: JSON.stringify({ error: err?.message || String(err) })
     };
   }
 };
