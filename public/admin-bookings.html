@@ -286,11 +286,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <div class="grid">
 <div>
 <div class="table-wrap"><table id="tbl">
-<thead><tr>
-    <th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th><th>操作</th>
-    <th>狀態</th>
-    <th>操作</th>
-</tr></thead>
+<thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>建立時間</th><th>操作</th></tr></thead>
 <tbody></tbody>
 </table></div>
 <div id="foot" style="margin-top:8px;color:#6b7280"></div>
@@ -771,35 +767,3 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 </html>
-
-<script>
-document.body.addEventListener("click", async (ev) => {
-  if (!ev.target.matches(".btn-status")) return;
-  ev.stopPropagation();
-  const btn = ev.target;
-  const id = btn.dataset.id;
-  const action = btn.dataset.action;
-  if (!id || !action) return;
-  const confirmed = confirm(`確定要標記為「${action === "scheduled" ? "已安排" : "已取消"}」嗎？`);
-  if (!confirmed) return;
-  const res = await fetch('/.netlify/functions/update-booking-context', {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-token": ADMIN_TOKEN
-    },
-    body: JSON.stringify({
-      public_id: id,
-      resource_type: "raw",
-      context: { status: action }
-    })
-  });
-  const result = await res.json();
-  if (res.ok) {
-    alert("✅ 已更新狀態！");
-    doSearch();
-  } else {
-    alert("❌ 更新失敗：" + (result.error || "未知錯誤"));
-  }
-});
-</script>
