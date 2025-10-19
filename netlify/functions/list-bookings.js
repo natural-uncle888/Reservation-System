@@ -76,11 +76,10 @@ exports.handler = async (event) => {
       const context = parseContext(it.context);
       const created = new Date(it.created_at);
 
-      // 日期篩選
       if (startDate && created < startDate) continue;
       if (endDate && created > endDate) continue;
 
-      // 搜尋文字
+      // 改善：允許空字串（保留搜尋空內容資料），不要 .filter(Boolean)
       const fullText = [
         context.name,
         context.phone,
@@ -89,8 +88,9 @@ exports.handler = async (event) => {
         it.public_id,
         context.service,
         context.note
-      ].filter(Boolean).join(" ").toLowerCase();
+      ].filter(v => v != null).join(" ").toLowerCase();
 
+      // 若有 keyword 才篩選
       if (keyword && !fullText.includes(keyword)) continue;
 
       result.push({
