@@ -51,13 +51,6 @@ exports.handler = async (event) => {
       return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
     }
 
-    let body = {};
-    try { body = JSON.parse(event.body || "{}"); } catch {}
-
-    const keyword = String(body.keyword || "").toLowerCase().trim();
-    const startDate = body.startDate ? new Date(body.startDate) : null;
-    const endDate = body.endDate ? new Date(body.endDate) : null;
-
     const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/resources/raw?max_results=500`;
     const auth = "Basic " + Buffer.from(`${CLOUDINARY_API_KEY}:${CLOUDINARY_API_SECRET}`).toString("base64");
 
@@ -70,28 +63,11 @@ exports.handler = async (event) => {
     }
 
     const { resources = [] } = await resp.json();
+
     const result = [];
 
     for (const it of resources) {
       const context = parseContext(it.context);
-      const created = new Date(it.created_at);
-
-      if (startDate && created < startDate) continue;
-      if (endDate && created > endDate) continue;
-
-      // 改善：允許空字串（保留搜尋空內容資料），不要 .filter(Boolean)
-      const fullText = [
-        context.name,
-        context.phone,
-        context.line,
-        context.address,
-        it.public_id,
-        context.service,
-        context.note
-      ].filter(v => v != null).join(" ").toLowerCase();
-
-      // 若有 keyword 才篩選
-      if (keyword && !fullText.includes(keyword)) continue;
 
       result.push({
         public_id: it.public_id,
