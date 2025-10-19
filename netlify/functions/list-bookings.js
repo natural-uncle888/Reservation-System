@@ -15,6 +15,7 @@ const SEARCH_URL = CLOUD_NAME
 
 function buildExpression({ q, from, to }) {
   const terms = [];
+  terms.push(`(resource_type=raw OR resource_type=image)`);
   terms.push(`public_id:${PREFIX}*`);
   if (from) terms.push(`created_at>=${from}`);
   if (to) terms.push(`created_at<=${to}`);
