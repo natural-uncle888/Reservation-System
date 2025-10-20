@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="zh-Hant">
@@ -38,7 +39,7 @@
     .email-dialog h3{margin:0 0 10px}
     .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
     .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-  
+
 /* highlight style for matched text */
 .highlight { background: yellow; padding: 0 2px; border-radius: 2px; }
 
@@ -432,21 +433,49 @@ function escapeHtmlForRender(s){
 /* escape regex special chars */
 function escapeRegExp(s){ return String(s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-/* highlight matched query in given text (returns safe HTML) */
-function highlightMatch(text, q){
+/* highlight for normal text fields (name, service): case-insensitive substring highlight */
+function highlightTextMatch(text, q){
   if(!q) return escapeHtmlForRender(text || '');
   const escapedQuery = String(q || '').trim();
   if(!escapedQuery) return escapeHtmlForRender(text || '');
   const re = new RegExp(escapeRegExp(escapedQuery), 'gi');
-  // operate on escaped HTML to avoid injecting tags
   const escapedText = escapeHtmlForRender(text || '');
   return escapedText.replace(re, (m) => `<span class="highlight">${m}</span>`);
 }
 
-/* renderFilteredList: render rows filtered by CURRENT keyword (q) using name field */
+/* normalize digits in a string (phone) */
+function digitsOnly(s){ return String(s || '').replace(/\D/g, ''); }
+
+/*
+  highlightPhoneMatch:
+  - q may contain digits; match those digits in the displayed phone string even if phone contains hyphens/spaces.
+  - Approach: build a regex that allows non-digit chars between digits, e.g. '0912' -> /0\D*?9\D*?1\D*?2/gi
+  - Replace matched substring in the original displayed phone string with <span class="highlight">...</span>.
+*/
+function highlightPhoneMatch(phoneText, q){
+  const raw = String(phoneText || '');
+  if(!q) return escapeHtmlForRender(raw || '');
+  const qDigits = String(q).replace(/\D/g, '');
+  if(!qDigits) return escapeHtmlForRender(raw || '');
+  // build pattern allowing non-digit between each digit
+  const pattern = qDigits.split('').map(d => escapeRegExp(d)).join('\\D*?');
+  const re = new RegExp(pattern, 'gi');
+  const escapedPhone = escapeHtmlForRender(raw);
+  // We want to replace the matched portion(s) in the original phone text.
+  // But working on escaped text: we map replacement using function on matched substring.
+  return escapedPhone.replace(re, (m) => `<span class="highlight">${m}</span>`);
+}
+
+/* Main renderer: filter by name OR phone OR service.
+   - q: user input
+   - name match: substring (case-insensitive)
+   - phone match: digits-only substring (partial digits allowed)
+   - service match: substring (case-insensitive)
+*/
 function renderFilteredList(items){
   const q = String($("#q").value || "").trim();
   const qLower = q.toLowerCase();
+  const qDigits = q.replace(/\D/g, '');
   const tbody = $("#tbl tbody");
   tbody.innerHTML = ""; // clear
 
@@ -454,16 +483,35 @@ function renderFilteredList(items){
   for (const it of (items || [])){
     const ctx = normalizeContext(it);
     const name = String(ctx.name || "");
-    // if query exists, require name contains (case-insensitive)
-    if (q && !name.toLowerCase().includes(qLower)) continue;
+    const phone = String(ctx.phone || ctx.mobile || ctx.phone_number || "");
+    const service = String(ctx.service || ctx.service_description || "");
+
+    // decide match
+    let matched = false;
+    // name match (case-insensitive substring)
+    if (!q) matched = true;
+    else {
+      if (name && name.toLowerCase().includes(qLower)) matched = true;
+      // phone: compare digits only
+      else if (qDigits && digitsOnly(phone).includes(qDigits)) matched = true;
+      // service match (case-insensitive)
+      else if (service && service.toLowerCase().includes(qLower)) matched = true;
+    }
+
+    if (!matched) continue;
 
     // build row
     const tr = document.createElement("tr");
+
+    const nameCellHtml = highlightTextMatch(name || "(未填)", q);
+    const phoneCellHtml = highlightPhoneMatch(phone || "", q);
+    const serviceCellHtml = highlightTextMatch(service || "", q);
+
     const status = (it.context?.custom?.status || it.context?.status || "pending");
     tr.innerHTML = `
-      <td class="td-name">${ highlightMatch(name, q) || "(未填)" }</td>
-      <td>${ escapeHtmlForRender(ctx.phone || "") }</td>
-      <td>${ escapeHtmlForRender(ctx.service || "") }</td>
+      <td class="td-name">${ nameCellHtml }</td>
+      <td>${ phoneCellHtml }</td>
+      <td>${ serviceCellHtml }</td>
       <td>${ escapeHtmlForRender(fmtDate(it.created_at) || "") }</td>
       <td>
         <button class="btn-status status-${status}">${statusLabel(status)}</button>
@@ -471,10 +519,10 @@ function renderFilteredList(items){
       </td>
     `;
 
-    // click row to open details
+    // keep prior behaviors (click to open details, delete, status update)
     tr.onclick = ()=> openDetails(it);
 
-    // delete button behavior (same logic as original)
+    // delete button
     const btn = tr.querySelector('.btn-del');
     if (btn) {
       btn.addEventListener('click', async (ev)=>{
@@ -571,23 +619,20 @@ function renderFilteredList(items){
   $("#foot").textContent = `共 ${shown} 筆`;
 }
 
-/* attach input listener to keyword field to live-filter current list */
+/* live input listener kept (calls renderFilteredList on input) */
 $("#q").addEventListener("input", () => {
   if (!Array.isArray(CURRENT_LIST)) return;
   renderFilteredList(CURRENT_LIST);
 });
-
-/* -----------------------------
-   end of new helpers
-   ----------------------------- */
-
+</script>
+<script>
 function kv(label, value){ const s=(v)=>(v==null||String(v).trim()==="")?"—":String(v); return `<div class="row"><div class="k">${label}</div><div class="v">${s(value)}</div></div>`; }
 function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${title}</div><div class="card-b">${rowsHtml}</div></div>`; }
 function renderFullContent(item, mount){
   const data = normalizeContext(item);
   const blocks = [];
-  
-  
+
+
 if (data.service === "冷氣清洗") {
   blocks.push(sectionCard("服務資訊",
     kv("服務類別", data.service) +
@@ -645,7 +690,7 @@ function statusLabel(code) {
     default: return "未處理"; // pending
   }
 }
-    
+
 async function doSearch(){
   const payload = { q: $("#q").value.trim(), start: $("#start").value.trim(), end: $("#end").value.trim(), max: 50 };
   const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
@@ -687,7 +732,7 @@ $("#btnPaste").onclick = ()=>{
   if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
   $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
 };
-$("#emailCancel").onclick = ()=> $("#emailModal").style.display="none";
+$("#emailCancel").onclick = ()=> $("#emailModal").style.display = "none";
 function escapeHtml(s){
   return String(s)
     .replace(/&/g, '&amp;')
