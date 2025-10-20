@@ -1,7 +1,6 @@
 // netlify/functions/list-bookings.js
-// Modified to search q against public_id, context.* (name/phone) and metadata.* (phone)
-// Requires env: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
-// Keeps existing behavior: date range, pagination, admin token verify
+// Modified: search q against public_id, context.* (name/phone/service) and metadata.* (phone/service)
+// env required: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, ADMIN_JWT_SECRET
 
 const PREFIX = process.env.CLOUDINARY_BOOKING_PREFIX || "booking";
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
@@ -18,16 +17,12 @@ function basicAuthHeader(key, secret) {
 }
 
 /* escape reserved chars in Cloudinary search expression
-   - If term contains whitespace or reserved chars, we'll return a quoted version:
-     e.g. "王 小" => "\"王 小\""
-   - We also escape backslashes and double quotes inside the term.
+   If term contains whitespace or reserved chars, use quoted form.
 */
 function escapeForExpression(term){
   if(term == null) return "";
   let s = String(term).trim();
-  // escape backslash and double-quote for quoted form
   s = s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  // reserved / special characters per docs: !(){}[]*^~?:\= & >< and whitespace
   const reservedRe = /[\!\(\)\{\}\[\]\*\^\~\?\:\=\\\&\>\<\s]/;
   if (reservedRe.test(s)) {
     return `"${s}"`;
@@ -35,45 +30,41 @@ function escapeForExpression(term){
   return s;
 }
 
-/* Build expression: includes public_id prefix + optional created_at range.
-   If q present, build a compound OR clause searching name/phone keys in context/metadata.
-   Keys chosen to match what submit/normalizeContext uses (name, customer_name, fullname,
-   phone, mobile, phone_number, tel, metadata.phone etc.)
-*/
 function buildExpression({ q, from, to }) {
   const terms = [];
   terms.push(`public_id:${PREFIX}*`);
-  if (from) {
-    // assume caller gives a date-like string; Cloudinary expects ISO-like or comparable string.
-    terms.push(`created_at>=${from}`);
-  }
-  if (to) {
-    terms.push(`created_at<=${to}`);
-  }
+  if (from) terms.push(`created_at>=${from}`);
+  if (to) terms.push(`created_at<=${to}`);
 
   if (q) {
     const qSafe = escapeForExpression(q);
-    // list of candidate fields to try
+    // candidate fields: name-like, phone-like, and service-like keys in context / metadata
     const orParts = [
       `public_id~${qSafe}`,
-      // context (contextual metadata / custom)
+      // name variants
       `context.name~${qSafe}`,
       `context.customer_name~${qSafe}`,
       `context.fullname~${qSafe}`,
       `context.姓名~${qSafe}`,
-      // common phone-like keys in context
+      // phone variants in context
       `context.phone~${qSafe}`,
       `context.phone_number~${qSafe}`,
       `context.mobile~${qSafe}`,
       `context.tel~${qSafe}`,
       `context.電話~${qSafe}`,
-      // metadata (structured/custom metadata)
+      // phone variants in metadata
       `metadata.phone~${qSafe}`,
       `metadata.mobile~${qSafe}`,
       `metadata.tel~${qSafe}`,
-      `metadata.電話~${qSafe}`
+      `metadata.電話~${qSafe}`,
+      // service / category variants
+      `context.service~${qSafe}`,
+      `context.service_item~${qSafe}`,
+      `context.service_category~${qSafe}`,
+      `metadata.service~${qSafe}`,
+      `metadata.service_item~${qSafe}`,
+      `metadata.service_category~${qSafe}`
     ];
-    // join as a grouped OR clause
     terms.push(`(${orParts.join(" OR ")})`);
   }
 
@@ -90,7 +81,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // verify x-admin-token (same simple HMAC-based check as before)
+    // verify x-admin-token (simple HMAC-like scheme used previously)
     const tokenHeader = (event.headers && (event.headers["x-admin-token"] || event.headers["X-Admin-Token"] || event.headers["x-Admin-Token"])) || "";
     const SECRET = process.env.ADMIN_JWT_SECRET;
     function verify(token){
@@ -110,29 +101,27 @@ exports.handler = async (event, context) => {
       return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }), headers: { "Content-Type": "application/json" } };
     }
 
-    // --- Read params: support both GET query params and POST JSON body ---
+    // read params (POST JSON preferred, otherwise query string)
     let q = "";
     let from = "";
     let to = "";
     let cursor = null;
     let max_results = 30;
 
-    // prefer POST JSON body if present
     if (event.httpMethod && event.httpMethod.toUpperCase() === "POST" && event.body) {
       try {
         const jb = typeof event.body === "string" ? JSON.parse(event.body) : event.body;
         q = jb.q || jb.q === "" ? String(jb.q) : (jb.query || jb.q || "");
-        from = jb.start || jb.from || jb.start_date || jb.from_date || jb.start || jb.from || "";
+        from = jb.start || jb.from || jb.start_date || jb.from_date || "";
         to = jb.end || jb.to || jb.end_date || jb.to_date || "";
         cursor = jb.cursor || null;
-        const rawLimit = parseInt(jb.limit || jb.max || jb.max_results || jb.limit || 30, 10);
+        const rawLimit = parseInt(jb.limit || jb.max || jb.max_results || 30, 10);
         max_results = Math.min(isFinite(rawLimit) ? rawLimit : 30, 100);
       } catch (e) {
-        // fallback to query string parse below
+        // ignore parse error and fallback
       }
     }
 
-    // if any empty, fallback to queryStringParameters (GET)
     if ((!q && !from && !to && !cursor) && event.queryStringParameters) {
       const params = new URLSearchParams(event.queryStringParameters || {});
       cursor = params.get("cursor") || null;
