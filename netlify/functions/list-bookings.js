@@ -66,8 +66,8 @@ function parseDateToIso(dateStr, isEnd=false){
 function buildExpression({ q, fromIso, toIso }) {
   const terms = [];
   terms.push(`public_id:${PREFIX}*`);
-  if (fromIso) terms.push(`created_at>=${fromIso}`);
-  if (toIso) terms.push(`created_at<=${toIso}`);
+  if (fromIso) terms.push(`created_at>="${fromIso}"`);
+  if (toIso) terms.push(`created_at<="${toIso}"`);
 
   if (q) {
     const qSafe = escapeForExpression(q);
