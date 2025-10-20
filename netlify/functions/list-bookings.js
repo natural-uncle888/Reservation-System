@@ -1,5 +1,7 @@
+
 // netlify/functions/list-bookings.js
 // Modified: search q against public_id, context.* (name/phone/service) and metadata.* (phone/service)
+// Added: normalize start/end dates (interpret as Asia/Taipei local dates and convert to ISO)
 // env required: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, ADMIN_JWT_SECRET
 
 const PREFIX = process.env.CLOUDINARY_BOOKING_PREFIX || "booking";
@@ -16,9 +18,6 @@ function basicAuthHeader(key, secret) {
   return `Basic ${token}`;
 }
 
-/* escape reserved chars in Cloudinary search expression
-   If term contains whitespace or reserved chars, use quoted form.
-*/
 function escapeForExpression(term){
   if(term == null) return "";
   let s = String(term).trim();
@@ -30,34 +29,63 @@ function escapeForExpression(term){
   return s;
 }
 
-function buildExpression({ q, from, to }) {
+/* Parse user-provided date string like "2025/10/01" or "2025-10-01" or "2025/10/01 13:00"
+   and return an ISO 8601 timestamp in UTC suitable for Cloudinary comparisons.
+   Interpretation: user dates are in Asia/Taipei (UTC+8). For "start" we set time 00:00:00,
+   for "end" we set time 23:59:59.999.
+*/
+function parseDateToIso(dateStr, isEnd=false){
+  if(!dateStr) return null;
+  // normalize separators
+  const s = String(dateStr).trim().replace(/\//g,'-');
+  // try to extract yyyy-mm-dd and optional time
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):?(\d{1,2})?:?(\d{1,3})?)?$/);
+  if(!m) return null;
+  const y = parseInt(m[1],10), mo = parseInt(m[2],10), d = parseInt(m[3],10);
+  let hh = 0, mm = 0, ss = 0, ms = 0;
+  if(m[4]) hh = parseInt(m[4],10);
+  if(m[5]) mm = parseInt(m[5],10);
+  if(m[6]) { ss = parseInt(m[6],10); if(ss>99) { ms = ss; ss = 0; } }
+  if(isEnd && !m[4]) { hh = 23; mm = 59; ss = 59; ms = 999; }
+  // build an ISO string with +08:00 timezone (Asia/Taipei)
+  // Ensure month/day padded
+  const YYYY = String(y).padStart(4,'0');
+  const MM = String(mo).padStart(2,'0');
+  const DD = String(d).padStart(2,'0');
+  const HH = String(hh).padStart(2,'0');
+  const MN = String(mm).padStart(2,'0');
+  const SS = String(ss).padStart(2,'0');
+  const MS = String(ms).padStart(3,'0');
+  const localIso = `${YYYY}-${MM}-${DD}T${HH}:${MN}:${SS}.${MS}+08:00`;
+  // Convert to UTC ISO (Z)
+  const dt = new Date(localIso);
+  if (isNaN(dt.getTime())) return null;
+  return dt.toISOString();
+}
+
+function buildExpression({ q, fromIso, toIso }) {
   const terms = [];
   terms.push(`public_id:${PREFIX}*`);
-  if (from) terms.push(`created_at>=${from}`);
-  if (to) terms.push(`created_at<=${to}`);
+  if (fromIso) terms.push(`created_at>=${fromIso}`);
+  if (toIso) terms.push(`created_at<=${toIso}`);
 
   if (q) {
     const qSafe = escapeForExpression(q);
-    // candidate fields: name-like, phone-like, and service-like keys in context / metadata
     const orParts = [
       `public_id~${qSafe}`,
-      // name variants
       `context.name~${qSafe}`,
       `context.customer_name~${qSafe}`,
       `context.fullname~${qSafe}`,
       `context.姓名~${qSafe}`,
-      // phone variants in context
       `context.phone~${qSafe}`,
       `context.phone_number~${qSafe}`,
       `context.mobile~${qSafe}`,
       `context.tel~${qSafe}`,
       `context.電話~${qSafe}`,
-      // phone variants in metadata
       `metadata.phone~${qSafe}`,
       `metadata.mobile~${qSafe}`,
       `metadata.tel~${qSafe}`,
       `metadata.電話~${qSafe}`,
-      // service / category variants
       `context.service~${qSafe}`,
       `context.service_item~${qSafe}`,
       `context.service_category~${qSafe}`,
@@ -83,19 +111,19 @@ exports.handler = async (event, context) => {
 
     // verify x-admin-token (simple HMAC-like scheme used previously)
     const tokenHeader = (event.headers && (event.headers["x-admin-token"] || event.headers["X-Admin-Token"] || event.headers["x-Admin-Token"])) || "";
-    const SECRET = process.env.ADMIN_JWT_SECRET;
+    const SECRET = process.env.ADMIN_JWT_SECRET || "";
     function verify(token){
       if(!token || !SECRET) return false;
       const [data, sig] = String(token).split(".");
       if(!data || !sig) return false;
-      const expect = require("crypto").createHmac("sha256", SECRET).update(data).digest("hex");
-      if (expect !== sig) return false;
-      try {
+      try{
+        const expect = require("crypto").createHmac("sha256", SECRET).update(data).digest("hex");
+        if (expect !== sig) return false;
         const padded = data.replace(/-/g,"+").replace(/_/g,"/") + "===";
         const json = JSON.parse(Buffer.from(padded, "base64").toString("utf8"));
         if (!json.exp || json.exp < Math.floor(Date.now()/1000)) return false;
         return true;
-      } catch { return false; }
+      }catch(e){ return false; }
     }
     if (!verify(tokenHeader)) {
       return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }), headers: { "Content-Type": "application/json" } };
@@ -132,7 +160,11 @@ exports.handler = async (event, context) => {
       max_results = Math.min(isFinite(limitRaw) ? limitRaw : 30, 100);
     }
 
-    const expression = buildExpression({ q: String(q || ""), from: from || "", to: to || "" });
+    // normalize dates into ISO (UTC) strings interpreted as Asia/Taipei local dates
+    const fromIso = from ? parseDateToIso(from, false) : null;
+    const toIso = to ? parseDateToIso(to, true) : null;
+
+    const expression = buildExpression({ q: String(q || ""), fromIso, toIso });
 
     const payload = {
       expression,
