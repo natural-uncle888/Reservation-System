@@ -324,6 +324,73 @@ let CURRENT_ITEM = null;
 let CURRENT_LIST = [];
 const $ = (s)=>document.querySelector(s);
 
+/* 漂亮版確認視窗：回傳 Promise<boolean> */
+function showConfirmDialog(opts = {}){
+  return new Promise((resolve)=>{
+    const modal = document.getElementById('confirmModal');
+    if (!modal) {
+      const ok = window.confirm(opts.message || '確定要刪除此筆預約嗎？');
+      return resolve(ok);
+    }
+
+    const titleEl = document.getElementById('confirmTitle');
+    const msgEl   = document.getElementById('confirmMessage');
+    const btnOk   = document.getElementById('confirmOk');
+    const btnCancel = document.getElementById('confirmCancel');
+
+    titleEl.textContent = opts.title || '確認刪除';
+    msgEl.textContent   = opts.message || '確定要刪除此筆預約嗎？這個動作無法復原。';
+    btnOk.textContent   = opts.confirmText || '確認刪除';
+    btnCancel.textContent = opts.cancelText || '取消';
+
+    const close = (result)=>{
+      modal.classList.remove('is-open');
+      if (typeof lockScrollForModal === 'function') lockScrollForModal(false);
+      document.removeEventListener('keydown', onKey);
+      btnOk.onclick = null;
+      btnCancel.onclick = null;
+      resolve(result);
+    };
+
+    const onKey = (e)=>{
+      if (e.key === 'Escape') close(false);
+      if (e.key === 'Enter')  close(true);
+    };
+
+    btnOk.onclick = ()=> close(true);
+    btnCancel.onclick = ()=> close(false);
+    document.addEventListener('keydown', onKey);
+
+    modal.classList.add('is-open');
+    if (typeof lockScrollForModal === 'function') lockScrollForModal(true);
+    setTimeout(()=>btnOk.focus(), 30);
+  });
+}
+
+/* Toast：type = 'success' | 'error' */
+function showToast(message, type = 'success'){
+  const container = document.getElementById('toastContainer');
+  if (!container){
+    alert(message);
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' toast--error' : '');
+  const icon = type === 'error' ? '⚠️' : '✅';
+  el.innerHTML = `
+    <span class="toast__icon">${icon}</span>
+    <span class="toast__text">${message}</span>
+  `;
+  container.appendChild(el);
+
+  setTimeout(()=>{
+    el.style.animation = 'toast-out .18s ease-in forwards';
+    setTimeout(()=>{ el.remove(); }, 200);
+  }, 2200);
+}
+
+
+
 function needLogin(){ return !ADMIN_TOKEN; }
 
 async function login(){
@@ -528,7 +595,12 @@ function renderFilteredList(items){
       btn.addEventListener('click', async (ev)=>{
         ev.stopPropagation();
         if (btn.dataset.busy === '1') return;
-        const confirmed = window.confirm('確定要刪除此筆預約嗎？這個動作無法復原。');
+        const confirmed = await showConfirmDialog({
+          title: '確認刪除',
+          message: '確定要刪除此筆預約嗎？這個動作無法復原。',
+          confirmText: '確認刪除',
+          cancelText: '取消'
+        });
         if (!confirmed) return;
         btn.dataset.busy = '1';
         btn.disabled = true;
@@ -537,7 +609,7 @@ function renderFilteredList(items){
           const loggedIn = await (typeof window.login === 'function' ? login() : Promise.resolve(false));
           if (!loggedIn && (typeof window.needLogin === 'function' && needLogin())) {
             btn.disabled = false; btn.dataset.busy = '0';
-            alert('尚未登入或權杖失效，請先登入再刪除。');
+            showToast('尚未登入或權杖失效，請先登入再刪除。', 'error');
             return;
           }
         }
@@ -568,10 +640,10 @@ function renderFilteredList(items){
           } catch(e) { ok = false; }
         }
 
-        if (ok) { tr.remove(); alert('✅ 刪除成功'); } else {
+        if (ok) { tr.remove(); showToast('刪除成功', 'success'); } else {
           btn.disabled = false;
           btn.dataset.busy = '0';
-          alert('刪除失敗，請稍後再試。');
+          showToast('刪除失敗，請稍後再試。', 'error');
         }
       });
     }
@@ -809,11 +881,16 @@ const toRows = (o)=> Object.keys(o).length
 
 document.getElementById("btnDelete").onclick = async () => {
   if (!CURRENT_ITEM || !CURRENT_ITEM.public_id) {
-    alert("無法刪除：找不到 public_id。");
+    showToast("無法刪除：找不到 public_id。", 'error');
     return;
   }
 
-  const ok = confirm("是否確定要刪除此訂單？此操作無法復原！");
+  const ok = await showConfirmDialog({
+    title: '確認刪除',
+    message: '是否確定要刪除此訂單？此操作無法復原！',
+    confirmText: '確認刪除',
+    cancelText: '取消'
+  });
   if (!ok) return;
 
   try {
@@ -828,12 +905,12 @@ document.getElementById("btnDelete").onclick = async () => {
 
     if (!res.ok) throw new Error(result.error || "刪除失敗");
 
-    alert("✅ 刪除成功！");
+    showToast('刪除成功', 'success');
     CURRENT_ITEM = null;
     document.getElementById("preview").innerHTML = "";
     doSearch();
   } catch (e) {
-    alert("❌ 刪除失敗：" + e.message);
+    showToast('刪除失敗：' + e.message, 'error');
   }
 };
 </script>
@@ -899,6 +976,129 @@ document.addEventListener("DOMContentLoaded", function () {
   .status-scheduled { background: #3b82f6; color: white; } /* 已安排 */
   .status-done { background: #10b981; color: white; }      /* 已完成 */
   .status-cancelled { background: #ef4444; color: white; } /* 已取消 */
+  /* ===== 自訂刪除確認視窗 ===== */
+  .confirm-modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .confirm-modal.is-open{ display:flex; }
+
+  .confirm-dialog{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 24px 60px rgba(15,23,42,.35);
+    width:min(420px,92vw);
+    padding:20px 20px 16px;
+    border:1px solid #e5e7eb;
+    text-align:left;
+  }
+  .confirm-icon{
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    background:#fee2e2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    color:#b91c1c;
+    margin-bottom:10px;
+  }
+  .confirm-dialog h3{
+    margin:0 0 4px;
+    font-size:18px;
+    color:#111827;
+  }
+  .confirm-dialog p{
+    margin:0 0 16px;
+    font-size:14px;
+    color:#4b5563;
+    line-height:1.5;
+  }
+  .confirm-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .confirm-actions .btn{
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:14px;
+  }
+  .confirm-cancel{
+    background:#f3f4f6;
+    border:1px solid #e5e7eb;
+    color:#374151;
+  }
+  .confirm-cancel:hover{ background:#e5e7eb; }
+  .confirm-danger{
+    background:#dc2626;
+    border:1px solid #b91c1c;
+    color:#fff;
+  }
+  .confirm-danger:hover{ background:#b91c1c; }
+
+  @media (max-width:640px){
+    .confirm-dialog{
+      width:calc(100% - 32px);
+      margin:0 16px;
+      border-radius:16px;
+    }
+  }
+
+  /* ===== Toast 提示 ===== */
+  .toast-container{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1100;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    pointer-events:none;
+  }
+  .toast{
+    min-width:260px;
+    max-width:360px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:#16a34a;
+    color:#fff;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 18px 45px rgba(15,23,42,.35);
+    opacity:0;
+    transform:translateY(-6px);
+    animation:toast-in .18s ease-out forwards;
+  }
+  .toast--error{
+    background:#dc2626;
+  }
+  .toast__icon{
+    font-size:18px;
+  }
+  .toast__text{
+    flex:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  @keyframes toast-in{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes toast-out{
+    to{ opacity:0; transform:translateY(-4px); }
+  }
+
 </style>
 
 <!-- BEGIN: global fetch interceptor for delete-booking -->
@@ -928,6 +1128,23 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 <!-- END: global fetch interceptor for delete-booking -->
+
+<!-- 刪除確認視窗 -->
+<div class="confirm-modal" id="confirmModal" aria-hidden="true">
+  <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-icon">🗑</div>
+    <h3 id="confirmTitle">確認刪除</h3>
+    <p id="confirmMessage">確定要刪除此筆預約嗎？這個動作無法復原。</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn confirm-cancel" id="confirmCancel">取消</button>
+      <button type="button" class="btn confirm-danger" id="confirmOk">確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 提示容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
 
 </body>
 </html>
