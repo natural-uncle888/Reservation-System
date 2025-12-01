@@ -206,7 +206,17 @@
         show('pipe_service','水管清洗戶型');
         show('pipe_reason','水管清洗原因');
         show('contact_method','聯繫方式');
-        show('social_name','LINE/FB 名稱');
+        const cm = payload.contact_method;
+        if (cm === 'LINE' || cm === 'Facebook') {
+          show('social_name','LINE/FB 名稱');
+          show('other_contact_detail','其他聯繫說明');
+        } else if (cm === 'Other') {
+          show('other_contact_detail','其他聯繫說明');
+          show('social_name','聯繫帳號／名稱');
+        } else {
+          // 電話或其他未特別標示的方式，就僅顯示補充說明
+          show('other_contact_detail','其他聯繫說明');
+        }
         show('name','顧客姓名');
         show('phone','聯繫電話');
         show('address','地址');
