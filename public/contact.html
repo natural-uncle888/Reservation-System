@@ -44,14 +44,15 @@
   .capsule-label input::after{
     content:"";position:absolute;inset:3px;border-radius:999px;background:transparent;
   }
-  .capsule-label strong{font-weight:600}
-  .capsule-label span.sub{display:block;font-size:0.8rem;color:var(--muted)}
+  /* 讓有選取時顯示實心圈圈 */
   .capsule-label input:checked{
     border-color: var(--brand);
   }
   .capsule-label input:checked::after{
     background: var(--brand);
   }
+  .capsule-label strong{font-weight:600}
+  .capsule-label span.sub{display:block;font-size:0.8rem;color:var(--muted)}
   .capsule-label.selected{
     border-color:var(--brand);background:#eff6ff;
     box-shadow:0 0 0 1px rgba(37,99,235,.2);
@@ -201,13 +202,25 @@
               <span class="sub">我們會先以簡訊或通訊軟體預約方便通話時間</span>
             </div>
           </label>
+          <label class="capsule-label">
+            <input type="radio" name="contact_method" value="Other"/>
+            <div>
+              <strong>其他</strong>
+              <span class="sub">例如：Email、IG、公司內線…等</span>
+            </div>
+          </label>
         </div>
 
         <div class="multi-line-group">
           <label>
             若您勾選 LINE / Facebook，請填寫您的顯示名稱或帳號
           </label>
-          <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/></textarea>
+          <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/>
+
+          <label style="margin-top:6px;">
+            若您勾選「其他」或希望以特定方式聯繫，也可以補充說明
+          </label>
+          <textarea name="other_contact_detail" rows="2" placeholder="例：請改用 Email 聯繫；我比較常看 IG 訊息等"></textarea>
         </div>
 
         <div class="note-box">
@@ -422,6 +435,39 @@
       });
     }
 
+    // 聯繫方式切換時，清理不同欄位的內容
+    function setupContactMethodSync(){
+      const radios = document.querySelectorAll('input[name="contact_method"]');
+      if(!radios.length) return;
+      const social = document.querySelector('input[name="social_name"]');
+      const otherDetail = document.querySelector('textarea[name="other_contact_detail"]');
+      function sync(){
+        const checked = document.querySelector('input[name="contact_method"]:checked');
+        if(!checked) return;
+        const v = checked.value;
+        if(v === 'Other'){
+          // 改成「其他」時，自動清空上方的名稱欄位
+          if(social) social.value = '';
+        }else if(v === 'LINE' || v === 'Facebook'){
+          // 改成 LINE / Facebook 時，自動清空下方的其他聯繫說明
+          if(otherDetail) otherDetail.value = '';
+        }
+        // 同步更新 localStorage：覆寫聯繫方式，並確實移除不再使用的欄位
+        try{
+          const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
+          prev.contact_method = v;
+          if(v === 'Other'){
+            delete prev.social_name;
+          }else if(v === 'LINE' || v === 'Facebook'){
+            delete prev.other_contact_detail;
+          }
+          localStorage.setItem(KEY, JSON.stringify(prev));
+        }catch(e){}
+      }
+      radios.forEach(r => r.addEventListener('change', sync));
+    }
+
+
     // 卡片選中樣式控制（radio/checkbox）
     function setupCardSelection(){
       document.querySelectorAll('.option-grid').forEach(function(group){
@@ -482,6 +528,7 @@
       setupOtherFieldToggle();
       setupCardSelection();
       setupBackLink();
+      setupContactMethodSync();
     });
 
     // 偵錯輔助
