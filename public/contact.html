@@ -44,15 +44,14 @@
   .capsule-label input::after{
     content:"";position:absolute;inset:3px;border-radius:999px;background:transparent;
   }
-  /* 讓有選取時顯示實心圈圈 */
+  .capsule-label strong{font-weight:600}
+  .capsule-label span.sub{display:block;font-size:0.8rem;color:var(--muted)}
   .capsule-label input:checked{
     border-color: var(--brand);
   }
   .capsule-label input:checked::after{
     background: var(--brand);
   }
-  .capsule-label strong{font-weight:600}
-  .capsule-label span.sub{display:block;font-size:0.8rem;color:var(--muted)}
   .capsule-label.selected{
     border-color:var(--brand);background:#eff6ff;
     box-shadow:0 0 0 1px rgba(37,99,235,.2);
@@ -202,25 +201,13 @@
               <span class="sub">我們會先以簡訊或通訊軟體預約方便通話時間</span>
             </div>
           </label>
-          <label class="capsule-label">
-            <input type="radio" name="contact_method" value="Other"/>
-            <div>
-              <strong>其他</strong>
-              <span class="sub">例如：Email、IG、公司內線…等</span>
-            </div>
-          </label>
         </div>
 
         <div class="multi-line-group">
           <label>
             若您勾選 LINE / Facebook，請填寫您的顯示名稱或帳號
           </label>
-          <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/>
-
-          <label style="margin-top:6px;">
-            若您勾選「其他」或希望以特定方式聯繫，也可以補充說明
-          </label>
-          <textarea name="other_contact_detail" rows="2" placeholder="例：請改用 Email 聯繫；我比較常看 IG 訊息等"></textarea>
+          <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/></textarea>
         </div>
 
         <div class="note-box">
@@ -314,7 +301,7 @@
   <section class="section">
     <div class="section-title-row">
       <div class="title-main">
-        <h2 style="margin:0;">方便聯繫時間</h2>
+        <h2 style="margin:0;">方便聯繫時間（可複選）</h2>
         <span class="required">＊必填</span>
       </div>
       <div class="title-sub">我們會盡量在您方便的時段聯繫，若臨時有狀況也會以簡訊或訊息說明</div>
