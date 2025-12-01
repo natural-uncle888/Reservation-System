@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#2563eb" />
   <title>自然大叔｜預約清洗服務</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
   <style>
     html, body {
       margin: 0;
@@ -46,6 +47,12 @@
     a.card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.35); }
     .card h3{ margin: 0 0 6px; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px; justify-content: center; }
     .card p{ margin: 0; font-size: 1rem; color: #475569; line-height: 1.6; }
+    .card .card-audience{
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #0f766e;
+      font-weight: 600;
+    }
     .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 9999px; font-weight: 600; }
     .card .cta:hover{ background:#1d4ed8; }
 
@@ -64,7 +71,37 @@
     .note-card p{ margin:0; color:#475569; }
 
     footer{ text-align:center; padding:16px; font-size:.9rem; color:#64748b; border-top:1px solid #e2e8f0; margin-top: 24px; }
-  </style>
+  
+    footer{
+      margin-top: 32px;
+      padding: 16px 20px 24px;
+      background:#0f172a;
+      color:#e5e7eb;
+      font-size:0.9rem;
+    }
+    .footer-inner{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:0.85rem;
+      color:#cbd5f5;
+    }
+    .footer-links a{
+      color:#bfdbfe;
+      text-decoration:underline;
+      word-break:break-all;
+    }
+    .footer-links a:hover{
+      color:#eff6ff;
+    }
+</style>
 </head>
 <body>
   <header>
@@ -76,25 +113,28 @@
     <a class="card" data-service="冷氣清洗" href="ac-booking.html">
       <h3>❄️ 冷氣清洗</h3>
       <p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
+      <p class="card-audience">適合對象：家庭、租屋族、工作室。</p>
       <span class="cta">開始</span>
     </a>
     <a class="card" data-service="其他保養清洗" href="other-service.html">
       <h3>🧺 其他保養清洗</h3>
       <p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
+      <p class="card-audience">適合對象：想一起處理洗衣機、水塔、自來水管的家庭。</p>
       <span class="cta">開始</span>
     </a>
     <a class="card" data-service="團購預約清洗" href="group-booking.html">
       <h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
       <p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
+      <p class="card-audience">適合對象：社區主委、管委會或社區揪團。</p>
       <span class="cta">開始</span>
     </a>
     <a class="card" data-service="大量清洗需求" href="bulk-booking.html">
       <h3>🏢 大量清洗需求</h3>
       <p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
+      <p class="card-audience">適合對象：民宿業者、學校單位、公司與機關。</p>
       <span class="cta">開始</span>
     </a>
   </main>
-
   <section class="notes-wrap">
     <h4 class="notes-title">流程說明</h4>
     <div class="notes-grid">
@@ -105,7 +145,16 @@
     </div>
   </section>
 
-  <footer>© 自然大叔 預約系統</footer>
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-main">© 自然大叔 預約系統</div>
+      <div class="footer-links">
+        <span>LINE 官方帳號：<a href="https://lin.ee/OHk6Rn7" target="_blank" rel="noopener noreferrer">https://lin.ee/OHk6Rn7</a></span>
+        <span>官方網站：<a href="https://natural-uncle-official.netlify.app" target="_blank" rel="noopener noreferrer">https://natural-uncle-official.netlify.app</a></span>
+        <a href="privacy.html">隱私權與個資保護聲明</a>
+      </div>
+    </div>
+  </footer>
 
   <script>
     const KEY = 'BOOKING_DATA';
