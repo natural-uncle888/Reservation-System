@@ -34,6 +34,7 @@
   .hero{max-width:680px; margin:0 auto 8px; text-align:center;}
   h1{margin:0 0 8px; color:var(--brand); font-weight:700; font-size:2rem; line-height:1.2}
   .desc{margin:0 0 10px; color:var(--muted)}
+  .price-hint{font-size:0.95rem;line-height:1.6;padding:0.75rem 1rem;border-radius:8px;background:#f5f7fb;border-left:4px solid var(--brand);margin:8px 0 12px;}
 
   .notice{max-width:640px; margin:10px auto 0; background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px 14px; color:var(--ink); width:100%}
   .notice ul{margin:8px 0 0 18px; color:var(--muted)}
@@ -121,19 +122,17 @@ html,body,.page{ width:100%; overflow-x:hidden }
       <p class="desc">若僅預約冷氣可直接跳到下一步。</p>
     </div>
 
-    <div class="notice">
-      <p>若您同時有預約以下服務，我們將提供額外優惠：</p>
-      <ul>
-        <li>✅ 直立式洗衣機清洗 ➜ 若同時清洗冷氣，可再折扣 $200 元</li>
-        <li>✅ 家用水塔清洗（兩噸內） ➜ 若同時清洗自來水管，可再折扣 $200 元</li>
-      </ul>
-    </div>
+    
 
     <div class="sections">
 
       <!-- 直立式洗衣機清洗 -->
       <div class="section">
         <h2>直立式洗衣機清洗</h2>
+        <p class="price-hint">
+          💡 參考價格：直立式洗衣機清洗約 <strong>NT$2,000 / 台</strong>，
+          若同時預約冷氣清洗，當次洗衣機可再 <strong>折 NT$200</strong>。
+        </p>
         <div class="subhead">清洗台數</div>
         <div class="option-grid">
           <label class="option-card"><input type="radio" name="washer_count" value="1台"/><span>1 台</span></label>
@@ -158,6 +157,10 @@ html,body,.page{ width:100%; overflow-x:hidden }
       <!-- 家用水塔清洗 -->
       <div class="section">
         <h2>家用水塔清洗（兩噸內）</h2>
+        <p class="price-hint">
+          💡 參考價格：家用水塔（2 噸內）清洗約 <strong>NT$1,000 / 顆</strong>，
+          若擺放高度或安裝位置較特殊，會依實際狀況調整費用。
+        </p>
         <div class="subhead">清洗顆數</div>
         <div class="option-grid">
           <label class="option-card"><input type="radio" name="tank_count" value="1顆"/><span>1 顆</span></label>
@@ -172,6 +175,11 @@ html,body,.page{ width:100%; overflow-x:hidden }
       <!-- 自來水管清洗服務 -->
       <div class="section">
         <h2>自來水管清洗服務</h2>
+        <p class="price-hint">
+          💡 參考價格：自來水管清洗會依 <strong>廚房與衛浴數量、樓層高度與坪數</strong> 評估，
+          採 <strong>實際狀況報價</strong> 的方式，多為數千元不等。
+          您在表單中提供越完整的格局與使用情況，我們越能快速給出合適的費用與建議。
+        </p>
         <div class="subhead">戶型方案</div>
         <div class="option-grid">
           <label class="option-card"><input type="radio" name="pipe_service" value="無廚一衛"/><span>無廚一衛</span></label>
