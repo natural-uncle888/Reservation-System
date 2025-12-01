@@ -459,6 +459,7 @@ function normalizeContext(item){
     service_description: get(["service_description", "其他服務說明"]),
     contact_method: get(["contact_method"]),
     social_name: get(["social_name"]),
+    other_contact_detail: get(["other_contact_detail"]),
     housing_type: get(["housing_type"]),
     contact_time_preference: decodeArray(get(["contact_time_preference"])),
     washer_count: get(["washer_count"]),
@@ -740,11 +741,13 @@ if (data.service_description) {
   kv("自來水管清洗戶型方案", data.pipe_service) +
   kv("自來水管清洗原因", data.pipe_reason)
 ));
+  
   blocks.push(sectionCard("聯繫資料",
     kv("聯絡人", data.name) +
     kv("聯絡電話", data.phone) +
     kv("與我們聯繫方式", data.contact_method) +
-    kv("LINE 或 Facebook 名稱", (data.contact_method?.includes("LINE") || data.contact_method?.includes("Facebook")) ? data.social_name : "")  +
+    kv("聯繫帳號／名稱", data.social_name) +
+    kv("其他聯繫說明", data.other_contact_detail) +
     kv("居住地型態", data.housing_type) +
     kv("方便聯繫時間", data.contact_time_preference) +
     kv("地址", data.address) +
@@ -752,6 +755,7 @@ if (data.service_description) {
     kv("備註", data.note) +
     kv("建立時間", new Date(item.created_at).toLocaleString())
   ));
+
   mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
 function statusLabel(code) {

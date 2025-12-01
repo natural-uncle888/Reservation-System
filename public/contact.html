@@ -314,7 +314,7 @@
   <section class="section">
     <div class="section-title-row">
       <div class="title-main">
-        <h2 style="margin:0;">方便聯繫時間（可複選）</h2>
+        <h2 style="margin:0;">方便聯繫時間</h2>
         <span class="required">＊必填</span>
       </div>
       <div class="title-sub">我們會盡量在您方便的時段聯繫，若臨時有狀況也會以簡訊或訊息說明</div>
@@ -452,16 +452,10 @@
           // 改成 LINE / Facebook 時，自動清空下方的其他聯繫說明
           if(otherDetail) otherDetail.value = '';
         }
-        // 同步更新 localStorage：覆寫聯繫方式，並確實移除不再使用的欄位
+        // 更新 localStorage，避免預覽頁帶到舊資料
         try{
-          const prev = JSON.parse(localStorage.getItem(KEY)||'{}');
-          prev.contact_method = v;
-          if(v === 'Other'){
-            delete prev.social_name;
-          }else if(v === 'LINE' || v === 'Facebook'){
-            delete prev.other_contact_detail;
-          }
-          localStorage.setItem(KEY, JSON.stringify(prev));
+          const state = collect();
+          save(state);
         }catch(e){}
       }
       radios.forEach(r => r.addEventListener('change', sync));
