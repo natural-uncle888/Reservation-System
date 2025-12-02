@@ -107,7 +107,8 @@ function buildEmailHtml(p, pdfUrl){
 
   const contact=[
     tr("與我們聯繫方式",p.contact_method),
-    tr("LINE 或 Facebook 名稱",p.line_or_fb)
+    tr("聯繫帳號／名稱",p.line_or_fb),
+  tr("其他聯繫說明",p.other_contact_detail)
   ].join("");
 
   const booking=[

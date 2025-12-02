@@ -741,7 +741,6 @@ if (data.service_description) {
   kv("自來水管清洗戶型方案", data.pipe_service) +
   kv("自來水管清洗原因", data.pipe_reason)
 ));
-  
   blocks.push(sectionCard("聯繫資料",
     kv("聯絡人", data.name) +
     kv("聯絡電話", data.phone) +
@@ -755,7 +754,6 @@ if (data.service_description) {
     kv("備註", data.note) +
     kv("建立時間", new Date(item.created_at).toLocaleString())
   ));
-
   mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
 }
 function statusLabel(code) {
