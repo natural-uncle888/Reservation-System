@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>自然大叔｜預約清洗服務</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f5f6fa;
+      color: #1e293b;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    header {
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+      color: #fff;
+      padding: 32px 16px;
+      text-align: center;
+    }
+    header h1 { margin: 0; font-size: 2rem; font-weight: 800; }
+    header p { margin: 8px 0 0; font-size: 1rem; opacity: .95; }
+
+    /* ===== 服務選項（漸層淡灰背景＋粗陰影） ===== */
+    .service-grid {
+      max-width: 1100px; margin: 32px auto; padding: 0 16px;
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px;
+    }
+    @media (max-width: 640px){ .service-grid { gap: 16px; } }
+
+    a.card {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      background: linear-gradient(145deg, #f9fafb 0%, #e5e7eb 100%);
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.15);
+      border: 3px solid transparent;
+      text-decoration: none; color: inherit; cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+      overflow: hidden;
+    }
+    a.card:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.35); }
+    .card h3{ margin: 0 0 6px; font-size: 1.25rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px; justify-content: center; }
+    .card p{ margin: 0; font-size: 1rem; color: #475569; line-height: 1.6; }
+    .card .card-audience{
+      margin: 6px 0 0;
+      font-size: 0.9rem;
+      color: #0f766e;
+      font-weight: 600;
+    }
+    .card .cta{ margin-top: 12px; display: inline-block; background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 9999px; font-weight: 600; }
+    .card .cta:hover{ background:#1d4ed8; }
+
+    .card::after{ content: ""; position:absolute; inset:0; background: radial-gradient(140px 140px at var(--mx,-100px) var(--my,-100px), rgba(37,99,235,.1), transparent 40%); pointer-events:none; transition: opacity .2s ease; opacity:0; }
+    .card:hover{ transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 34px rgba(0,0,0,.2); }
+    .card:hover::after{ opacity:1; }
+    .card.selected{ border-color:#2563eb; background:#f3f4f6; box-shadow: 0 12px 36px rgba(37,99,235,.25); }
+
+    /* ===== 流程說明：卡片式區塊 ===== */
+    .notes-wrap{ max-width:1100px; margin: 28px auto 8px; padding: 0 16px; text-align:center; }
+    .notes-title{ margin: 0 0 18px; font-size: 1.1rem; font-weight: 800; color:#1e293b; }
+    .notes-grid{ display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:16px; justify-items:center; }
+    @media (max-width:640px){ .notes-grid{ gap:12px; } }
+    .note-card{ width:100%; background:#ffffff; border-radius: 16px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,.05); border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; min-height:60px; }
+    .note-card .num{ display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:9999px; background:#2563eb; color:#fff; font-weight:700; margin-right:10px; }
+    .note-card p{ margin:0; color:#475569; }
+
+    footer{ text-align:center; padding:16px; font-size:.9rem; color:#64748b; border-top:1px solid #e2e8f0; margin-top: 24px; }
+  
+    footer{
+      margin-top: 32px;
+      padding: 16px 20px 24px;
+      background:#0f172a;
+      color:#e5e7eb;
+      font-size:0.9rem;
+    }
+    .footer-inner{
+      max-width:1100px;
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:0.85rem;
+      color:#cbd5f5;
+    }
+    .footer-links a{
+      color:#bfdbfe;
+      text-decoration:underline;
+      word-break:break-all;
+    }
+    .footer-links a:hover{
+      color:#eff6ff;
+    }
+</style>
+</head>
+<body>
+  <header>
+    <h1>自然大叔｜預約清洗服務</h1>
+    <p>請先選擇類別，後續頁面會帶出對應的問題。所有欄位皆可於最終頁再次確認。</p>
+  </header>
+
+  <main class="service-grid" id="serviceGrid">
+    <a class="card" data-service="冷氣清洗" href="ac-booking.html">
+      <h3>❄️ 冷氣清洗</h3>
+      <p>單台或多台皆可，支援分離式與吊隱式。可加購洗衣機∕水塔。</p>
+      <p class="card-audience">適合對象：家庭、租屋族、工作室。</p>
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="其他保養清洗" href="other-service.html">
+      <h3>🧺 其他保養清洗</h3>
+      <p>洗衣機、水塔、自來水管清洗。依現場情況安排合適人員與器材。</p>
+      <p class="card-audience">適合對象：想一起處理洗衣機、水塔、自來水管的家庭。</p>
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="團購預約清洗" href="group-booking.html">
+      <h3>👨‍👩‍👧‍👦 團購預約清洗</h3>
+      <p>同社區或鄰里多人揪團清洗。可先留下需求，我們提供時段與方案。</p>
+      <p class="card-audience">適合對象：社區主委、管委會或社區揪團。</p>
+      <span class="cta">開始</span>
+    </a>
+    <a class="card" data-service="大量清洗需求" href="bulk-booking.html">
+      <h3>🏢 大量清洗需求</h3>
+      <p>大樓、民宿或企業場域。請先提供數量與型態，將安排專人聯繫。</p>
+      <p class="card-audience">適合對象：民宿業者、學校單位、公司與機關。</p>
+      <span class="cta">開始</span>
+    </a>
+  </main>
+  <section class="notes-wrap">
+    <h4 class="notes-title">流程說明</h4>
+    <div class="notes-grid">
+      <div class="note-card"><span class="num">1</span><p>依序填寫各頁問題並點下一步。</p></div>
+      <div class="note-card"><span class="num">2</span><p>最終頁可預覽與備註。按送出後將寄出通知信。</p></div>
+      <div class="note-card"><span class="num">3</span><p>服務人員將於「方便聯繫時間」內致電或使用您選擇的聯繫方式聯繫。</p></div>
+      <div class="note-card"><span class="num">4</span><p>如需修改資料，回信或於聯繫時提供更新即可。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-main">© 自然大叔 預約系統</div>
+      <div class="footer-links">
+        <span>LINE 官方帳號：<a href="https://lin.ee/OHk6Rn7" target="_blank" rel="noopener noreferrer">https://lin.ee/OHk6Rn7</a></span>
+        <span>官方網站：<a href="https://natural-uncle-official.netlify.app" target="_blank" rel="noopener noreferrer">https://natural-uncle-official.netlify.app</a></span>
+        <a href="privacy.html">隱私權與個資保護聲明</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const KEY = 'BOOKING_DATA';
+    function save(k, v) {
+      try {
+        const prev = JSON.parse(localStorage.getItem(KEY) || '{}');
+        prev[k] = v; localStorage.setItem(KEY, JSON.stringify(prev));
+      } catch (e) {}
+    }
+
+    document.querySelectorAll('a.card').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - rect.top) + 'px');
+      });
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const svc = card.getAttribute('data-service');
+        if (svc) save('service_category', svc);
+      });
+    });
+@media (max-width: 640px) {
+  a.card {
+    min-height: 140px;
+  }
+}
+  </script>
+</body>
+</html>
