@@ -66,7 +66,26 @@
   .other-input-wrap.show{display:block}
 
   .multi-line-group{display:flex;flex-direction:column;gap:8px}
-  .multi-line-group label{font-size:0.9rem;color:var(--ink)}
+.social-name-layout{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:4px;
+}
+.social-name-img{
+  max-width:320px;
+  width:100%;
+  height:auto;
+  border-radius:10px;
+  border:1px solid var(--line);
+  object-fit:cover;
+}
+.social-name-text-input{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.multi-line-group label{font-size:0.9rem;color:var(--ink)}
   .multi-line-group .inline{display:flex;gap:8px;flex-wrap:wrap}
   .multi-line-group .inline > *{flex:1 1 160px}
 
@@ -403,16 +422,22 @@
         </div>
 
         <div class="multi-line-group">
-          <label>
-            若您勾選 LINE / Facebook，請填寫您的顯示名稱或帳號
-          </label>
-          <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/>
+  <div class="social-name-layout">
+    <div class="social-name-text-input">
+      <label>
+        若您勾選 LINE / Facebook，請填寫您的顯示名稱或帳號
+      </label>
+      <img src="imagesexample.jpg" alt="LINE 或 Facebook 顯示名稱 / 帳號填寫示意" class="social-name-img"/>
+      <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/>
+    </div>
+  </div>
 
-          <label style="margin-top:6px;">
-            若您勾選「其他」或希望以特定方式聯繫，也可以補充說明
-          </label>
-          <textarea name="other_contact_detail" rows="2" placeholder="例：請改用 Email 聯繫；我比較常看 IG 訊息等"></textarea>
-        </div>
+  <label style="margin-top:6px;">
+    若您勾選「其他」或希望以特定方式聯繫，也可以補充說明
+  </label>
+  <textarea name="other_contact_detail" rows="2" placeholder="例：請改用 Email 聯繫；我比較常看 IG 訊息等"></textarea>
+</div>
+
 
         <div class="note-box">
           <strong>小提醒：</strong>我們不會在未經同意的情況下加您私人帳號，會以官方帳號或簡訊與您聯繫，並只用於這次預約使用。
@@ -534,6 +559,13 @@
             <div>
               <div class="main">假日白天</div>
               <div class="sub">週六、週日白天時段較方便</div>
+            </div>
+          </label>
+          <label class="option-card">
+            <input type="checkbox" name="contact_time_preference" value="假日晚上"/>
+            <div>
+              <div class="main">假日晚上</div>
+              <div class="sub">週六、週日的晚上較有空接電話或回覆訊息</div>
             </div>
           </label>
           <label class="option-card">
