@@ -11,7 +11,24 @@ main{max-width:900px;margin:18px auto;padding:0 16px}.section{border:1px solid v
 .section h2{margin:0 0 8px;color:#2563eb}.desc{margin:0 0 10px;color:#555}
 .price-hint{font-size:.95rem;line-height:1.6;padding:.75rem 1rem;border-radius:8px;background:#f5f7fb;border-left:4px solid var(--brand);margin:8px 0 12px;}
 textarea{width:100%;min-height:160px;padding:10px;border:1px solid #ccc;border-radius:8px;resize:vertical;box-sizing:border-box;}
+.nav{display:flex;gap:12px;margin:18px 0}.nav a{flex:1;text-align:center;padding:12px 16px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none}
+.nav a:hover{background:#1e40af}
+</style><link href="mobile-2col.css" rel="stylesheet"/>
+<style>
+  body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  table, input, select, textarea, button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 
+  /* 覆寫 bulk-booking 導覽按鈕樣式，讓高度與其他頁面一致 */
   .nav{
     display:flex;
     gap:12px;
@@ -32,21 +49,10 @@ textarea{width:100%;min-height:160px;padding:10px;border:1px solid #ccc;border-r
     background:var(--brand-700);
   }
 
-</style><link href="mobile-2col.css" rel="stylesheet"/>
-<style>
-    body, html {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-    img {
-        max-width: 100%;
-        height: auto;
-    }
-    table, input, select, textarea, button {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    </style><style>
+  @media (max-width: 720px){
+    .nav{flex-direction:row;}
+  }
+</style><style>
 /* ==== Card & Button Active ==== */
 .card:active, .go:active, button:active {
   transform: scale(0.97);
