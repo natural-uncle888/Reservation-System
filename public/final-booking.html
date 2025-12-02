@@ -87,7 +87,168 @@
     input:focus, select:focus, textarea:focus {
       border-color:#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.18);
     }
-  </style>
+  
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  
+/* === 共用：必填錯誤彈窗 + 欄位高亮 === */
+.validation-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease-out;
+}
+.validation-backdrop.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.validation-modal{
+  max-width:320px;
+  width:90%;
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px 20px 16px;
+  box-shadow:0 24px 60px rgba(15,23,42,0.45);
+  font-family:inherit;
+}
+.validation-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--brand,#2563eb);
+  margin-bottom:4px;
+}
+.validation-message{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--ink,#111827);
+  margin-bottom:12px;
+}
+.validation-btn{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  height:40px;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--brand,#2563eb);
+  color:#ffffff;
+}
+.validation-btn:hover{
+  background:var(--brand-700,#1e40af);
+}
+.field-error-highlight{
+  box-shadow:0 0 0 2px rgba(239,68,68,0.7);
+  border-radius:14px;
+  transition:box-shadow .25s ease-out, transform .25s ease-out;
+  transform:translateY(-1px);
+}
+</style>
+
+  <script src="validation-dialog.js"></script>
 </head>
 <body>
 <!-- Header -->
@@ -97,6 +258,30 @@
 <p class="desc">請選擇可安排時段並補充說明。下方提供送出前預覽。</p>
 </div>
 </div>
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item is-current">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+
 <!-- Form (stacked sections) -->
 <form action="#" id="booking-form" onsubmit="return false;">
 <!-- 可安排時段 -->
@@ -274,7 +459,11 @@
           document.getElementById('ok').style.display='flex';
           setTimeout(()=>{ localStorage.removeItem(KEY); location.href='index.html'; }, 1200);
         }catch(err){
-          alert('提交失敗：'+err.message);
+          if (window.showValidationDialog) {
+            window.showValidationDialog('提交失敗：' + err.message);
+          } else {
+            alert('提交失敗：' + err.message);
+          }
         }
       });
 
@@ -283,16 +472,13 @@
     })();
   </script>
 <script>
-  // === 必填驗證：可安排時段（可複選） — 強化版：阻止預設並阻止事件傳遞 ===
+  // === 必填驗證：可安排時段（可複選） — 使用美化彈窗 ===
   (function () {
     function timeslotValid() {
       var checked = document.querySelectorAll('input[name="timeslot"]:checked');
       return checked && checked.length > 0;
     }
-    function ensureGroupInView() {
-      var grp = document.getElementById('timeslot-group');
-      if (grp && grp.scrollIntoView) grp.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+
     function guardAndBlock(e) {
       if (!timeslotValid()) {
         if (e) {
@@ -300,8 +486,15 @@
           if (e.stopImmediatePropagation) e.stopImmediatePropagation();
           else if (e.stopPropagation) e.stopPropagation();
         }
-        alert('請至少選擇一個可安排時段');
-        ensureGroupInView();
+        var grp = document.getElementById('timeslot') || document.querySelector('.group[id="timeslot"]') || null;
+        if (window.showValidationDialog) {
+          window.showValidationDialog('請至少選擇一個可安排時段', grp || null);
+        } else {
+          alert('請至少選擇一個可安排時段');
+          if (grp && grp.scrollIntoView) {
+            grp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
         return false;
       }
       return true;
@@ -322,7 +515,6 @@
     document.addEventListener('submit', function (e) {
       if (!guardAndBlock(e)) return false;
     }, true); // 捕獲
-
   })();
 </script>
 <!-- 等待動畫區塊 -->

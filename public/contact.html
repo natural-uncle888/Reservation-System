@@ -156,7 +156,168 @@
   }
   .section-title-row .title-main{display:flex;align-items:center;gap:6px}
   .section-title-row .title-sub{font-size:0.86rem;color:var(--muted)}
+
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  
+/* === 共用：必填錯誤彈窗 + 欄位高亮 === */
+.validation-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease-out;
+}
+.validation-backdrop.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.validation-modal{
+  max-width:320px;
+  width:90%;
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px 20px 16px;
+  box-shadow:0 24px 60px rgba(15,23,42,0.45);
+  font-family:inherit;
+}
+.validation-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--brand,#2563eb);
+  margin-bottom:4px;
+}
+.validation-message{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--ink,#111827);
+  margin-bottom:12px;
+}
+.validation-btn{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  height:40px;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--brand,#2563eb);
+  color:#ffffff;
+}
+.validation-btn:hover{
+  background:var(--brand-700,#1e40af);
+}
+.field-error-highlight{
+  box-shadow:0 0 0 2px rgba(239,68,68,0.7);
+  border-radius:14px;
+  transition:box-shadow .25s ease-out, transform .25s ease-out;
+  transform:translateY(-1px);
+}
 </style>
+
+  <script src="validation-dialog.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -166,6 +327,30 @@
       請留下方便與您聯繫的方式與時間，我們會先以「文字」與您確認細節，不會直接撥打電話打擾您。
     </p>
   </header>
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item is-current">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+
 
   <!-- 區塊一：聯繫方式 -->
   <section class="section">
@@ -545,83 +730,106 @@
 <a class="fab-home" aria-label="回首頁" href="index.html">🏠</a>
 
 <script>
-  // === 必填驗證 ===
-  document.addEventListener('DOMContentLoaded', function () {
-    const nextBtn = document.getElementById('next');
+  // === 必填驗證（美化彈窗 + 自動捲動） ===
+document.addEventListener('DOMContentLoaded', function () {
+  const nextBtn = document.getElementById('next');
+  if (!nextBtn) return;
 
-    if (!nextBtn) return;
+  nextBtn.addEventListener('click', function (e) {
+    let valid = true;
+    let msg = '';
+    let target = null;
 
-    nextBtn.addEventListener('click', function (e) {
-      let valid = true;
-      let msg = '';
+    // 1️⃣ 「與我們聯繫方式」必填
+    const contactSelected = document.querySelector('input[name="contact_method"]:checked');
+    if (!contactSelected) {
+      valid = false;
+      msg = '請選擇一個聯繫方式（LINE / Facebook / 電話 / 其他）';
+      const methodAny = document.querySelector('input[name="contact_method"]');
+      target = methodAny && methodAny.closest
+        ? (methodAny.closest('.section') || methodAny.closest('.field-group') || methodAny)
+        : methodAny;
+    }
 
-      // 1️⃣ 驗證「與我們聯繫方式」必填
-      const contactSelected = document.querySelector('input[name="contact_method"]:checked');
-      if (!contactSelected) {
+    // 2️⃣ 若選 LINE / Facebook，名稱必填
+    if (valid && contactSelected && (contactSelected.value === 'LINE' || contactSelected.value === 'Facebook')) {
+      const socialName = document.querySelector('input[name="social_name"]');
+      if (!socialName.value.trim()) {
         valid = false;
-        msg = '請選擇一個聯繫方式（LINE / Facebook / 電話 / 其他）';
+        msg = '若選擇 LINE 或 Facebook，請填寫您的顯示名稱或帳號';
+        target = socialName;
       }
+    }
 
-      // 2️⃣ 驗證「LINE 或 Facebook 名稱」若選 LINE / Facebook 時必填
-      if (valid && (contactSelected?.value === 'LINE' || contactSelected?.value === 'Facebook')) {
-        const socialName = document.querySelector('input[name="social_name"]');
-        if (!socialName.value.trim()) {
-          valid = false;
-          msg = '您選擇了 ' + contactSelected.value + '，請填寫名稱';
-        }
+    // 3️⃣ 顧客姓名必填
+    if (valid) {
+      const nameField = document.querySelector('input[name="name"]');
+      if (!nameField || !nameField.value.trim()) {
+        valid = false;
+        msg = '請輸入顧客姓名';
+        target = nameField;
       }
+    }
 
-      // 3️⃣ 驗證「顧客姓名」必填
-      if (valid) {
-        const nameField = document.querySelector('input[name="name"]');
-        if (!nameField.value.trim()) {
-          valid = false;
-          msg = '請輸入顧客姓名';
-        }
+    // 4️⃣ 聯繫電話必填
+    if (valid) {
+      const phoneField = document.querySelector('input[name="phone"]');
+      if (!phoneField || !phoneField.value.trim()) {
+        valid = false;
+        msg = '請輸入聯繫電話';
+        target = phoneField;
       }
+    }
 
-      // 4️⃣ 驗證「聯繫電話」必填
-      if (valid) {
-        const phoneField = document.querySelector('input[name="phone"]');
-        if (!phoneField.value.trim()) {
-          valid = false;
-          msg = '請輸入聯繫電話';
-        }
+    // 5️⃣ 清洗保養地址必填
+    if (valid) {
+      const addressField = document.querySelector('input[name="address"]');
+      if (!addressField || !addressField.value.trim()) {
+        valid = false;
+        msg = '請輸入清洗保養地址';
+        target = addressField;
       }
+    }
 
-      // 5️⃣ 驗證「清洗保養地址」必填
-      if (valid) {
-        const addressField = document.querySelector('input[name="address"]');
-        if (!addressField.value.trim()) {
-          valid = false;
-          msg = '請輸入清洗保養地址';
-        }
+    // 6️⃣ 居住地型態必填
+    if (valid) {
+      const housingSelected = document.querySelector('input[name="housing_type"]:checked');
+      if (!housingSelected) {
+        valid = false;
+        msg = '請選擇居住地型態';
+        const housingAny = document.querySelector('input[name="housing_type"]');
+        target = housingAny && housingAny.closest
+          ? (housingAny.closest('.section') || housingAny.closest('.field-group') || housingAny)
+          : housingAny;
       }
+    }
 
-      // 6️⃣ 驗證「居住地型態」必填
-      if (valid) {
-        const housingSelected = document.querySelector('input[name="housing_type"]:checked');
-        if (!housingSelected) {
-          valid = false;
-          msg = '請選擇居住地型態';
-        }
+    // 7️⃣ 方便聯繫時間必填（至少一個）
+    if (valid) {
+      const contactTimeChecked = document.querySelectorAll('input[name="contact_time_preference"]:checked');
+      if (!contactTimeChecked || contactTimeChecked.length === 0) {
+        valid = false;
+        msg = '請至少選擇一個方便聯繫時間';
+        const timeAny = document.querySelector('input[name="contact_time_preference"]');
+        target = timeAny && timeAny.closest
+          ? (timeAny.closest('.section') || timeAny.closest('.field-group') || timeAny)
+          : timeAny;
       }
+    }
 
-
-      // 7️⃣ 驗證「方便聯繫時間」必填
-      if (valid) {
-        const contactTimeChecked = document.querySelectorAll('input[name="contact_time_preference"]:checked');
-        if (contactTimeChecked.length === 0) {
-          valid = false;
-          msg = '請至少選擇一個方便聯繫時間';
-        }
-      }
-      if (!valid) {
-        e.preventDefault(); // 阻止跳轉
+    if (!valid) {
+      e.preventDefault();
+      if (window.showValidationDialog) {
+        window.showValidationDialog(msg, target || null);
+      } else {
         alert(msg);
+        if (target && target.scrollIntoView) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
-    });
+    }
   });
+});
 </script>
 
 </body>

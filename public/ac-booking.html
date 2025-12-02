@@ -99,7 +99,168 @@
     }
     .acv2 .nav a:hover { background: #1e40af; }
 
-  </style>
+  
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  
+/* === 共用：必填錯誤彈窗 + 欄位高亮 === */
+.validation-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease-out;
+}
+.validation-backdrop.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.validation-modal{
+  max-width:320px;
+  width:90%;
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px 20px 16px;
+  box-shadow:0 24px 60px rgba(15,23,42,0.45);
+  font-family:inherit;
+}
+.validation-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--brand,#2563eb);
+  margin-bottom:4px;
+}
+.validation-message{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--ink,#111827);
+  margin-bottom:12px;
+}
+.validation-btn{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  height:40px;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--brand,#2563eb);
+  color:#ffffff;
+}
+.validation-btn:hover{
+  background:var(--brand-700,#1e40af);
+}
+.field-error-highlight{
+  box-shadow:0 0 0 2px rgba(239,68,68,0.7);
+  border-radius:14px;
+  transition:box-shadow .25s ease-out, transform .25s ease-out;
+  transform:translateY(-1px);
+}
+</style>
+
+  <script src="validation-dialog.js"></script>
 </head>
 <body>
   <div class="acv2">
@@ -115,6 +276,30 @@
           每台會依狀況再加 <strong>NT$300–500</strong> 施工費。<br>
           實際金額會在與您聯繫確認服務內容時一併說明。
         </p>
+      </div>
+    </div>
+
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item is-current">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
       </div>
     </div>
 
@@ -324,12 +509,21 @@
 window.__ALERT_LAST_MSG__ = '';
 window.__ALERT_LAST_TS__ = 0;
 window.__BLOCK_SUBMIT_UNTIL__ = 0;
-function showOnceAlert(msg){
+function showOnceAlert(msg, targetEl){
   var now = Date.now();
   if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) return;
   window.__ALERT_LAST_MSG__ = msg;
   window.__ALERT_LAST_TS__ = now;
-  alert(msg);
+
+  if (window.showValidationDialog) {
+    window.showValidationDialog(msg, targetEl || null);
+  } else {
+    alert(msg);
+    if (targetEl && targetEl.scrollIntoView) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
   window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
 }
 
@@ -337,43 +531,52 @@ function showOnceAlert(msg){
 function runValidation(){
   function requireRadio(name, label){
     var picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
-    if(!picked){ return { ok:false, msg:'請選擇『'+label+'』' }; }
+    if(!picked){
+      return { ok:false, msg:'請選擇『'+label+'』', field:null };
+    }
     var oid = picked && picked.dataset.otherId;
     if(oid){
       var other = document.getElementById(oid);
       if(other && !(other.value||'').trim()){
-        return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明' };
+        return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
       }
     }
-    return { ok:true };
+    return { ok:true, field:null };
   }
+
   function requireCheckbox(name, label){
-    var checked = document.querySelectorAll('input[type="checkbox"][name="'+name+'"]:checked,'+
-                                            'input[type="checkbox"][name="'+name+'[]"]:checked');
-    if(checked.length===0){ return { ok:false, msg:'請至少勾選一個『'+label+'』' }; }
+    var checked = document.querySelectorAll(
+      'input[type="checkbox"][name="'+name+'"]:checked,'+
+      'input[type="checkbox"][name="'+name+'[]"]:checked'
+    );
+    if(checked.length===0){
+      return { ok:false, msg:'請至少勾選一個『'+label+'』', field:null };
+    }
     for(var i=0;i<checked.length;i++){
       var el = checked[i];
       var oid = el.dataset.otherId;
       if(oid){
         var other = document.getElementById(oid);
         if(other && other.offsetParent !== null && !(other.value||'').trim()){
-          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明' };
+          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
         }
       }
     }
-    return { ok:true };
+    return { ok:true, field:null };
   }
+
   function requireVisibleOthers(){
     var nodes = document.querySelectorAll('.other-input');
     for (var i=0;i<nodes.length;i++){
       var el = nodes[i];
       var vis = el.classList.contains('show') || el.offsetParent !== null;
       if(vis && !(el.value||'').trim()){
-        return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明' };
+        return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明', field:el };
       }
     }
-    return { ok:true };
+    return { ok:true, field:null };
   }
+
   function groupRoot(name){
     var el = document.querySelector('input[name="'+name+'"], input[name="'+name+'[]"]');
     if(!el) return null;
@@ -402,13 +605,17 @@ function runValidation(){
     var g = groups[i], r;
     if (g.type === 'radio') r = requireRadio(g.name, g.label);
     else r = requireCheckbox(g.name, g.label);
-    if (!r.ok) return { ok:false, msg:r.msg };
+    if (!r.ok){
+      return { ok:false, msg:r.msg, field: r.field || g.root };
+    }
   }
 
   var ro = requireVisibleOthers();
-  if(!ro.ok) return { ok:false, msg:ro.msg };
+  if(!ro.ok){
+    return { ok:false, msg:ro.msg, field: ro.field || null };
+  }
 
-  return { ok:true, msg:'' };
+  return { ok:true, msg:'', field:null };
 }
 
 // 下一步控制
@@ -422,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var res = runValidation();
     if(!res.ok){
       e.preventDefault(); e.stopImmediatePropagation();
-      showOnceAlert(res.msg);
+      showOnceAlert(res.msg, res.field);
       return false;
     } else {
       e.preventDefault(); e.stopImmediatePropagation();
@@ -447,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var res = runValidation();
     if(!res.ok){
       e.preventDefault(); e.stopImmediatePropagation();
-      showOnceAlert(res.msg);
+      showOnceAlert(res.msg, res.field);
       return false;
     }
   }, true);
