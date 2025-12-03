@@ -481,6 +481,12 @@
       font-size: 0.8rem;
     }
 
+    .service-fit {
+      margin-top: 0.15rem;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
     .service-chip {
       padding: 0.1rem 0.5rem;
       border-radius: 999px;
@@ -725,6 +731,116 @@
       text-underline-offset: 3px;
     }
 
+
+    .decision-section {
+      padding-top: 0;
+    }
+
+    .decision-grid {
+      margin-top: 1.6rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .decision-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-size: 0.88rem;
+    }
+
+    .decision-question-title {
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    .decision-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .decision-pill {
+      cursor: pointer;
+    }
+
+    .decision-pill input {
+      display: none;
+    }
+
+    .decision-pill-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      font-size: 0.82rem;
+      color: #4b5563;
+      background: rgba(15, 23, 42, 0.02);
+      transition: background 0.12s ease-out, border-color 0.12s ease-out,
+        color 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+    .decision-pill:hover .decision-pill-label {
+      border-color: rgba(37, 99, 235, 0.7);
+    }
+
+    .decision-pill input:checked + .decision-pill-label {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-strong);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08);
+    }
+
+    .decision-result {
+      border-radius: var(--radius-lg);
+      border: 1px dashed rgba(148, 163, 184, 0.8);
+      padding: 1rem 1rem 1.1rem;
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 60%);
+      font-size: 0.88rem;
+    }
+
+    .decision-result-hidden {
+      display: none;
+    }
+
+    .decision-result-kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+    }
+
+    .decision-result-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .decision-result-text {
+      margin: 0 0 0.8rem;
+      color: var(--muted);
+    }
+
+    .decision-result-btn {
+      margin-top: 0.35rem;
+    }
+
+    .decision-result-note {
+      margin-top: 0.6rem;
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 900px) {
+      .decision-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
     @media (max-width: 640px) {
       .footer-inner {
         flex-direction: column;
@@ -870,7 +986,7 @@
               <span class="service-chip">老舊機型可先協助評估</span>
             </div>
             <div class="service-footer">
-              <span>表單約 2 分鐘完成</span>
+              <span>適合：家中 1–8 台冷氣，一般住家、租屋族</span>
               <span class="service-link">
                 前往填寫
                 <span>➜</span>
@@ -894,7 +1010,7 @@
               <span class="service-chip">協助判斷是否建議清洗</span>
             </div>
             <div class="service-footer">
-              <span>適合單戶或小家庭</span>
+              <span>適合：需要洗衣機、水塔、水管保養</span>
               <span class="service-link">
                 瞭解更多
                 <span>➜</span>
@@ -918,7 +1034,7 @@
               <span class="service-chip">可分批安排時段</span>
             </div>
             <div class="service-footer">
-              <span>專人協助整體排程</span>
+              <span>適合：社區管委會、里長、主揪揪團；專人協助整體排程</span>
               <span class="service-link">
                 查看說明
                 <span>➜</span>
@@ -942,7 +1058,7 @@
               <span class="service-chip">量多另有專案報價</span>
             </div>
             <div class="service-footer">
-              <span>適合 20 台以上設備</span>
+              <span>適合：旅館、學校宿舍、公司、長期合約適合； 20 台以上設備</span>
               <span class="service-link">
                 查看說明
                 <span>➜</span>
@@ -950,6 +1066,103 @@
             </div>
           </a>
         </div>
+      </div>
+    </section>
+
+    <!-- Decision helper -->
+    <section class="section decision-section" aria-labelledby="decision-heading">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">不確定要選哪一個？</div>
+          <h2 class="section-title" id="decision-heading">我適合哪一種預約？</h2>
+          <p class="section-subtitle">
+            簡單回答幾個小問題，我們會依照你的情況，推薦最適合的預約入口。
+          </p>
+        </header>
+
+        <form class="decision-grid" data-decision-form>
+          <div class="decision-questions">
+            <div class="decision-question">
+              <div class="decision-question-title">1. 這次主要是幫「誰」預約？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="single" />
+                  <span class="decision-pill-label">自己家 / 單一住戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="group" />
+                  <span class="decision-pill-label">同社區或幾戶一起揪團</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="bulk" />
+                  <span class="decision-pill-label">公司、學校、宿舍等大量設備</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-question">
+              <div class="decision-question-title">2. 這次主要想清洗的設備？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="ac" />
+                  <span class="decision-pill-label">以冷氣為主</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="other" />
+                  <span class="decision-pill-label">洗衣機 / 水塔 / 水管為主</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="both" />
+                  <span class="decision-pill-label">冷氣 + 其他設備一起</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-question">
+              <div class="decision-question-title">3. 大約會清洗幾台冷氣或幾戶？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="1to8" />
+                  <span class="decision-pill-label">約 1–8 台 / 1 戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="9to20" />
+                  <span class="decision-pill-label">約 9–20 台 / 2–5 戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="20plus" />
+                  <span class="decision-pill-label">超過 20 台或很多戶</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <aside
+            class="decision-result decision-result-hidden"
+            data-decision-result
+            aria-live="polite"
+            aria-hidden="true"
+          >
+            <div class="decision-result-kicker">推薦預約方式</div>
+            <div class="decision-result-title" data-decision-title>
+              請先完成上方三個小問題
+            </div>
+            <p class="decision-result-text" data-decision-desc>
+              選完後會自動推薦適合的預約入口，你也可以之後在表單備註再補充說明。
+            </p>
+            <a
+              href="#services"
+              class="btn btn-primary decision-result-btn"
+              data-decision-btn
+            >
+              先從服務介紹開始
+              <span>➜</span>
+            </a>
+            <p class="decision-result-note">
+              小提醒：這只是幫助你快速對號入座，實際排程與報價都會由專人再與你確認。
+            </p>
+          </aside>
+        </form>
       </div>
     </section>
 
@@ -1142,6 +1355,97 @@
   <script>
     // 動態年份
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // 「我適合哪一種預約？」決策小表：根據選項推薦入口
+    (function () {
+      var form = document.querySelector("[data-decision-form]");
+      if (!form) return;
+
+      var resultBox = document.querySelector("[data-decision-result]");
+      var titleEl = document.querySelector("[data-decision-title]");
+      var descEl = document.querySelector("[data-decision-desc]");
+      var btnEl = document.querySelector("[data-decision-btn]");
+
+      if (!resultBox || !titleEl || !descEl || !btnEl) return;
+
+      var routes = {
+        ac: {
+          title: "❄️ 冷氣清洗預約",
+          href: "ac-booking.html",
+          desc: "適合：家中 1–8 台冷氣，一般住家、租屋族。",
+          btnLabel: "前往「冷氣清洗預約」填寫"
+        },
+        other: {
+          title: "🧺 其他保養清洗",
+          href: "other-service.html",
+          desc: "適合：需要洗衣機、水塔、水管保養。",
+          btnLabel: "前往「其他保養清洗」填寫"
+        },
+        group: {
+          title: "👨‍👩‍👧‍👦 團購預約清洗",
+          href: "group-booking.html",
+          desc: "適合：社區管委會、里長、主揪揪團。",
+          btnLabel: "前往「團購預約清洗」填寫"
+        },
+        bulk: {
+          title: "🏢 大量清洗需求",
+          href: "bulk-booking.html",
+          desc: "適合：建案交屋、學校宿舍、公司、長期合約。",
+          btnLabel: "前往「大量清洗需求」填寫"
+        }
+      };
+
+      function getValue(name) {
+        var checked = form.querySelector('input[name="' + name + '"]:checked');
+        return checked ? checked.value : "";
+      }
+
+      function decideRoute() {
+        var q1 = getValue("decision-q1");
+        var q2 = getValue("decision-q2");
+        var q3 = getValue("decision-q3");
+
+        // 問題還沒回答完就先隱藏建議
+        if (!q1 || !q2 || !q3) {
+          resultBox.classList.add("decision-result-hidden");
+          resultBox.setAttribute("aria-hidden", "true");
+          return;
+        }
+
+        var key = "ac";
+
+        // 先依照規模 / 類型粗分
+        if (q1 === "group") {
+          key = "group";
+        } else if (q1 === "bulk") {
+          key = "bulk";
+        } else if (q3 === "20plus") {
+          key = "bulk";
+        } else if (q1 === "multi" || q3 === "9to20") {
+          key = "group";
+        } else {
+          // 單戶情境，再看設備類型
+          if (q2 === "other") {
+            key = "other";
+          } else {
+            key = "ac";
+          }
+        }
+
+        var route = routes[key];
+        if (!route) return;
+
+        titleEl.textContent = route.title;
+        descEl.textContent = route.desc;
+        btnEl.textContent = route.btnLabel;
+        btnEl.setAttribute("href", route.href);
+
+        resultBox.classList.remove("decision-result-hidden");
+        resultBox.setAttribute("aria-hidden", "false");
+      }
+
+      form.addEventListener("change", decideRoute);
+    })();
   </script>
 </body>
 </html>
