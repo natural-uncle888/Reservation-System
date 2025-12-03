@@ -733,7 +733,10 @@ if (data.service_description) {
 }
 
 
+if (data.service === "冷氣清洗") {
   blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要")));
+}
+
   blocks.push(sectionCard("其他清洗服務",
   kv("直立式洗衣機清洗（台數）", data.washer_count) +
   kv("洗衣機樓層", data.washer_floor) +
