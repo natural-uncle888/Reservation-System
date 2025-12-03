@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <title>自然大叔｜家電清洗‧保養線上預約</title>
+<link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="自然大叔提供冷氣、直立式洗衣機、水塔、自來水管等清洗保養服務，線上填寫需求後由專人聯繫報價與排程。" />
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    :root {
+      --brand: #2563eb;
+      --brand-soft: #eff6ff;
+      --brand-strong: #1d4ed8;
+      --ink: #111827;
+      --muted: #6b7280;
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --danger: #b91c1c;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #e5edff 0, #f9fafb 45%, #f3f4f6 100%);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .container {
+      width: min(1120px, 100% - 2.5rem);
+      margin: 0 auto;
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        width: min(1120px, 100% - 4rem);
+      }
+    }
+
+    /* Header */
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(248, 250, 252, 0.9);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      height: 36px;
+      width: auto;
+      border-radius: 999px;
+      object-fit: contain;
+    }
+
+    .brand-text-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-text-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .nav-link {
+      position: relative;
+      padding-bottom: 0.1rem;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.25rem;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--brand);
+      transition: width 0.18s ease-out;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.88rem;
+    }
+
+    .nav-cta span {
+      font-size: 1.1rem;
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 768px) {
+      .site-header-inner {
+        padding: 0.6rem 0;
+      }
+
+      .nav {
+        display: none;
+      }
+    }
+
+    /* Hero */
+
+    .hero {
+      padding: 2.5rem 0 2rem;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--brand-strong);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.18rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .hero-kicker-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 5px rgba(34, 197, 94, 0.3);
+    }
+
+    .hero-title {
+      margin: 0.9rem 0 0.6rem;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+    }
+
+    .hero-title span.highlight {
+      color: var(--brand-strong);
+    }
+
+    .hero-subtitle {
+      margin: 0;
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 33rem;
+    }
+
+    .hero-actions {
+      margin-top: 1.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out,
+        background 0.12s ease-out, border-color 0.12s ease-out;
+      background: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(37, 99, 235, 0.45);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: rgba(148, 163, 184, 0.6);
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .btn span.icon {
+      font-size: 1.2rem;
+    }
+
+    .hero-meta {
+      margin-top: 1.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.04);
+    }
+
+    .hero-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--brand-strong);
+    }
+
+    .hero-card {
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 35%, #f9fafb 100%);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.4rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card-tag {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-card-title span.badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.08);
+      color: #15803d;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: 1.1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .hero-stat-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
+    }
+
+    .hero-stat-value {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .hero-card-note {
+      margin-top: 0.8rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1.8rem;
+      }
+
+      .hero {
+        padding: 2rem 0 1.3rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title {
+        font-size: 1.6rem;
+      }
+
+      .hero-subtitle {
+        font-size: 0.92rem;
+      }
+
+      .hero-card {
+        padding: 1.2rem 1.1rem;
+      }
+    }
+
+    /* Service section */
+
+    .section {
+      padding: 1.8rem 0 0.6rem;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 1.3rem;
+    }
+
+    .section-kicker {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.03em;
+    }
+
+    .section-subtitle {
+      margin: 0.3rem 0 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .service-grid {
+      margin-top: 1.6rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .service-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .service-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1rem 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      cursor: pointer;
+      transition: transform 0.12s ease-out, box-shadow 0.12s ease-out,
+        border-color 0.12s ease-out, background 0.12s ease-out;
+    }
+
+    .service-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 38px rgba(15, 23, 42, 0.16);
+      border-color: var(--brand);
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 50%);
+    }
+
+    .service-tag {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b7280;
+    }
+
+    .service-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .service-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .service-badge {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--brand-strong);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .service-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .service-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+      font-size: 0.8rem;
+    }
+
+    .service-fit {
+      margin-top: 0.15rem;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    .service-chip {
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.03);
+      color: #4b5563;
+    }
+
+    .service-footer {
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #6b7280;
+    }
+
+    .service-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-weight: 600;
+      color: var(--brand-strong);
+    }
+
+    .service-link span {
+      transform: translateY(1px);
+    }
+
+    /* Why us */
+
+    .why-section {
+      padding-top: 1rem;
+    }
+
+    .why-grid {
+      margin-top: 1.3rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .why-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .why-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .why-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 0.9rem;
+      padding: 0.9rem 0.9rem 0.95rem;
+      border: 1px solid rgba(209, 213, 219, 0.8);
+      font-size: 0.86rem;
+    }
+
+    .why-title {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .why-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .why-text {
+      color: var(--muted);
+    }
+
+    /* Steps */
+
+    .steps-section {
+      padding-top: 1.4rem;
+    }
+
+    .steps-grid {
+      margin-top: 1.4rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .steps-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .steps-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .step-card {
+      background: #ffffff;
+      border-radius: 0.9rem;
+      padding: 0.95rem 0.9rem;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      font-size: 0.86rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step-number {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-title {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .step-text {
+      color: var(--muted);
+    }
+
+    .step-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.4rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: rgba(37, 99, 235, 0.06);
+      color: var(--brand-strong);
+    }
+
+    .steps-note {
+      margin-top: 0.8rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* FAQ */
+
+    .faq-section {
+      padding-top: 1.4rem;
+      padding-bottom: 2.4rem;
+    }
+
+    .faq-list {
+      margin-top: 1.1rem;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .faq-item {
+      border-radius: 0.75rem;
+      border: 1px solid rgba(209, 213, 219, 0.9);
+      background: rgba(255, 255, 255, 0.96);
+      margin-bottom: 0.55rem;
+      overflow: hidden;
+    }
+
+    .faq-item summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .faq-item summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .faq-question {
+      font-weight: 500;
+    }
+
+    .faq-icon {
+      font-size: 1rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .faq-body {
+      font-size: 0.86rem;
+      color: var(--muted);
+      padding: 0 0.9rem 0.75rem;
+      border-top: 1px solid rgba(229, 231, 235, 0.9);
+    }
+
+    .faq-body p {
+      margin: 0.5rem 0 0;
+    }
+
+    /* Footer */
+
+    .site-footer {
+      border-top: 1px solid rgba(209, 213, 219, 0.9);
+      background: #f9fafb;
+      padding: 1.2rem 0 1.6rem;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+    }
+
+    .footer-link {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+
+    .decision-section {
+      padding-top: 0;
+    }
+
+    .decision-grid {
+      margin-top: 1.6rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+
+    .decision-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      font-size: 0.88rem;
+    }
+
+    .decision-question-title {
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+    }
+
+    .decision-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .decision-pill {
+      cursor: pointer;
+    }
+
+    .decision-pill input {
+      display: none;
+    }
+
+    .decision-pill-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      font-size: 0.82rem;
+      color: #4b5563;
+      background: rgba(15, 23, 42, 0.02);
+      transition: background 0.12s ease-out, border-color 0.12s ease-out,
+        color 0.12s ease-out, box-shadow 0.12s ease-out;
+    }
+
+    .decision-pill:hover .decision-pill-label {
+      border-color: rgba(37, 99, 235, 0.7);
+    }
+
+    .decision-pill input:checked + .decision-pill-label {
+      background: var(--brand-soft);
+      border-color: var(--brand);
+      color: var(--brand-strong);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.08);
+    }
+
+    .decision-result {
+      border-radius: var(--radius-lg);
+      border: 1px dashed rgba(148, 163, 184, 0.8);
+      padding: 1rem 1rem 1.1rem;
+      background: radial-gradient(circle at top left, #eff6ff 0, #ffffff 60%);
+      font-size: 0.88rem;
+    }
+
+    .decision-result-hidden {
+      display: none;
+    }
+
+    .decision-result-kicker {
+      font-size: 0.78rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+    }
+
+    .decision-result-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .decision-result-text {
+      margin: 0 0 0.8rem;
+      color: var(--muted);
+    }
+
+    .decision-result-btn {
+      margin-top: 0.35rem;
+    }
+
+    .decision-result-note {
+      margin-top: 0.6rem;
+      font-size: 0.78rem;
+      color: #6b7280;
+    }
+
+    @media (max-width: 900px) {
+      .decision-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <div class="brand">
+        <img src="logo-3.png" alt="自然大叔 Logo" class="brand-logo" />
+        <div>
+          <div class="brand-text-title">自然大叔</div>
+          <div class="brand-text-sub">家電清洗‧保養線上預約</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="#services" class="nav-link">我要預約</a>
+        <a href="#flow" class="nav-link">預約流程</a>
+        <a href="#faq" class="nav-link">常見問題</a>
+        <a href="https://lin.ee/OHk6Rn7" class="nav-cta">
+          直接聯繫
+          <span>➜</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-left">
+          <div class="hero-kicker">
+            <span class="hero-kicker-dot"></span>
+            線上填寫約 2 分鐘完成
+          </div>
+          <h1 class="hero-title">
+            <span class="highlight">冷氣清洗</span>、直立式洗衣機、水塔…
+            <br />
+            一次搞定的
+            <span class="highlight">預約表單</span>
+          </h1>
+          <p class="hero-subtitle">
+            告訴我們家裡或公司有哪些家電需要清洗、方便聯絡的時間，
+            其他交給自然大叔專人，協助報價與安排到府服務。
+          </p>
+
+          <div class="hero-actions">
+            <a href="ac-booking.html" class="btn btn-primary">
+              <span class="icon">❄️</span>
+              冷氣清洗快速預約
+            </a>
+            <a href="#services" class="btn btn-secondary">
+              <span class="icon">📋</span>
+              看看其他預約選項
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <div class="hero-pill">
+              <span class="hero-pill-dot"></span>
+              送出後 1 個工作天內由專人聯繫
+            </div>
+            <div class="hero-pill">
+              無需立即付款・實際金額以專人報價為準
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero-card" aria-label="預約摘要">
+          <div class="hero-card-tag">線上預約會收集哪些資訊？</div>
+          <div class="hero-card-title">
+            先幫你整理好清洗需求
+            <span class="badge">不會公開顯示</span>
+          </div>
+
+          <div class="hero-stats">
+            <div>
+              <div class="hero-stat-label">設備與數量</div>
+              <div class="hero-stat-value">
+                冷氣類型、台數、樓層…等基本資料
+              </div>
+            </div>
+            <div>
+              <div class="hero-stat-label">聯絡方式</div>
+              <div class="hero-stat-value">
+                姓名、電話、Line 或 Email 方便聯繫
+              </div>
+            </div>
+            <div>
+              <div class="hero-stat-label">預估安排時段</div>
+              <div class="hero-stat-value">
+                偏好平日 / 假日、上午 / 下午
+              </div>
+            </div>
+            <div>
+              <div class="hero-stat-label">其他備註</div>
+              <div class="hero-stat-value">
+                社區門禁、停車、特殊機型等說明
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-card-note">
+            以上資料僅用於聯繫與安排服務，詳細說明請見
+            <a href="privacy.html" style="text-decoration: underline; text-underline-offset: 2px;">
+              隱私權與個資保護聲明
+            </a>。
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Service choices -->
+    <section class="section" id="services">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">選擇適合你的預約入口</div>
+          <h2 class="section-title">先選一種最接近你的需求</h2>
+          <p class="section-subtitle">
+            如果不確定選哪一個，也可以先隨便選一項，之後在備註補充說明，
+            專人會再與你確認。
+          </p>
+        </header>
+
+        <div class="service-grid" aria-label="服務預約選項">
+          <!-- 冷氣清洗 -->
+          <a href="ac-booking.html" class="service-card">
+            <div class="service-tag">最常見</div>
+            <div class="service-title-row">
+              <div class="service-title">❄️ 冷氣清洗預約</div>
+              <div class="service-badge">推薦一般家庭</div>
+            </div>
+            <div class="service-desc">
+              一次填寫家中冷氣類型、台數、樓層與使用環境等基本資訊，由專人依條件提供建議方案與可安排時段。
+            </div>
+            <div class="service-meta">
+              <span class="service-chip">分離式 / 吊隱式皆可</span>
+              <span class="service-chip">老舊機型可先協助評估</span>
+            </div>
+            <div class="service-footer">
+              <span>適合：家中 1–8 台冷氣，一般住家、租屋族</span>
+              <span class="service-link">
+                前往填寫
+                <span>➜</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- 其他保養清洗 -->
+          <a href="other-service.html" class="service-card">
+            <div class="service-tag">直立式洗衣機・水塔・管線</div>
+            <div class="service-title-row">
+              <div class="service-title">🧺 其他保養清洗</div>
+              <div class="service-badge">家用設備</div>
+            </div>
+            <div class="service-desc">
+              直立式洗衣機、水塔、自來水管等環境保養清洗，
+              先了解設備使用狀況，由專人評估是否適合清洗。
+            </div>
+            <div class="service-meta">
+              <span class="service-chip">老舊設備可先諮詢</span>
+              <span class="service-chip">協助判斷是否建議清洗</span>
+            </div>
+            <div class="service-footer">
+              <span>適合：需要洗衣機、水塔、水管保養</span>
+              <span class="service-link">
+                瞭解更多
+                <span>➜</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- 團購預約 -->
+          <a href="group-booking.html" class="service-card">
+            <div class="service-tag">社區 / 親友揪團</div>
+            <div class="service-title-row">
+              <div class="service-title">👨‍👩‍👧‍👦 團購預約清洗</div>
+              <div class="service-badge">三戶以上推薦</div>
+            </div>
+            <div class="service-desc">
+              同一社區或親友揪團清洗冷氣、直立式洗衣機等設備，
+              可先提供大致戶數與設備數量，協助規劃最佳安排方式。
+            </div>
+            <div class="service-meta">
+              <span class="service-chip">社區揪團</span>
+              <span class="service-chip">可分批安排時段</span>
+            </div>
+            <div class="service-footer">
+              <span>適合：社區管委會、里長、主揪揪團；專人協助整體排程</span>
+              <span class="service-link">
+                查看說明
+                <span>➜</span>
+              </span>
+            </div>
+          </a>
+
+          <!-- 大量清洗需求 -->
+          <a href="bulk-booking.html" class="service-card">
+            <div class="service-tag">公司・民宿・學校</div>
+            <div class="service-title-row">
+              <div class="service-title">🏢 大量清洗需求</div>
+              <div class="service-badge">企業 / 公共空間</div>
+            </div>
+            <div class="service-desc">
+              公司辦公室、民宿、學校或其他場域有大量設備需要定期清洗，
+              可先提供場地類型、設備估計數量與希望的施工時段。
+            </div>
+            <div class="service-meta">
+              <span class="service-chip">可協助規劃年度保養</span>
+              <span class="service-chip">量多另有專案報價</span>
+            </div>
+            <div class="service-footer">
+              <span>適合：旅館、學校宿舍、公司、長期合約適合； 20 台以上設備</span>
+              <span class="service-link">
+                查看說明
+                <span>➜</span>
+              </span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision helper -->
+    <section class="section decision-section" aria-labelledby="decision-heading">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">不確定要選哪一個？</div>
+          <h2 class="section-title" id="decision-heading">我適合哪一種預約？</h2>
+          <p class="section-subtitle">
+            簡單回答幾個小問題，我們會依照你的情況，推薦最適合的預約入口。
+          </p>
+        </header>
+
+        <form class="decision-grid" data-decision-form>
+          <div class="decision-questions">
+            <div class="decision-question">
+              <div class="decision-question-title">1. 這次主要是幫「誰」預約？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="single" />
+                  <span class="decision-pill-label">自己家 / 單一住戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="group" />
+                  <span class="decision-pill-label">同社區或幾戶一起揪團</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q1" value="bulk" />
+                  <span class="decision-pill-label">公司、學校、宿舍等大量設備</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-question">
+              <div class="decision-question-title">2. 這次主要想清洗的設備？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="ac" />
+                  <span class="decision-pill-label">以冷氣為主</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="other" />
+                  <span class="decision-pill-label">洗衣機 / 水塔 / 水管為主</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q2" value="both" />
+                  <span class="decision-pill-label">冷氣 + 其他設備一起</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="decision-question">
+              <div class="decision-question-title">3. 大約會清洗幾台冷氣或幾戶？</div>
+              <div class="decision-options">
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="1to8" />
+                  <span class="decision-pill-label">約 1–8 台 / 1 戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="9to20" />
+                  <span class="decision-pill-label">約 9–20 台 / 2–5 戶</span>
+                </label>
+                <label class="decision-pill">
+                  <input type="radio" name="decision-q3" value="20plus" />
+                  <span class="decision-pill-label">超過 20 台或很多戶</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <aside
+            class="decision-result decision-result-hidden"
+            data-decision-result
+            aria-live="polite"
+            aria-hidden="true"
+          >
+            <div class="decision-result-kicker">推薦預約方式</div>
+            <div class="decision-result-title" data-decision-title>
+              請先完成上方三個小問題
+            </div>
+            <p class="decision-result-text" data-decision-desc>
+              選完後會自動推薦適合的預約入口，你也可以之後在表單備註再補充說明。
+            </p>
+            <a
+              href="#services"
+              class="btn btn-primary decision-result-btn"
+              data-decision-btn
+            >
+              先從服務介紹開始
+              <span>➜</span>
+            </a>
+            <p class="decision-result-note">
+              小提醒：這只是幫助你快速對號入座，實際排程與報價都會由專人再與你確認。
+            </p>
+          </aside>
+        </form>
+      </div>
+    </section>
+
+    <!-- Why us -->
+    <section class="section why-section">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">為什麼先填表？</div>
+          <h2 class="section-title">讓專人一次掌握重點，溝通更有效率</h2>
+          <p class="section-subtitle">
+            預約表單不是要你自己算價格，而是先把設備與環境條件整理好，
+            我們才能給出比較精準、對你比較有利的建議與報價。
+          </p>
+        </header>
+
+        <div class="why-grid">
+          <article class="why-card">
+            <div class="why-title">
+              <span class="why-icon">🧾</span>
+              先釐清設備與環境條件
+            </div>
+            <div class="why-text">
+              包含冷氣類型、台數、樓層與是否有特殊機型，
+              避免施工當天才發現無法處理，或需要加價。
+            </div>
+          </article>
+
+          <article class="why-card">
+            <div class="why-title">
+              <span class="why-icon">📞</span>
+              專人回電前就有完整資訊
+            </div>
+            <div class="why-text">
+              專人與你聯繫時，已經看過你填寫的內容，
+              能直接針對重點確認與調整，節省你與家人的時間。
+            </div>
+          </article>
+
+          <article class="why-card">
+            <div class="why-title">
+              <span class="why-icon">🧹</span>
+              現場施工風險與注意事項先說清楚
+            </div>
+            <div class="why-text">
+              水塔位置、管線狀況、老舊設備等，都會在與你確認後，
+              盡量降低清洗過程中的損壞或不便風險。
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Steps -->
+    <section class="section steps-section" id="flow">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">預約流程</div>
+          <h2 class="section-title">從填表到到府清洗，一共 4 個步驟</h2>
+          <p class="section-subtitle">
+            只要先完成線上填寫，後續由自然大叔團隊與你聯繫，
+            全程都有專人協助，不需要自己反覆估算。
+          </p>
+        </header>
+
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-number">STEP 1</div>
+            <div class="step-title">選擇預約入口</div>
+            <div class="step-text">
+              根據你是單戶、揪團或公司，選擇最接近的服務項目。
+              如果真的不確定，也可以在備註補充說明。
+            </div>
+            <div class="step-chip">首頁四張卡片任選一種</div>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">STEP 2</div>
+            <div class="step-title">填寫設備與聯繫資料</div>
+            <div class="step-text">
+              依畫面指示填寫設備類型、數量與聯繫方式，
+              全程約 2～3 分鐘，隨時可以返回上一頁修改。
+            </div>
+            <div class="step-chip">資料僅用於聯繫與安排</div>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">STEP 3</div>
+            <div class="step-title">專人與你確認報價與時段</div>
+            <div class="step-text">
+              送出後約 1 個工作天內，由專人依你填寫的內容聯繫，
+              提供建議方案與可安排的時間。
+            </div>
+            <div class="step-chip">你同意後才會安排施工</div>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">STEP 4</div>
+            <div class="step-title">到府清洗與完工確認</div>
+            <div class="step-text">
+              依約定時間到府清洗設備，完成後與你一起檢查，
+              如有後續保養建議也會當面說明。
+            </div>
+            <div class="step-chip">重視現場安全與清潔</div>
+          </article>
+        </div>
+
+        <p class="steps-note">
+          如果想先用 Line 或電話了解再填表，也可以直接前往
+          <a href="https://lin.ee/OHk6Rn7" style="text-decoration: underline; text-underline-offset: 2px;">
+            聯繫我們
+          </a>。
+        </p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq-section" id="faq">
+      <div class="container">
+        <header class="section-header">
+          <div class="section-kicker">FAQ</div>
+          <h2 class="section-title">常見問題簡單先回答</h2>
+          <p class="section-subtitle">
+            下面是幾個大家最常問的問題，詳細內容也可以在填表時於備註補充，
+            或由專人與你電話說明。
+          </p>
+        </header>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>
+              <span class="faq-question">填完表單就算確認預約了嗎？</span>
+              <span class="faq-icon">＋</span>
+            </summary>
+            <div class="faq-body">
+              <p>
+                還不算喔！線上填寫只是先整理你的清洗需求，實際的預約時間與金額，
+                會由專人與你聯繫確認，你同意後才會安排到府服務。
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span class="faq-question">如果我不確定設備狀況，適不適合清洗？</span>
+              <span class="faq-icon">＋</span>
+            </summary>
+            <div class="faq-body">
+              <p>
+                可以在表單裡盡量描述你看到的狀況（例如：機器年紀、是否有漏水或異音），
+                甚至在備註說明願意透過 Line 傳照片，
+                專人會先幫你評估清洗是否合適，再由你決定要不要進一步安排。
+              </p>
+            </div>
+          </details>
+
+          <details class="faq-item">
+            <summary>
+              <span class="faq-question">我的資料會被用在哪裡？會不會外流？</span>
+              <span class="faq-icon">＋</span>
+            </summary>
+            <div class="faq-body">
+              <p>
+                你在表單中填寫的資料僅用於自然大叔安排服務與聯繫，
+                不會對外公開或販售給第三方。詳細可參考
+                <a href="privacy.html" style="text-decoration: underline; text-underline-offset: 2px;">
+                  隱私權與個資保護聲明
+                </a>。
+              </p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        © <span id="year"></span> 自然大叔 | 家電清洗‧保養服務
+      </div>
+      <div class="footer-links">
+        <a href="#services" class="footer-link">我要預約</a>
+        <a href="#faq" class="footer-link">常見問題</a>
+        <a href="privacy.html" class="footer-link">隱私權與個資保護聲明</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // 動態年份
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // 「我適合哪一種預約？」決策小表：根據選項推薦入口
+    (function () {
+      var form = document.querySelector("[data-decision-form]");
+      if (!form) return;
+
+      var resultBox = document.querySelector("[data-decision-result]");
+      var titleEl = document.querySelector("[data-decision-title]");
+      var descEl = document.querySelector("[data-decision-desc]");
+      var btnEl = document.querySelector("[data-decision-btn]");
+
+      if (!resultBox || !titleEl || !descEl || !btnEl) return;
+
+      var routes = {
+        ac: {
+          title: "❄️ 冷氣清洗預約",
+          href: "ac-booking.html",
+          desc: "適合：家中 1–8 台冷氣，一般住家、租屋族。",
+          btnLabel: "前往「冷氣清洗預約」填寫"
+        },
+        other: {
+          title: "🧺 其他保養清洗",
+          href: "other-service.html",
+          desc: "適合：需要洗衣機、水塔、水管保養。",
+          btnLabel: "前往「其他保養清洗」填寫"
+        },
+        group: {
+          title: "👨‍👩‍👧‍👦 團購預約清洗",
+          href: "group-booking.html",
+          desc: "適合：社區管委會、里長、主揪揪團。",
+          btnLabel: "前往「團購預約清洗」填寫"
+        },
+        bulk: {
+          title: "🏢 大量清洗需求",
+          href: "bulk-booking.html",
+          desc: "適合：建案交屋、學校宿舍、公司、長期合約。",
+          btnLabel: "前往「大量清洗需求」填寫"
+        }
+      };
+
+      function getValue(name) {
+        var checked = form.querySelector('input[name="' + name + '"]:checked');
+        return checked ? checked.value : "";
+      }
+
+      function decideRoute() {
+        var q1 = getValue("decision-q1");
+        var q2 = getValue("decision-q2");
+        var q3 = getValue("decision-q3");
+
+        // 問題還沒回答完就先隱藏建議
+        if (!q1 || !q2 || !q3) {
+          resultBox.classList.add("decision-result-hidden");
+          resultBox.setAttribute("aria-hidden", "true");
+          return;
+        }
+
+        var key = "ac";
+
+        // 先依照規模 / 類型粗分
+        if (q1 === "group") {
+          key = "group";
+        } else if (q1 === "bulk") {
+          key = "bulk";
+        } else if (q3 === "20plus") {
+          key = "bulk";
+        } else if (q1 === "multi" || q3 === "9to20") {
+          key = "group";
+        } else {
+          // 單戶情境，再看設備類型
+          if (q2 === "other") {
+            key = "other";
+          } else {
+            key = "ac";
+          }
+        }
+
+        var route = routes[key];
+        if (!route) return;
+
+        titleEl.textContent = route.title;
+        descEl.textContent = route.desc;
+        btnEl.textContent = route.btnLabel;
+        btnEl.setAttribute("href", route.href);
+
+        resultBox.classList.remove("decision-result-hidden");
+        resultBox.setAttribute("aria-hidden", "false");
+      }
+
+      form.addEventListener("change", decideRoute);
+    })();
+  </script>
+</body>
+</html>
