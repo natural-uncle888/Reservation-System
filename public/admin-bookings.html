@@ -733,10 +733,10 @@ if (data.service_description) {
 }
 
 
-if (data.service === "冷氣清洗") {
+  if (data.service === "冷氣清洗") {
   blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要")));
 }
-
+if (data.service === "冷氣清洗" || data.service === "其他保養清洗") {
   blocks.push(sectionCard("其他清洗服務",
   kv("直立式洗衣機清洗（台數）", data.washer_count) +
   kv("洗衣機樓層", data.washer_floor) +
@@ -744,6 +744,7 @@ if (data.service === "冷氣清洗") {
   kv("自來水管清洗戶型方案", data.pipe_service) +
   kv("自來水管清洗原因", data.pipe_reason)
 ));
+}
   blocks.push(sectionCard("聯繫資料",
     kv("聯絡人", data.name) +
     kv("聯絡電話", data.phone) +
