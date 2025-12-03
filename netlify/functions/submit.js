@@ -107,9 +107,14 @@ function buildEmailHtml(p, pdfUrl){
     KNOWN
   );
 
-  // ---- 區塊內容：服務 / 加購 / 其他設備 / 聯繫方式 / 預約資料 ----
+  // ---- 服務類別與情境 ----
+  const serviceCategory = nb(p.service_category || p.service);
+  const isGroup = serviceCategory === "團購預約清洗";
+  const isBulk  = serviceCategory === "大量清洗需求";
+
+  // ---- 服務資訊 ----
   const service = [
-    tr("服務類別", p.service_category || p.service),
+    tr("服務類別", serviceCategory),
     tr("冷氣類型", p.ac_type),
     tr("清洗數量", p.ac_count),
     tr("室內機所在樓層", p.indoor_floor),
@@ -117,43 +122,59 @@ function buildEmailHtml(p, pdfUrl){
     tr("是否為變形金剛系列", p.ac_transformer_series)
   ].join("");
 
+  // ---- 冷氣加購服務 ----
   const addon = [
     tr("冷氣防霉抗菌處理", p.anti_mold ? "需要" : ""),
     tr("臭氧空間消毒", p.ozone ? "需要" : "")
   ].join("");
 
+  // ---- 其他清洗服務（洗衣機 / 水塔 / 水管） ----
   const otherSvc = [
-    tr("直立式洗衣機台數", p.washer_count),
-    tr("洗衣機樓層", Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor),
-    tr("自來水管清洗", p.pipe_service),
-    tr("水管清洗原因", p.pipe_reason),
-    tr("水塔清洗台數", p.tank_count)
+    tr("直立式洗衣機清洗（台數）", p.washer_count),
+    tr(
+      "洗衣機樓層",
+      Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor
+    ),
+    tr("自來水管清洗戶型方案", p.pipe_service),
+    tr("自來水管清洗原因", p.pipe_reason),
+    tr("家用水塔清洗（顆數）", p.tank_count)
   ].join("");
 
+  // ---- 團購 / 大量清洗 手動說明 ----
+  let groupBulkRows = "";
+  if (isGroup || isBulk) {
+    const val = isGroup
+      ? (p.group_notes || p.bulk_notes)
+      : (p.bulk_notes || p.group_notes);
+    groupBulkRows = tr("內容", val);
+  }
+
+  // ---- 聯繫資料 ----
   const contact = [
     tr("顧客姓名", p.customer_name || p.name),
     tr("聯繫電話", p.phone),
     tr("與我們聯繫方式", p.contact_method),
-    tr("聯繫帳號／名稱", p.line_or_fb),
+    tr("聯繫帳號／名稱", p.line_or_fb || p.social_name),
     tr("其他聯繫說明", p.other_contact_detail)
   ].join("");
 
+  // ---- 預約詳細資料 ----
   const booking = [
-    tr("可安排時段", timeslot),
-    tr("方便聯繫時間", contactPref),
     tr("清洗保養地址", p.address),
     tr("居住地型態", p.house_type || p.housing_type),
+    tr("可安排時段", timeslot),
+    tr("方便聯繫時間", contactPref),
     tr("其他備註說明", p.note)
   ].join("");
 
   // ---- 重要摘要：放在信件最前面 ----
   const summary = [
-    tr("服務類別", p.service_category || p.service),
-    tr("可安排時段", timeslot),
-    tr("方便聯繫時間", contactPref),
+    tr("服務類別", serviceCategory),
     tr("顧客姓名", p.customer_name || p.name),
     tr("聯繫電話", p.phone),
-    tr("服務地區", p.area || p.city || "")
+    tr("服務地區", p.area || p.city),
+    tr("可安排時段", timeslot),
+    tr("方便聯繫時間", contactPref)
   ].join("");
 
   // ---- PDF 連結 ----
@@ -167,7 +188,7 @@ function buildEmailHtml(p, pdfUrl){
     : "";
 
   // ---- 信件標題用的小標資訊 ----
-  const titleService = nb(p.service_category || p.service) || "新預約";
+  const titleService = serviceCategory || "新預約";
   const titleName = nb(p.customer_name || p.name);
   const titleArea = nb(p.area || p.city);
 
@@ -197,6 +218,9 @@ function buildEmailHtml(p, pdfUrl){
         ${section("服務資訊", service)}
         ${addon.trim() ? section("防霉・消毒｜加購服務專區", addon) : ""}
         ${otherSvc.trim() ? section("其他清洗服務", otherSvc) : ""}
+        ${(isGroup || isBulk) && groupBulkRows.trim()
+          ? section(isGroup ? "團購預約說明" : "大量需求說明", groupBulkRows)
+          : ""}
         ${section("聯繫資料", contact)}
         ${section("預約詳細資料", booking)}
         ${link}
@@ -211,7 +235,6 @@ function buildEmailHtml(p, pdfUrl){
   </div>
   `;
 }
-
 
 // ---------- 字型 ----------
 async function loadChineseFontBytes() {
@@ -243,6 +266,11 @@ async function buildPdfBuffer(p){
 
   draw("新預約單", { size: 16 });
   addRow("服務類別", p.service_category);
+  if (p.service_category === "團購預約清洗") {
+    addRow("團購預約說明", p.group_notes || p.bulk_notes);
+  } else if (p.service_category === "大量清洗需求") {
+    addRow("大量需求說明", p.bulk_notes || p.group_notes);
+  }
   addRow("冷氣類型", p.ac_type);
   addRow("清洗數量", p.ac_count);
   addRow("室內機所在樓層", p.indoor_floor);
