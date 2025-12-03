@@ -81,6 +81,7 @@ function sortKnownFirst(list, known){
 }
 
 // ---------- Email HTML ----------
+
 function buildEmailHtml(p, pdfUrl){
   const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
 
@@ -107,88 +108,109 @@ function buildEmailHtml(p, pdfUrl){
     KNOWN
   );
 
-  // ---- 服務類別與情境 ----
-  const serviceCategory = nb(p.service_category || p.service);
-  const isGroup = serviceCategory === "團購預約清洗";
-  const isBulk  = serviceCategory === "大量清洗需求";
+  // 小工具：把欄位組成「標籤＋內容」的陣列，濾掉空值
+  const normalizeValue = (v) => {
+    if (v == null) return "";
+    if (Array.isArray(v)) return v.map(nb).filter(Boolean).join("、");
+    return nb(v);
+  };
 
-  // ---- 服務資訊 ----
-  const service = [
-    tr("服務類別", serviceCategory),
-    tr("冷氣類型", p.ac_type),
-    tr("清洗數量", p.ac_count),
-    tr("室內機所在樓層", p.indoor_floor),
-    tr("冷氣品牌", p.ac_brand),
-    tr("是否為變形金剛系列", p.ac_transformer_series)
-  ].join("");
+  const buildRows = (pairs) => {
+    return pairs
+      .map(([label, value]) => [label, normalizeValue(value)])
+      .filter(([, value]) => !!value)
+      .map(([label, value]) => {
+        return `
+          <div style="margin-bottom:8px;">
+            <div style="font-size:11px;color:#6b7280;margin-bottom:2px;line-height:1.4;">${label}</div>
+            <div style="font-size:14px;color:#111827;line-height:1.7;word-break:break-all;white-space:pre-wrap;">${value}</div>
+          </div>
+        `;
+      })
+      .join("");
+  };
 
-  // ---- 冷氣加購服務 ----
-  const addon = [
-    tr("冷氣防霉抗菌處理", p.anti_mold ? "需要" : ""),
-    tr("臭氧空間消毒", p.ozone ? "需要" : "")
-  ].join("");
+  const buildSection = (title, pairs) => {
+    const body = buildRows(pairs);
+    if (!body) return "";
+    return `
+      <div style="margin:16px 0;padding:14px 12px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#111827;">${title}</div>
+        ${body}
+      </div>
+    `;
+  };
 
-  // ---- 其他清洗服務（洗衣機 / 水塔 / 水管） ----
-  const otherSvc = [
-    tr("直立式洗衣機清洗（台數）", p.washer_count),
-    tr(
-      "洗衣機樓層",
-      Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor
-    ),
-    tr("自來水管清洗戶型方案", p.pipe_service),
-    tr("自來水管清洗原因", p.pipe_reason),
-    tr("家用水塔清洗（顆數）", p.tank_count)
-  ].join("");
+  // ---- 區塊內容：服務 / 加購 / 其他設備 / 聯繫方式 / 預約資料 ----
+  const servicePairs = [
+    ["服務類別", p.service_category || p.service],
+    ["冷氣類型", p.ac_type],
+    ["清洗數量", p.ac_count],
+    ["室內機所在樓層", p.indoor_floor],
+    ["冷氣品牌", p.ac_brand],
+    ["是否為變形金剛系列", p.ac_transformer_series]
+  ];
 
-  // ---- 團購 / 大量清洗 手動說明 ----
-  let groupBulkRows = "";
-  if (isGroup || isBulk) {
-    const val = isGroup
-      ? (p.group_notes || p.bulk_notes)
-      : (p.bulk_notes || p.group_notes);
-    groupBulkRows = tr("內容", val);
+  const addonPairs = [
+    ["冷氣防霉抗菌處理", p.anti_mold ? "需要" : ""],
+    ["臭氧空間消毒", p.ozone ? "需要" : ""]
+  ];
+
+  const otherServicePairs = [
+    ["直立式洗衣機台數", p.washer_count],
+    ["洗衣機樓層", Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor],
+    ["自來水管清洗", p.pipe_service],
+    ["水管清洗原因", p.pipe_reason],
+    ["水塔清洗台數", p.tank_count]
+  ];
+
+  const contactPairs = [
+    ["顧客姓名", p.customer_name || p.name],
+    ["聯繫電話", p.phone],
+    ["與我們聯繫方式", p.contact_method],
+    ["聯繫帳號／名稱", p.line_or_fb],
+    ["其他聯繫說明", p.other_contact_detail]
+  ];
+
+  const bookingPairs = [
+    ["可安排時段", timeslot],
+    ["方便聯繫時間", contactPref],
+    ["清洗保養地址", p.address],
+    ["居住地型態", p.house_type || p.housing_type],
+    ["其他備註說明", p.note]
+  ];
+
+  // 團購 / 大量清洗的手動說明
+  const groupOrBulkPairs = [];
+  if (p.service_category === "團購預約清洗" && nb(p.group_notes || p.bulk_notes)) {
+    groupOrBulkPairs.push(["團購預約說明", p.group_notes || p.bulk_notes]);
+  } else if (p.service_category === "大量清洗需求" && nb(p.bulk_notes || p.group_notes)) {
+    groupOrBulkPairs.push(["大量清洗需求說明", p.bulk_notes || p.group_notes]);
   }
 
-  // ---- 聯繫資料 ----
-  const contact = [
-    tr("顧客姓名", p.customer_name || p.name),
-    tr("聯繫電話", p.phone),
-    tr("與我們聯繫方式", p.contact_method),
-    tr("聯繫帳號／名稱", p.line_or_fb || p.social_name),
-    tr("其他聯繫說明", p.other_contact_detail)
-  ].join("");
-
-  // ---- 預約詳細資料 ----
-  const booking = [
-    tr("清洗保養地址", p.address),
-    tr("居住地型態", p.house_type || p.housing_type),
-    tr("可安排時段", timeslot),
-    tr("方便聯繫時間", contactPref),
-    tr("其他備註說明", p.note)
-  ].join("");
-
   // ---- 重要摘要：放在信件最前面 ----
-  const summary = [
-    tr("服務類別", serviceCategory),
-    tr("顧客姓名", p.customer_name || p.name),
-    tr("聯繫電話", p.phone),
-    tr("服務地區", p.area || p.city),
-    tr("可安排時段", timeslot),
-    tr("方便聯繫時間", contactPref)
-  ].join("");
+  const summaryPairs = [
+    ["服務類別", p.service_category || p.service],
+    ["顧客姓名", p.customer_name || p.name],
+    ["聯繫電話", p.phone],
+    ["服務地區", p.area || p.city || ""],
+    ["可安排時段", timeslot],
+    ["方便聯繫時間", contactPref]
+  ];
 
   // ---- PDF 連結 ----
-  const link = pdfUrl
-    ? `<p style="margin:12px 0 0;font-size:13px;color:#4b5563;">
-        PDF 檔案連結：
-        <a href="${pdfUrl}" target="_blank" rel="noreferrer" style="color:#2563eb;text-decoration:underline;">
-          在瀏覽器中開啟預約單
+  const linkHtml = pdfUrl
+    ? `
+      <div style="margin-top:6px;">
+        <a href="${pdfUrl}" target="_blank" rel="noreferrer" style="font-size:13px;color:#2563eb;text-decoration:underline;word-break:break-all;">
+          在瀏覽器中開啟預約單（PDF）
         </a>
-      </p>`
+      </div>
+    `
     : "";
 
   // ---- 信件標題用的小標資訊 ----
-  const titleService = serviceCategory || "新預約";
+  const titleService = nb(p.service_category || p.service) || "新預約";
   const titleName = nb(p.customer_name || p.name);
   const titleArea = nb(p.area || p.city);
 
@@ -199,43 +221,44 @@ function buildEmailHtml(p, pdfUrl){
 
   // ---- 最終信件 HTML ----
   return `
-  <div style="margin:0;padding:24px;background:#f3f4f6;">
-    <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
-      <!-- Header -->
-      <div style="padding:18px 24px;border-bottom:1px solid #e5e7eb;background:#111827;color:#f9fafb;">
-        <div style="font-size:18px;font-weight:600;letter-spacing:0.03em;">
-          自然大叔｜${titleService} 預約通知
-        </div>
-        ${subtitle ? `<div style="margin-top:4px;font-size:13px;color:#e5e7eb;">${subtitle}</div>` : ""}
-        <div style="margin-top:6px;font-size:12px;color:#9ca3af;">
-          這封信來自線上預約表單，請優先確認下方「重要摘要」與預約時段。
-        </div>
-      </div>
+  <div style="margin:0;padding:0;background:#f3f4f6;">
+    <div style="max-width:640px;margin:0 auto;padding:12px 8px;">
+      <div style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
 
-      <!-- Body -->
-      <div style="padding:20px 24px;">
-        ${section("重要摘要（請優先查看）", summary)}
-        ${section("服務資訊", service)}
-        ${addon.trim() ? section("防霉・消毒｜加購服務專區", addon) : ""}
-        ${otherSvc.trim() ? section("其他清洗服務", otherSvc) : ""}
-        ${(isGroup || isBulk) && groupBulkRows.trim()
-          ? section(isGroup ? "團購預約說明" : "大量需求說明", groupBulkRows)
-          : ""}
-        ${section("聯繫資料", contact)}
-        ${section("預約詳細資料", booking)}
-        ${link}
-      </div>
+        <!-- Header -->
+        <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;background:#111827;color:#f9fafb;">
+          <div style="font-size:16px;font-weight:600;letter-spacing:0.03em;">
+            自然大叔｜${titleService} 預約通知
+          </div>
+          ${subtitle ? `<div style="margin-top:4px;font-size:12px;color:#e5e7eb;">${subtitle}</div>` : ""}
+          <div style="margin-top:6px;font-size:11px;color:#9ca3af;line-height:1.5;">
+            這封信來自線上預約表單，請優先確認下方「重要摘要」與預約時段。
+          </div>
+        </div>
 
-      <!-- Footer -->
-      <div style="padding:12px 24px;border-top:1px solid #e5e7eb;font-size:11px;line-height:1.6;color:#9ca3af;background:#f9fafb;">
-        <div>※ 本信件由系統自動發送，請直接於後台或回覆管道處理預約，不需回信給顧客。</div>
-        <div>※ 若有重複預約或資料需更正，可在 Cloudinary PDF 或後台列表中查看完整內容。</div>
+        <!-- Body -->
+        <div style="padding:16px 14px;font-size:14px;color:#111827;line-height:1.7;">
+          ${buildSection("重要摘要（請優先查看）", summaryPairs)}
+          ${buildSection("服務資訊", servicePairs)}
+          ${addonPairs.some(([, v]) => normalizeValue(v)) ? buildSection("防霉・消毒｜加購服務專區", addonPairs) : ""}
+          ${otherServicePairs.some(([, v]) => normalizeValue(v)) ? buildSection("其他清洗服務", otherServicePairs) : ""}
+          ${groupOrBulkPairs.length ? buildSection("團購／大量需求說明", groupOrBulkPairs) : ""}
+          ${buildSection("聯繫資料", contactPairs)}
+          ${buildSection("預約詳細資料", bookingPairs)}
+          ${linkHtml}
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:10px 14px;border-top:1px solid #e5e7eb;font-size:11px;line-height:1.6;color:#6b7280;background:#f9fafb;">
+          <div>※ 本信件由系統自動發送，請直接於後台或回覆管道處理預約，不需回信給顧客。</div>
+          <div>※ 若有重複預約或資料需更正，可在 Cloudinary PDF 或後台列表中查看完整內容。</div>
+        </div>
+
       </div>
     </div>
   </div>
   `;
 }
-
 // ---------- 字型 ----------
 async function loadChineseFontBytes() {
   const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
