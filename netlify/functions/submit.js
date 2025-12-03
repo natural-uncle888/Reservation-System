@@ -85,8 +85,8 @@ function sortKnownFirst(list, known){
 function buildEmailHtml(p, pdfUrl){
   const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
 
-  // ---- 時段整理：預約時段 & 聯絡時間 ----
-  const timeslot = sortKnownFirst(
+  // ---- 可安排時段 / 聯繫時間（整理成好讀文字） ----
+  const timeslotList = sortKnownFirst(
     []
       .concat(toArr(p.timeslot))
       .concat(
@@ -96,8 +96,9 @@ function buildEmailHtml(p, pdfUrl){
       ),
     KNOWN
   );
+  const timeslotText = Array.isArray(timeslotList) ? timeslotList.join("、") : timeslotList;
 
-  const contactPref = sortKnownFirst(
+  const contactPrefList = sortKnownFirst(
     []
       .concat(toArr(p.contact_time_preference))
       .concat(
@@ -107,110 +108,129 @@ function buildEmailHtml(p, pdfUrl){
       ),
     KNOWN
   );
+  const contactPrefText = Array.isArray(contactPrefList) ? contactPrefList.join("、") : contactPrefList;
 
-  // 小工具：把欄位組成「標籤＋內容」的陣列，濾掉空值
-  const normalizeValue = (v) => {
-    if (v == null) return "";
-    if (Array.isArray(v)) return v.map(nb).filter(Boolean).join("、");
-    return nb(v);
+  const serviceName = nb(p.service_category || p.service || "");
+  const isAC    = serviceName === "冷氣清洗";
+  const isOther = serviceName === "其他保養清洗";
+  const isGroup = serviceName === "團購預約清洗";
+  const isBulk  = serviceName === "大量清洗需求";
+
+  // ---- 小工具：行 & 區塊 ----
+  const makeRow = (label, value) => {
+    if (value == null) return "";
+    const t = Array.isArray(value)
+      ? toArr(value).map(nb).filter(Boolean).join("、")
+      : nb(value);
+    if (!t) return "";
+    return `<div style="margin-bottom:8px;">
+      <div style="font-size:12px;color:#6b7280;line-height:1.4;">${label}</div>
+      <div style="font-size:14px;color:#111827;line-height:1.7;word-break:break-word;white-space:pre-wrap;">${t}</div>
+    </div>`;
   };
 
-  const buildRows = (pairs) => {
-    return pairs
-      .map(([label, value]) => [label, normalizeValue(value)])
-      .filter(([, value]) => !!value)
-      .map(([label, value]) => {
-        return `
-          <div style="margin-bottom:8px;">
-            <div style="font-size:11px;color:#6b7280;margin-bottom:2px;line-height:1.4;">${label}</div>
-            <div style="font-size:14px;color:#111827;line-height:1.7;word-break:break-all;white-space:pre-wrap;">${value}</div>
-          </div>
-        `;
-      })
-      .join("");
+  const makeSection = (title, innerHtml) => {
+    if (!innerHtml || !nb(innerHtml)) return "";
+    return `<div style="margin:0 0 16px;padding:14px 14px 12px;border-radius:12px;border:1px solid #e5e7eb;background:#f9fafb;">
+      <div style="font-size:13px;font-weight:600;color:#1d4ed8;margin-bottom:8px;">${title}</div>
+      ${innerHtml}
+    </div>`;
   };
 
-  const buildSection = (title, pairs) => {
-    const body = buildRows(pairs);
-    if (!body) return "";
-    return `
-      <div style="margin:16px 0;padding:14px 12px;border-radius:10px;background:#f9fafb;border:1px solid #e5e7eb;">
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;color:#111827;">${title}</div>
-        ${body}
-      </div>
-    `;
-  };
+  // ---- 重要摘要（依服務類別客製欄位） ----
+  let summaryRows = "";
 
-  // ---- 區塊內容：服務 / 加購 / 其他設備 / 聯繫方式 / 預約資料 ----
-  const servicePairs = [
-    ["服務類別", p.service_category || p.service],
-    ["冷氣類型", p.ac_type],
-    ["清洗數量", p.ac_count],
-    ["室內機所在樓層", p.indoor_floor],
-    ["冷氣品牌", p.ac_brand],
-    ["是否為變形金剛系列", p.ac_transformer_series]
-  ];
+  if (isAC) {
+    summaryRows += makeRow("冷氣類型", p.ac_type);
+    summaryRows += makeRow("清洗數量", p.ac_count);
+    summaryRows += makeRow("顧客姓名", p.customer_name || p.name);
+    summaryRows += makeRow("可安排時段", timeslotText);
+  } else if (isOther) {
+    // 清洗台數(直立式洗衣機、水塔)
+    const washer = nb(p.washer_count);
+    const tank = nb(p.tank_count);
+    let countText = "";
+    const parts = [];
+    if (washer) parts.push(`直立式洗衣機 ${washer}`);
+    if (tank) parts.push(`水塔 ${tank}`);
+    if (parts.length) countText = parts.join("／");
 
-  const addonPairs = [
-    ["冷氣防霉抗菌處理", p.anti_mold ? "需要" : ""],
-    ["臭氧空間消毒", p.ozone ? "需要" : ""]
-  ];
-
-  const otherServicePairs = [
-    ["直立式洗衣機台數", p.washer_count],
-    ["洗衣機樓層", Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor],
-    ["自來水管清洗", p.pipe_service],
-    ["水管清洗原因", p.pipe_reason],
-    ["水塔清洗台數", p.tank_count]
-  ];
-
-  const contactPairs = [
-    ["顧客姓名", p.customer_name || p.name],
-    ["聯繫電話", p.phone],
-    ["與我們聯繫方式", p.contact_method],
-    ["聯繫帳號／名稱", p.line_or_fb],
-    ["其他聯繫說明", p.other_contact_detail]
-  ];
-
-  const bookingPairs = [
-    ["可安排時段", timeslot],
-    ["方便聯繫時間", contactPref],
-    ["清洗保養地址", p.address],
-    ["居住地型態", p.house_type || p.housing_type],
-    ["其他備註說明", p.note]
-  ];
-
-  // 團購 / 大量清洗的手動說明
-  const groupOrBulkPairs = [];
-  if (p.service_category === "團購預約清洗" && nb(p.group_notes || p.bulk_notes)) {
-    groupOrBulkPairs.push(["團購預約說明", p.group_notes || p.bulk_notes]);
-  } else if (p.service_category === "大量清洗需求" && nb(p.bulk_notes || p.group_notes)) {
-    groupOrBulkPairs.push(["大量清洗需求說明", p.bulk_notes || p.group_notes]);
+    summaryRows += makeRow("服務類別", serviceName || "其他保養清洗");
+    summaryRows += makeRow("清洗台數", countText);
+    summaryRows += makeRow("顧客姓名", p.customer_name || p.name);
+    summaryRows += makeRow("可安排時段", timeslotText);
+  } else if (isGroup) {
+    summaryRows += makeRow("服務類別", serviceName || "團購預約清洗");
+    summaryRows += makeRow("顧客姓名", p.customer_name || p.name);
+  } else if (isBulk) {
+    summaryRows += makeRow("服務類別", serviceName || "大量清洗需求");
+    summaryRows += makeRow("顧客姓名", p.customer_name || p.name);
+  } else {
+    // 萬一沒有正確帶到服務類別，就用保底欄位
+    summaryRows += makeRow("服務類別", serviceName || "未填寫");
+    summaryRows += makeRow("顧客姓名", p.customer_name || p.name);
+    summaryRows += makeRow("可安排時段", timeslotText);
   }
 
-  // ---- 重要摘要：放在信件最前面 ----
-  const summaryPairs = [
-    ["服務類別", p.service_category || p.service],
-    ["顧客姓名", p.customer_name || p.name],
-    ["聯繫電話", p.phone],
-    ["服務地區", p.area || p.city || ""],
-    ["可安排時段", timeslot],
-    ["方便聯繫時間", contactPref]
-  ];
+  const summarySection = makeSection("重要摘要（請優先查看）", summaryRows);
 
-  // ---- PDF 連結 ----
-  const linkHtml = pdfUrl
-    ? `
-      <div style="margin-top:6px;">
-        <a href="${pdfUrl}" target="_blank" rel="noreferrer" style="font-size:13px;color:#2563eb;text-decoration:underline;word-break:break-all;">
-          在瀏覽器中開啟預約單（PDF）
-        </a>
-      </div>
-    `
+  // ---- 服務資訊 ----
+  const serviceRows = [
+    makeRow("服務類別", serviceName),
+    makeRow("冷氣類型", p.ac_type),
+    makeRow("清洗數量", p.ac_count),
+    makeRow("室內機所在樓層", p.indoor_floor),
+    makeRow("冷氣品牌", p.ac_brand),
+    makeRow("是否為變形金剛系列", p.ac_transformer_series)
+  ].join("");
+
+  // ---- 加購服務 ----
+  const addonRows = [
+    makeRow("冷氣防霉抗菌處理", p.anti_mold ? "需要" : ""),
+    makeRow("臭氧空間消毒", p.ozone ? "需要" : "")
+  ].join("");
+
+  // ---- 其他清洗服務（洗衣機／水塔／水管） ----
+  const otherServiceRows = [
+    makeRow("直立式洗衣機台數", p.washer_count),
+    makeRow("洗衣機樓層", Array.isArray(p.washer_floor) ? p.washer_floor.join("、") : p.washer_floor),
+    makeRow("自來水管清洗", p.pipe_service),
+    makeRow("水管清洗原因", p.pipe_reason),
+    makeRow("水塔清洗台數", p.tank_count)
+  ].join("");
+
+  // ---- 團購／大量需求說明（手動輸入） ----
+  const groupNotes = nb(p.group_notes);
+  const bulkNotes  = nb(p.bulk_notes);
+
+  const groupSection = groupNotes
+    ? makeSection("團購預約說明", makeRow("說明內容", groupNotes))
     : "";
 
+  const bulkSection = bulkNotes
+    ? makeSection("大量需求說明", makeRow("說明內容", bulkNotes))
+    : "";
+
+  // ---- 聯繫資料 ----
+  const contactRows = [
+    makeRow("顧客姓名", p.customer_name || p.name),
+    makeRow("聯繫電話", p.phone),
+    makeRow("與我們聯繫方式", p.contact_method),
+    makeRow("聯繫帳號／名稱", p.line_or_fb),
+    makeRow("其他聯繫說明", p.other_contact_detail)
+  ].join("");
+
+  // ---- 預約詳細資料 ----
+  const bookingRows = [
+    makeRow("可安排時段", timeslotText),
+    makeRow("方便聯繫時間", contactPrefText),
+    makeRow("清洗保養地址", p.address),
+    makeRow("居住地型態", p.house_type || p.housing_type),
+    makeRow("其他備註說明", p.note)
+  ].join("");
+
   // ---- 信件標題用的小標資訊 ----
-  const titleService = nb(p.service_category || p.service) || "新預約";
+  const titleService = serviceName || "新預約";
   const titleName = nb(p.customer_name || p.name);
   const titleArea = nb(p.area || p.city);
 
@@ -219,46 +239,44 @@ function buildEmailHtml(p, pdfUrl){
   if (titleArea) subtitleParts.push(titleArea);
   const subtitle = subtitleParts.join("｜");
 
-  // ---- 最終信件 HTML ----
+  // ---- 最終信件 HTML（手機優先，一欄式） ----
   return `
-  <div style="margin:0;padding:0;background:#f3f4f6;">
-    <div style="max-width:640px;margin:0 auto;padding:12px 8px;">
-      <div style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
-
-        <!-- Header -->
-        <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;background:#111827;color:#f9fafb;">
-          <div style="font-size:16px;font-weight:600;letter-spacing:0.03em;">
-            自然大叔｜${titleService} 預約通知
-          </div>
-          ${subtitle ? `<div style="margin-top:4px;font-size:12px;color:#e5e7eb;">${subtitle}</div>` : ""}
-          <div style="margin-top:6px;font-size:11px;color:#9ca3af;line-height:1.5;">
-            這封信來自線上預約表單，請優先確認下方「重要摘要」與預約時段。
-          </div>
+  <div style="margin:0;padding:16px;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,system-ui,sans-serif;">
+    <div style="max-width:720px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;">
+      <!-- Header -->
+      <div style="padding:16px 18px 14px;background:#111827;color:#f9fafb;">
+        <div style="font-size:17px;font-weight:600;letter-spacing:0.03em;">
+          自然大叔｜${titleService} 預約通知
         </div>
-
-        <!-- Body -->
-        <div style="padding:16px 14px;font-size:14px;color:#111827;line-height:1.7;">
-          ${buildSection("重要摘要（請優先查看）", summaryPairs)}
-          ${buildSection("服務資訊", servicePairs)}
-          ${addonPairs.some(([, v]) => normalizeValue(v)) ? buildSection("防霉・消毒｜加購服務專區", addonPairs) : ""}
-          ${otherServicePairs.some(([, v]) => normalizeValue(v)) ? buildSection("其他清洗服務", otherServicePairs) : ""}
-          ${groupOrBulkPairs.length ? buildSection("團購／大量需求說明", groupOrBulkPairs) : ""}
-          ${buildSection("聯繫資料", contactPairs)}
-          ${buildSection("預約詳細資料", bookingPairs)}
-          ${linkHtml}
+        ${subtitle ? `<div style="margin-top:4px;font-size:13px;color:#e5e7eb;">${subtitle}</div>` : ""}
+        <div style="margin-top:6px;font-size:11px;color:#9ca3af;line-height:1.5;">
+          這封信來自線上預約表單，請依下方資訊安排聯繫與服務。
         </div>
+      </div>
 
-        <!-- Footer -->
-        <div style="padding:10px 14px;border-top:1px solid #e5e7eb;font-size:11px;line-height:1.6;color:#6b7280;background:#f9fafb;">
-          <div>※ 本信件由系統自動發送，請直接於後台或回覆管道處理預約，不需回信給顧客。</div>
-          <div>※ 若有重複預約或資料需更正，可在 Cloudinary PDF 或後台列表中查看完整內容。</div>
-        </div>
+      <!-- Body -->
+      <div style="padding:18px 16px 20px;">
+        ${summarySection}
+        ${makeSection("服務資訊", serviceRows)}
+        ${addonRows.trim() ? makeSection("防霉・消毒｜加購服務專區", addonRows) : ""}
+        ${otherServiceRows.trim() ? makeSection("其他清洗服務", otherServiceRows) : ""}
+        ${groupSection}
+        ${bulkSection}
+        ${makeSection("聯繫資料", contactRows)}
+        ${makeSection("預約詳細資料", bookingRows)}
+      </div>
 
+      <!-- Footer -->
+      <div style="padding:10px 18px 12px;border-top:1px solid #e5e7eb;font-size:11px;line-height:1.6;color:#9ca3af;background:#f9fafb;">
+        <div>※ 本信件由系統自動發送，請直接依後台或既有流程處理預約，不需回信給顧客。</div>
+        <div>※ 如需查詢或歸檔，可使用 Cloudinary 中的 PDF 或後台列表查看完整內容。</div>
       </div>
     </div>
   </div>
   `;
 }
+
+
 // ---------- 字型 ----------
 async function loadChineseFontBytes() {
   const fontPath = path.join(__dirname, "fonts", "NotoSansTC-Regular.otf");
@@ -289,11 +307,6 @@ async function buildPdfBuffer(p){
 
   draw("新預約單", { size: 16 });
   addRow("服務類別", p.service_category);
-  if (p.service_category === "團購預約清洗") {
-    addRow("團購預約說明", p.group_notes || p.bulk_notes);
-  } else if (p.service_category === "大量清洗需求") {
-    addRow("大量需求說明", p.bulk_notes || p.group_notes);
-  }
   addRow("冷氣類型", p.ac_type);
   addRow("清洗數量", p.ac_count);
   addRow("室內機所在樓層", p.indoor_floor);
