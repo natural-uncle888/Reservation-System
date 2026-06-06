@@ -19,6 +19,22 @@
     header{padding:26px 20px 8px}
     h1{margin:0 0 4px;font-size:22px}
     .sub{color:#64748b;font-size:13px}
+
+    .admin-tabs{display:flex;gap:10px;justify-content:center;align-items:center;margin:14px 0 16px;flex-wrap:wrap}
+    .admin-tab-btn{height:42px;padding:0 18px;border-radius:999px;border:1px solid #d1d5db;background:#fff;color:#334155;font-weight:800;cursor:pointer}
+    .admin-tab-btn.is-active{background:#14532d;border-color:#14532d;color:#fff;box-shadow:0 8px 18px rgba(20,83,45,.18)}
+    .admin-tab-panel[hidden]{display:none !important}
+    .pricing-settings{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(15,23,42,.06)}
+    .pricing-settings h2{margin:0 0 6px;font-size:22px;color:#0f172a}
+    .pricing-settings .pricing-help{margin:0 0 16px;color:#64748b;font-size:14px;line-height:1.6}
+    .pricing-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .pricing-field{display:flex;flex-direction:column;gap:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px}
+    .pricing-field label{font-size:14px;font-weight:800;color:#334155}
+    .pricing-field input{height:42px;border:1px solid #cbd5e1;border-radius:10px;padding:0 12px;background:#fff}
+    .pricing-field small{font-size:12px;color:#64748b;line-height:1.45}
+    .pricing-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .pricing-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
+    @media(max-width:760px){.admin-tabs{position:sticky;top:74px;z-index:18;background:#eef5ee;padding:8px 0;margin:8px 0 12px}.admin-tab-btn{flex:1;min-width:140px}.pricing-settings{padding:14px;border-radius:18px}.pricing-grid{grid-template-columns:1fr}.pricing-actions .btn{width:100%}}
     .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
     .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
     .input{display:flex;flex-direction:column;gap:6px}
@@ -274,7 +290,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 .mobile-empty{padding:22px 14px;text-align:center;color:#64748b;background:#fff;border:1px dashed #cbd5e1;border-radius:18px;}
 
 @media (max-width: 760px){
-  body{background:#eef5ee;color:#0f172a;padding-bottom:calc(84px + env(safe-area-inset-bottom));}
+  body{background:#eef5ee;color:#0f172a;padding-bottom:calc(128px + env(safe-area-inset-bottom));}
   header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0f3d25 0%,#14532d 100%);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;border-bottom-left-radius:22px;border-bottom-right-radius:22px;box-shadow:0 10px 28px rgba(15,61,37,.22);}
   header h1{font-size:20px;margin:0 0 2px;letter-spacing:.02em;}
   header h1::before{content:'📋 ';}
@@ -319,6 +335,14 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   .panel{margin-top:2px;border-radius:22px;border:1px solid rgba(15,61,37,.10);box-shadow:0 8px 24px rgba(15,23,42,.08);padding:12px;background:#fff;}
   #preview:empty::before{content:'點選上方任一筆預約，可在這裡查看完整資料';display:block;text-align:center;color:#64748b;padding:28px 10px;line-height:1.6;}
   .panel>div[style*="display:flex"]{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border:1px solid #e5e7eb;border-radius:20px;padding:8px;box-shadow:0 16px 40px rgba(15,23,42,.22);display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;}
+  #selectedCaseHint{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.35;}
+  #selectedCaseHint.has-selection{background:#f0fdf4;border-color:#bbf7d0;color:#14532d;}
+  #selectedCaseHint .selected-case-label{font-weight:900;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #selectedCaseHint .selected-case-tag{flex:0 0 auto;font-size:11px;font-weight:900;border-radius:999px;background:#e2e8f0;color:#475569;padding:4px 8px;}
+  #selectedCaseHint.has-selection .selected-case-tag{background:#14532d;color:#fff;}
+  .mobile-booking-card.is-selected{border-color:#14532d;box-shadow:0 0 0 3px rgba(20,83,45,.14),0 10px 26px rgba(15,23,42,.10);}
+  .mobile-booking-card.is-selected::before{background:#14532d;}
+  #tbl tbody tr.is-selected{background:#f0fdf4;}
   #btnEdit,#btnDelete{height:48px;border-radius:16px !important;font-size:15px !important;font-weight:900 !important;width:100%;}
   #btnPaste{display:none !important;}
   .card.fullview{border-radius:18px;box-shadow:none;border-color:#e2e8f0;}
@@ -487,10 +511,15 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </div>
 </div>
 <header>
-<h1>預約資料管理（Cloudinary）</h1>
-<div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」。</div>
+<h1>後台管理</h1>
+<div class="sub">可管理預約資料，也可調整前台即時估價的價格設定。</div>
 </header>
 <div class="wrap">
+<div class="admin-tabs" role="tablist" aria-label="後台功能分頁">
+  <button class="admin-tab-btn is-active" id="tabBookingsBtn" type="button" role="tab" aria-selected="true" aria-controls="bookingAdminTab">預約資料管理</button>
+  <button class="admin-tab-btn" id="tabPricingBtn" type="button" role="tab" aria-selected="false" aria-controls="pricingAdminTab">價格設定</button>
+</div>
+<section id="bookingAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabBookingsBtn">
 <div class="row">
 <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
@@ -517,11 +546,30 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <div class="panel">
 <div id="preview" style="min-height:120px;"></div>
 <div style="margin-top:8px;display:flex;gap:8px">
+<div id="selectedCaseHint" aria-live="polite">
+  <span class="selected-case-label">尚未選擇案件</span>
+  <span class="selected-case-tag">請先點選上方預約</span>
+</div>
 <button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
 <button class="btn primary" id="btnEdit" type="button">✏️ 編輯案件</button>
 <button id="btnDelete" class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
 </div>
 </div>
+</div>
+</section>
+<section id="pricingAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabPricingBtn" hidden>
+  <div class="pricing-settings">
+    <h2>價格設定</h2>
+    <p class="pricing-help">修改後會儲存為 Cloudinary 的 pricing JSON。前台估價會讀取最新設定；若讀取失敗，會暫時使用程式內建預設價格。</p>
+    <div class="pricing-grid" id="pricingFields"></div>
+    <div class="pricing-actions">
+      <button class="btn" id="btnReloadPricing" type="button">重新讀取</button>
+      <button class="btn" id="btnResetPricing" type="button">恢復預設值</button>
+      <button class="btn primary" id="btnSavePricing" type="button">儲存價格設定</button>
+    </div>
+    <div class="pricing-status" id="pricingStatus" aria-live="polite"></div>
+  </div>
+</section>
 </div>
 <div class="email-modal" id="emailModal">
 <div class="email-dialog">
@@ -560,6 +608,8 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 const API_LIST = "/.netlify/functions/list-bookings";
 const API_LOGIN = "/.netlify/functions/auth-login";
 const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
+const API_GET_PRICING = "/.netlify/functions/get-pricing";
+const API_UPDATE_PRICING = "/.netlify/functions/update-pricing";
 let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
 let CURRENT_ITEM = null;
 let CURRENT_LIST = [];
@@ -731,6 +781,43 @@ function formatShortDate(d){
   try {
     return new Date(d).toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
   } catch(e) { return fmtDate(d); }
+}
+function getCaseSummary(item){
+  const ctx = normalizeContext(item || {});
+  const name = String(ctx.name || '未填姓名').trim();
+  const phone = String(ctx.phone || ctx.mobile || ctx.phone_number || '未填電話').trim();
+  const service = String(ctx.service || ctx.service_description || '未填服務').trim();
+  const date = formatShortDate(item && item.created_at) || '';
+  return { name, phone, service, date, text: `${name}｜${phone}｜${service}${date ? '｜' + date : ''}` };
+}
+function updateSelectedCaseHint(item){
+  const hint = document.getElementById('selectedCaseHint');
+  if (!hint) return;
+  const label = hint.querySelector('.selected-case-label');
+  const tag = hint.querySelector('.selected-case-tag');
+  if (!item) {
+    hint.classList.remove('has-selection');
+    if (label) label.textContent = '尚未選擇案件';
+    if (tag) tag.textContent = '請先點選上方預約';
+    return;
+  }
+  const summary = getCaseSummary(item);
+  hint.classList.add('has-selection');
+  if (label) label.textContent = summary.text;
+  if (tag) tag.textContent = '目前選取';
+}
+function markSelectedBooking(publicId){
+  document.querySelectorAll('.mobile-booking-card.is-selected, #tbl tbody tr.is-selected').forEach(el => el.classList.remove('is-selected'));
+  if (!publicId) return;
+  document.querySelectorAll('[data-public-id]').forEach(el => {
+    if (el.dataset.publicId === publicId) el.classList.add('is-selected');
+  });
+}
+function selectBookingItem(item, options = {}){
+  CURRENT_ITEM = item || null;
+  updateSelectedCaseHint(CURRENT_ITEM);
+  markSelectedBooking(CURRENT_ITEM && CURRENT_ITEM.public_id);
+  if (options.render !== false && CURRENT_ITEM) renderFullContent(CURRENT_ITEM, document.getElementById('preview'));
 }
 function renderMobilePhoto(ctx){
   const photos = decodePhotoUrls(ctx.photo_urls);
@@ -919,6 +1006,7 @@ function renderFilteredList(items){
 
     // build row
     const tr = document.createElement("tr");
+    if (it.public_id) tr.dataset.publicId = it.public_id;
 
     const nameCellHtml = highlightTextMatch(name || "(未填)", q);
     const phoneCellHtml = highlightPhoneMatch(phone || "", q);
@@ -1056,6 +1144,7 @@ function renderFilteredList(items){
       const photoCount = (ctx.photo_urls || []).length || 0;
       const card = document.createElement("article");
       card.className = "mobile-booking-card";
+      if (it.public_id) card.dataset.publicId = it.public_id;
       card.tabIndex = 0;
       card.setAttribute("role", "button");
       card.setAttribute("aria-label", `查看 ${name || "未填姓名"} 的預約資料`);
@@ -1086,6 +1175,7 @@ function renderFilteredList(items){
   if (mobileList && shown === 0) {
     mobileList.innerHTML = '<div class="mobile-empty">目前沒有符合條件的預約資料</div>';
   }
+  markSelectedBooking(CURRENT_ITEM && CURRENT_ITEM.public_id);
   $("#foot").textContent = `共 ${shown} 筆`;
 }
 
@@ -1264,11 +1354,10 @@ async function doSearch(options = {}){
 }
 
 function openDetails(item){
-  CURRENT_ITEM = item;
   const pv = $("#preview");
   if (pv) pv.innerHTML = "";
-  // 點選左側列時，顯示 Cloudinary 詳細內容
-  renderFullContent(item, $("#preview"));
+  // 點選左側列時，顯示 Cloudinary 詳細內容，並同步底部操作列目前選取案件
+  selectBookingItem(item);
 }
 
 $("#btnSearch").onclick = () => doSearch({ reset: true });
@@ -1377,7 +1466,127 @@ const toRows = (o)=> Object.keys(o).length
   $("#emailModal").style.display = "none";
 };
 
-(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch({ reset: true }); })();
+
+const PRICING_FIELDS = [
+  { key:'acSplit', label:'分離式冷氣清洗', note:'1–2 台時的單台價格' },
+  { key:'acSplitBulk', label:'分離式冷氣三台以上優惠', note:'3 台以上時的單台價格' },
+  { key:'acCeiling', label:'吊隱式冷氣清洗', note:'單台價格' },
+  { key:'acTransformer', label:'變形金剛系列加價', note:'單台加價' },
+  { key:'antiMold', label:'冷氣防霉抗菌處理', note:'一般單台價格' },
+  { key:'antiMoldBulk', label:'防霉滿五台優惠', note:'5 台以上單台價格' },
+  { key:'ozone', label:'臭氧空間消毒', note:'每間可密閉房間' },
+  { key:'washer', label:'直立式洗衣機清洗', note:'未搭配冷氣時' },
+  { key:'washerWithAc', label:'洗衣機搭配冷氣優惠', note:'有冷氣清洗時' },
+  { key:'tank', label:'家用水塔清洗', note:'未搭配水管時' },
+  { key:'tankWithPipe', label:'水塔搭配水管優惠', note:'有水管清洗時' },
+  { key:'pipeBaseNoKitchenOneBath', label:'水管清洗｜無廚一衛', note:'基本方案' },
+  { key:'pipeBaseOneKitchenOneBath', label:'水管清洗｜一廚一衛', note:'基本方案' },
+  { key:'pipeExtraBathOrKitchen', label:'水管清洗｜加一衛/廚', note:'額外衛浴或廚房加價' }
+];
+const DEFAULT_PRICING = {
+  acSplit: 1800,
+  acSplitBulk: 1500,
+  acCeiling: 2800,
+  acTransformer: 500,
+  antiMold: 300,
+  antiMoldBulk: 250,
+  ozone: 200,
+  washer: 2000,
+  washerWithAc: 1800,
+  tank: 1000,
+  tankWithPipe: 800,
+  pipeBaseNoKitchenOneBath: 3200,
+  pipeBaseOneKitchenOneBath: 4200,
+  pipeExtraBathOrKitchen: 500
+};
+let CURRENT_PRICING = { ...DEFAULT_PRICING };
+function setPricingStatus(text, type){
+  const el = document.getElementById('pricingStatus');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.color = type === 'error' ? '#b91c1c' : '#2563eb';
+}
+function renderPricingFields(prices = CURRENT_PRICING){
+  const box = document.getElementById('pricingFields');
+  if (!box) return;
+  box.innerHTML = PRICING_FIELDS.map(field => {
+    const value = Number(prices[field.key] ?? DEFAULT_PRICING[field.key] ?? 0);
+    return `<div class="pricing-field"><label for="price_${field.key}">${escapeHtmlForRender(field.label)}</label><input id="price_${field.key}" name="${field.key}" type="number" min="0" step="1" inputmode="numeric" value="${value}"><small>${escapeHtmlForRender(field.note || '')}</small></div>`;
+  }).join('');
+}
+function collectPricingForm(){
+  const next = {};
+  for (const field of PRICING_FIELDS){
+    const el = document.getElementById(`price_${field.key}`);
+    const num = Number(el && el.value);
+    if (!Number.isFinite(num) || num < 0) throw new Error(`${field.label} 請輸入 0 以上的數字`);
+    next[field.key] = Math.round(num);
+  }
+  return next;
+}
+async function loadPricingSettings(){
+  renderPricingFields(CURRENT_PRICING);
+  setPricingStatus('讀取價格設定中…');
+  try{
+    const r = await fetch(API_GET_PRICING, { headers: { 'Cache-Control': 'no-cache' } });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '讀取失敗');
+    CURRENT_PRICING = { ...DEFAULT_PRICING, ...(data.prices || {}) };
+    renderPricingFields(CURRENT_PRICING);
+    setPricingStatus(data.source === 'default' ? '目前使用預設價格，儲存後會建立後台價格設定。' : '已讀取目前價格設定。');
+  }catch(e){
+    CURRENT_PRICING = { ...DEFAULT_PRICING };
+    renderPricingFields(CURRENT_PRICING);
+    setPricingStatus('價格設定讀取失敗，暫時顯示預設值：' + (e.message || e), 'error');
+  }
+}
+async function savePricingSettings(){
+  let prices;
+  try { prices = collectPricingForm(); } catch(e){ setPricingStatus(e.message, 'error'); return; }
+  const btn = document.getElementById('btnSavePricing');
+  if (btn) btn.disabled = true;
+  setPricingStatus('儲存價格設定中…');
+  try{
+    let r = await fetch(API_UPDATE_PRICING, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN },
+      body: JSON.stringify({ prices })
+    });
+    if (r.status === 401){
+      ADMIN_TOKEN = ''; localStorage.removeItem('admin_token');
+      if (await login()) {
+        r = await fetch(API_UPDATE_PRICING, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN },
+          body: JSON.stringify({ prices })
+        });
+      }
+    }
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '儲存失敗');
+    CURRENT_PRICING = { ...DEFAULT_PRICING, ...(data.prices || prices) };
+    renderPricingFields(CURRENT_PRICING);
+    setPricingStatus('價格設定已儲存。前台重新整理後會使用新價格。');
+    showToast('價格設定已儲存', 'success');
+  }catch(e){
+    setPricingStatus('價格設定儲存失敗：' + (e.message || e), 'error');
+    showToast('價格設定儲存失敗', 'error');
+  }finally{
+    if (btn) btn.disabled = false;
+  }
+}
+function switchAdminTab(tab){
+  const isPricing = tab === 'pricing';
+  document.getElementById('bookingAdminTab').hidden = isPricing;
+  document.getElementById('pricingAdminTab').hidden = !isPricing;
+  document.getElementById('tabBookingsBtn').classList.toggle('is-active', !isPricing);
+  document.getElementById('tabPricingBtn').classList.toggle('is-active', isPricing);
+  document.getElementById('tabBookingsBtn').setAttribute('aria-selected', String(!isPricing));
+  document.getElementById('tabPricingBtn').setAttribute('aria-selected', String(isPricing));
+  if (isPricing) loadPricingSettings();
+}
+
+(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } renderPricingFields(CURRENT_PRICING); doSearch({ reset: true }); })();
 
 
 const CASE_EDIT_FIELDS = [
@@ -1428,11 +1637,13 @@ function openEditModal(item){
     showToast("請先選擇一筆案件", "error");
     return;
   }
-  CURRENT_ITEM = item;
+  selectBookingItem(item, { render: false });
   const modal = document.getElementById("caseEditModal");
   const box = document.getElementById("caseEditFields");
   const msg = document.getElementById("caseEditMsg");
+  const title = document.getElementById("caseEditTitle");
   if (!modal || !box) return;
+  if (title) title.textContent = "編輯案件資料｜" + getCaseSummary(item).text;
   msg.textContent = "";
   box.innerHTML = CASE_EDIT_FIELDS.map(field => {
     const id = `case_edit_${field.key}`;
@@ -1518,6 +1729,12 @@ async function saveCurrentEdit(ev){
   }
 }
 
+document.getElementById("tabBookingsBtn").onclick = () => switchAdminTab('bookings');
+document.getElementById("tabPricingBtn").onclick = () => switchAdminTab('pricing');
+document.getElementById("btnReloadPricing").onclick = loadPricingSettings;
+document.getElementById("btnResetPricing").onclick = () => { CURRENT_PRICING = { ...DEFAULT_PRICING }; renderPricingFields(CURRENT_PRICING); setPricingStatus('已恢復表單為預設值，按「儲存價格設定」後才會正式套用。'); };
+document.getElementById("btnSavePricing").onclick = savePricingSettings;
+
 document.getElementById("btnEdit").onclick = () => {
   if (!CURRENT_ITEM) return showToast("請先點選一筆案件", "error");
   openEditModal(CURRENT_ITEM);
@@ -1538,9 +1755,10 @@ document.getElementById("btnDelete").onclick = async () => {
     return;
   }
 
+  const summary = getCaseSummary(CURRENT_ITEM).text;
   const ok = await showConfirmDialog({
     title: '確認刪除',
-    message: '是否確定要刪除此訂單？此操作無法復原！',
+    message: `目前選取：${summary}\n是否確定要刪除此訂單？此操作無法復原！`,
     confirmText: '確認刪除',
     cancelText: '取消'
   });
@@ -1560,6 +1778,8 @@ document.getElementById("btnDelete").onclick = async () => {
 
     showToast('刪除成功', 'success');
     CURRENT_ITEM = null;
+    updateSelectedCaseHint(null);
+    markSelectedBooking(null);
     document.getElementById("preview").innerHTML = "";
     doSearch();
   } catch (e) {

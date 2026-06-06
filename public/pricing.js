@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  var PRICES = {
+  var DEFAULT_PRICES = {
     acSplit: 1800,
     acSplitBulk: 1500,
     acCeiling: 2800,
@@ -17,6 +17,31 @@
     pipeBaseOneKitchenOneBath: 4200,
     pipeExtraBathOrKitchen: 500
   };
+
+  var PRICES = Object.assign({}, DEFAULT_PRICES);
+  var PRICING_API = "/.netlify/functions/get-pricing";
+
+  function applyPrices(next){
+    if(!next || typeof next !== "object") return;
+    Object.keys(DEFAULT_PRICES).forEach(function(key){
+      var n = Number(next[key]);
+      if(Number.isFinite(n) && n >= 0) PRICES[key] = n;
+    });
+  }
+
+  function loadRemotePrices(){
+    if(!window.fetch) return Promise.resolve(PRICES);
+    return fetch(PRICING_API, { cache: "no-store" })
+      .then(function(res){ return res.ok ? res.json() : null; })
+      .then(function(data){
+        if(data && data.prices) {
+          applyPrices(data.prices);
+          refreshAll();
+        }
+        return PRICES;
+      })
+      .catch(function(){ return PRICES; });
+  }
 
   function money(n){
     return '$' + Number(n || 0).toLocaleString('zh-TW');
@@ -217,12 +242,15 @@
   function init(){
     injectStyles();
     refreshAll();
+    loadRemotePrices();
     document.addEventListener('input', function(){ refreshAll(); });
     document.addEventListener('change', function(){ setTimeout(function(){ refreshAll(); }, 0); });
   }
 
   window.BOOKING_PRICING = {
     PRICES: PRICES,
+    DEFAULT_PRICES: DEFAULT_PRICES,
+    loadRemotePrices: loadRemotePrices,
     calculate: calculate,
     render: render,
     refreshAll: refreshAll,
