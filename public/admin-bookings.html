@@ -5,8 +5,15 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>預約資料管理（Cloudinary）</title>
-<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<title>預約管理</title>
+<link href="/icons/icon-192.png" rel="icon" type="image/png"/>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png"/>
+<meta name="theme-color" content="#0f3d25"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="預約管理"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <style>
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
     header{padding:26px 20px 8px}
@@ -260,12 +267,210 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   #btnCsv{    grid-column: 2 / 3 !important; }
 }
 </style>
+
+<style>
+/* ===== Mobile admin app interface override ===== */
+.mobile-list{display:none;}
+.mobile-empty{padding:22px 14px;text-align:center;color:#64748b;background:#fff;border:1px dashed #cbd5e1;border-radius:18px;}
+
+@media (max-width: 760px){
+  body{background:#eef5ee;color:#0f172a;padding-bottom:calc(84px + env(safe-area-inset-bottom));}
+  header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0f3d25 0%,#14532d 100%);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 12px;border-bottom-left-radius:22px;border-bottom-right-radius:22px;box-shadow:0 10px 28px rgba(15,61,37,.22);}
+  header h1{font-size:20px;margin:0 0 2px;letter-spacing:.02em;}
+  header h1::before{content:'📋 ';}
+  header .sub{font-size:12px;color:rgba(255,255,255,.78);margin:0;}
+  .wrap{padding:14px 12px 24px;}
+
+  /* Filter area becomes an app-like control panel */
+  .wrap>.row{background:#fff;border:1px solid rgba(15,61,37,.08);border-radius:20px;padding:12px;box-shadow:0 8px 24px rgba(15,23,42,.08);margin:0 0 12px;display:grid !important;grid-template-columns:1fr 1fr !important;gap:10px !important;}
+  .wrap>.row label.input{grid-column:auto !important;gap:5px;}
+  .wrap>.row label.input:first-child{grid-column:1 / -1 !important;}
+  .input span{font-size:12px;color:#475569;font-weight:700;}
+  .input input,.admin-select{height:46px;border-radius:14px;background:#f8fafc;border-color:#dbe4dd;box-sizing:border-box;}
+  #btnSearch,#btnCsv{grid-column:auto !important;width:100% !important;height:46px;border-radius:14px;font-weight:800;}
+  #btnSearch{background:#14532d;border-color:#14532d;color:#fff;}
+  #btnCsv{background:#fff7d6;border-color:#fde68a;color:#854d0e;}
+
+  .grid{display:block !important;}
+  .table-wrap{display:none !important;}
+  .mobile-list{display:flex;flex-direction:column;gap:12px;}
+  #foot{font-size:13px;text-align:center;margin:10px 0 8px !important;color:#64748b !important;}
+  .admin-pagination{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px;margin:10px 0 14px;box-shadow:0 6px 18px rgba(15,23,42,.06);}
+  .admin-pagination .btn{border-radius:999px;height:40px;}
+
+  .mobile-booking-card{position:relative;background:#fff;border:1px solid rgba(15,61,37,.10);border-radius:20px;padding:14px;box-shadow:0 8px 24px rgba(15,23,42,.08);overflow:hidden;}
+  .mobile-booking-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:6px;background:linear-gradient(180deg,#14532d,#facc15);}
+  .mobile-booking-card:active{transform:scale(.992);}
+  .mobile-card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-left:4px;}
+  .mobile-card-name{font-size:18px;font-weight:900;color:#0f172a;line-height:1.25;}
+  .mobile-card-time{font-size:12px;color:#64748b;margin-top:3px;}
+  .mobile-card-service{margin:10px 0 8px 4px;font-size:15px;font-weight:800;color:#14532d;line-height:1.35;}
+  .mobile-card-meta{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-left:4px;}
+  .mobile-card-phone{font-size:15px;color:#334155;word-break:break-all;}
+  .mobile-card-photo{display:flex;align-items:center;gap:6px;color:#64748b;font-size:12px;}
+  .mobile-card-photo .admin-photo-mini{width:48px;height:48px;border-radius:14px;}
+  .mobile-card-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
+  .mobile-card-actions button{height:42px;border-radius:14px;font-weight:800;}
+  .mobile-btn-view{background:#14532d !important;color:#fff !important;border-color:#14532d !important;}
+  .mobile-btn-edit{background:#eff6ff !important;color:#1d4ed8 !important;border-color:#bfdbfe !important;}
+  .mobile-card-actions .btn-status{height:42px;border-radius:14px;font-size:13px;}
+
+  /* detail panel becomes an app detail card */
+  .panel{margin-top:2px;border-radius:22px;border:1px solid rgba(15,61,37,.10);box-shadow:0 8px 24px rgba(15,23,42,.08);padding:12px;background:#fff;}
+  #preview:empty::before{content:'點選上方任一筆預約，可在這裡查看完整資料';display:block;text-align:center;color:#64748b;padding:28px 10px;line-height:1.6;}
+  .panel>div[style*="display:flex"]{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border:1px solid #e5e7eb;border-radius:20px;padding:8px;box-shadow:0 16px 40px rgba(15,23,42,.22);display:grid !important;grid-template-columns:1fr 1fr !important;gap:8px !important;}
+  #btnEdit,#btnDelete{height:48px;border-radius:16px !important;font-size:15px !important;font-weight:900 !important;width:100%;}
+  #btnPaste{display:none !important;}
+  .card.fullview{border-radius:18px;box-shadow:none;border-color:#e2e8f0;}
+  .card.fullview .card-h{font-size:16px;color:#14532d;background:#f0fdf4;border-radius:16px 16px 0 0;}
+  .card.fullview .card-b{padding:4px 12px 12px;}
+  .card.fullview .row{display:grid !important;grid-template-columns:1fr !important;gap:3px;padding:9px 0;}
+  .card.fullview .k{font-size:12px;font-weight:800;color:#64748b;}
+  .card.fullview .v{font-size:16px;color:#0f172a;line-height:1.55;word-break:break-word;}
+  .admin-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+
+  .login-backdrop{align-items:flex-end;}
+  .login-dialog{width:100% !important;max-width:100% !important;border-radius:24px 24px 0 0;padding:22px 18px max(20px,env(safe-area-inset-bottom));box-sizing:border-box;}
+  .login-h{font-size:22px;text-align:center;}
+  .login-sub{text-align:center;}
+  .login-actions{display:grid;grid-template-columns:1fr 1fr;}
+  .login-actions button{height:48px;}
+  .toast-container{top:auto;bottom:calc(78px + env(safe-area-inset-bottom));width:calc(100% - 24px);}
+  .toast{min-width:0;max-width:100%;border-radius:16px;}
+}
+</style>
+
+<style>
+/* ===== Login screen polish: mobile admin entrance ===== */
+.login-backdrop{
+  background:
+    radial-gradient(circle at 18% 12%, rgba(250,204,21,.26), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(34,197,94,.22), transparent 32%),
+    linear-gradient(160deg, rgba(7,30,18,.90), rgba(15,61,37,.82));
+  padding: 18px;
+  box-sizing: border-box;
+  backdrop-filter: blur(6px);
+}
+.login-dialog{
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,.62);
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,252,248,.96));
+  box-shadow: 0 26px 70px rgba(2,6,23,.32);
+}
+.login-dialog::before{
+  content:'';
+  position:absolute;
+  inset:0 0 auto 0;
+  height: 7px;
+  background: linear-gradient(90deg,#14532d,#facc15,#22c55e);
+}
+.login-brand{
+  width: 72px;
+  height: 72px;
+  margin: 10px auto 10px;
+  border-radius: 24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  box-shadow: 0 12px 30px rgba(15,61,37,.18);
+  border:1px solid #e5efe6;
+}
+.login-brand img{width:54px;height:54px;object-fit:contain;display:block;}
+.login-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin: 0 auto 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background:#ecfdf5;
+  color:#14532d;
+  border:1px solid #bbf7d0;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+.login-h{font-size:24px;font-weight:900;color:#0f172a;margin:2px 4px 4px;}
+.login-sub{max-width:340px;margin:0 auto 18px;color:#64748b;line-height:1.55;}
+.login-field{position:relative;text-align:left;margin:12px 4px;}
+.login-label{font-weight:800;color:#334155;margin-left:2px;}
+.login-input{
+  width:100%;
+  height:48px;
+  box-sizing:border-box;
+  border-radius:16px;
+  border:1px solid #dbe4dd;
+  background:#f8fafc;
+  color:#0f172a;
+  transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.login-input:focus{
+  background:#fff;
+  border-color:#22c55e;
+  box-shadow:0 0 0 4px rgba(34,197,94,.16);
+}
+.login-actions{margin:16px 4px 2px;gap:10px;}
+.btn-primary,.btn-secondary{transition:transform .08s ease, box-shadow .18s ease, opacity .18s ease;}
+.btn-primary{
+  background:linear-gradient(135deg,#14532d,#0f3d25);
+  border-color:#14532d;
+  box-shadow:0 10px 22px rgba(20,83,45,.22);
+}
+.btn-secondary{background:#fff;color:#475569;border-color:#dbe4dd;}
+.login-error{
+  margin:10px 4px 0;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  text-align:left;
+}
+@media (max-width: 760px){
+  .login-backdrop{
+    align-items:center !important;
+    justify-content:center !important;
+    padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  }
+  .login-dialog{
+    width:min(100%, 390px) !important;
+    max-width:390px !important;
+    border-radius:30px !important;
+    padding:24px 18px 18px !important;
+    box-sizing:border-box;
+  }
+  .login-brand{width:68px;height:68px;border-radius:22px;margin-top:8px;}
+  .login-brand img{width:50px;height:50px;}
+  .login-h{font-size:25px !important;text-align:center;}
+  .login-sub{font-size:14px;text-align:center;margin-bottom:18px;}
+  .login-field{margin:12px 2px;}
+  .login-label{font-size:13px;}
+  .login-input{height:52px;font-size:16px;border-radius:17px;padding:10px 14px;}
+  .login-actions{display:grid !important;grid-template-columns:1fr !important;margin-top:18px;}
+  #login-submit{order:1;height:52px;border-radius:17px;font-size:16px;font-weight:900;}
+  #login-clear{order:2;height:48px;border-radius:17px;font-size:15px;font-weight:800;}
+}
+@media (max-width: 360px){
+  .login-backdrop{padding-left:12px;padding-right:12px;}
+  .login-dialog{border-radius:24px !important;padding-left:14px !important;padding-right:14px !important;}
+  .login-brand{width:60px;height:60px;border-radius:20px;}
+  .login-brand img{width:44px;height:44px;}
+  .login-h{font-size:22px !important;}
+}
+</style>
+
 </head>
 <body>
 <div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
 <div class="login-dialog">
+<div class="login-brand" aria-hidden="true">
+  <img src="/logo-3.png" alt=""/>
+</div>
+<div class="login-pill">後台管理系統</div>
 <div class="login-h">管理登入</div>
-<div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
+<div class="login-sub">請輸入帳號與密碼，登入後即可查看與管理預約資料。</div>
 <div class="login-field">
 <label class="login-label" for="login-username">帳號</label>
 <input autocomplete="username" class="login-input" id="login-username" placeholder="admin" type="text"/>
@@ -301,6 +506,7 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>照片</th><th>建立時間</th><th>操作</th></tr></thead>
 <tbody></tbody>
 </table></div>
+<div id="mobileList" class="mobile-list" aria-label="手機版預約列表"></div>
 <div id="foot" style="margin-top:8px;color:#6b7280"></div>
 <div class="admin-pagination" id="pagination">
   <button class="btn" id="prevPage" type="button">上一頁</button>
@@ -511,6 +717,66 @@ function renderPhotoCell(urls){
   return `<div class="photo-cell"><img class="admin-photo-mini" src="${first}" alt="現場照片縮圖" loading="lazy"><div class="admin-photo-count">${photos.length} 張</div></div>`;
 }
 
+function isMobileAdminView(){
+  return window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+}
+function openDetailsForMobile(item){
+  openDetails(item);
+  if (isMobileAdminView()) {
+    const panel = document.querySelector('.panel');
+    if (panel) setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }
+}
+function formatShortDate(d){
+  try {
+    return new Date(d).toLocaleString('zh-TW', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return fmtDate(d); }
+}
+function renderMobilePhoto(ctx){
+  const photos = decodePhotoUrls(ctx.photo_urls);
+  if (!photos.length) return '<span class="mobile-card-photo">無照片</span>';
+  const first = escapeHtmlForRender(photos[0]);
+  return `<span class="mobile-card-photo"><img class="admin-photo-mini" src="${first}" alt="現場照片縮圖" loading="lazy"><span>${photos.length} 張</span></span>`;
+}
+function bindMobileCardActions(card, it, status){
+  card.addEventListener('click', () => openDetailsForMobile(it));
+  const btnView = card.querySelector('.mobile-btn-view');
+  if (btnView) btnView.addEventListener('click', (ev)=>{ ev.stopPropagation(); openDetailsForMobile(it); });
+  const btnEdit = card.querySelector('.mobile-btn-edit');
+  if (btnEdit) btnEdit.addEventListener('click', (ev)=>{ ev.stopPropagation(); openDetailsForMobile(it); openEditModal(it); });
+  const btnStatus = card.querySelector('.btn-status');
+  if (btnStatus) {
+    btnStatus.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+      const nextStatus = { pending: 'scheduled', scheduled: 'done', done: 'cancelled', cancelled: 'pending' };
+      let current = btnStatus.textContent.trim();
+      let code = Object.keys(nextStatus).find(key => statusLabel(key) === current) || status || 'pending';
+      let newStatus = nextStatus[code];
+      btnStatus.textContent = statusLabel(newStatus);
+      btnStatus.className = `btn-status status-${newStatus}`;
+      it.context = it.context || {};
+      it.context.custom = it.context.custom || {};
+      it.context.custom.status = newStatus;
+      try {
+        await fetch('/.netlify/functions/update-booking-context', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
+          body: JSON.stringify({
+            public_id: it.public_id,
+            resource_type: it.resource_type || 'raw',
+            type: it.type || 'upload',
+            context: { status: newStatus }
+          })
+        });
+        showToast('狀態已更新', 'success');
+      } catch (e) {
+        showToast('更新狀態失敗，請稍後再試', 'error');
+      }
+    });
+  }
+}
+
 function renderPhotoSection(urls){
   const photos = decodePhotoUrls(urls);
   if (!photos.length) return '';
@@ -626,7 +892,9 @@ function renderFilteredList(items){
   const qLower = q.toLowerCase();
   const qDigits = q.replace(/\D/g, '');
   const tbody = $("#tbl tbody");
+  const mobileList = document.getElementById("mobileList");
   tbody.innerHTML = ""; // clear
+  if (mobileList) mobileList.innerHTML = "";
 
   let shown = 0;
   for (const it of (items || [])){
@@ -671,7 +939,7 @@ function renderFilteredList(items){
     `;
 
     // keep prior behaviors (click to open details, delete, status update)
-    tr.onclick = ()=> openDetails(it);
+    tr.onclick = ()=> openDetailsForMobile(it);
 
     const btnEditRow = tr.querySelector('.btn-edit-row');
     if (btnEditRow) {
@@ -783,7 +1051,40 @@ function renderFilteredList(items){
     }
 
     tbody.appendChild(tr);
+
+    if (mobileList) {
+      const photoCount = (ctx.photo_urls || []).length || 0;
+      const card = document.createElement("article");
+      card.className = "mobile-booking-card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `查看 ${name || "未填姓名"} 的預約資料`);
+      card.innerHTML = `
+        <div class="mobile-card-top">
+          <div>
+            <div class="mobile-card-name">${nameCellHtml || "(未填)"}</div>
+            <div class="mobile-card-time">${escapeHtmlForRender(formatShortDate(it.created_at) || "")}</div>
+          </div>
+          <button class="btn-status status-${status}" type="button">${statusLabel(status)}</button>
+        </div>
+        <div class="mobile-card-service">${serviceCellHtml || "未填服務"}</div>
+        <div class="mobile-card-meta">
+          <div class="mobile-card-phone">☎ ${phoneCellHtml || "未填電話"}</div>
+          ${renderMobilePhoto(ctx)}
+        </div>
+        <div class="mobile-card-actions">
+          <button type="button" class="btn mobile-btn-view">查看</button>
+          <button type="button" class="btn mobile-btn-edit">編輯</button>
+          <button type="button" class="btn" onclick="event.stopPropagation(); location.href='tel:${escapeHtmlForRender(digitsOnly(phone))}'">撥打</button>
+        </div>
+      `;
+      bindMobileCardActions(card, it, status);
+      mobileList.appendChild(card);
+    }
     shown++;
+  }
+  if (mobileList && shown === 0) {
+    mobileList.innerHTML = '<div class="mobile-empty">目前沒有符合條件的預約資料</div>';
   }
   $("#foot").textContent = `共 ${shown} 筆`;
 }
@@ -1552,5 +1853,6 @@ document.addEventListener("DOMContentLoaded", function () {
 <div class="toast-container" id="toastContainer"></div>
 
 
+<script src="/pwa-register.js"></script>
 </body>
 </html>

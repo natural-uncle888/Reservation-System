@@ -1,0 +1,41 @@
+{
+  "name": "預約管理",
+  "short_name": "預約管理",
+  "description": "自然大叔預約資料管理後台",
+  "lang": "zh-Hant-TW",
+  "start_url": "/admin-bookings.html",
+  "scope": "/",
+  "id": "/admin-bookings.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#052e1c",
+  "theme_color": "#0f3d25",
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
