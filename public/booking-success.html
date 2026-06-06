@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>預約已送出｜自然大叔</title>
+  <link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png" />
+  <style>
+    :root {
+      --brand:#2563eb;
+      --brand-dark:#1e40af;
+      --ink:#111827;
+      --muted:#6b7280;
+      --card:#f9fafb;
+      --line:#e5e7eb;
+      --success:#16a34a;
+      --success-bg:#f0fdf4;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family:"Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg, #eff6ff 0%, #ffffff 42%, #ffffff 100%);
+      line-height:1.6;
+    }
+    .wrap { max-width:960px; margin:0 auto; padding:28px 16px 44px; }
+    .hero {
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:0 18px 45px rgba(37,99,235,0.10);
+      display:grid;
+      gap:18px;
+      margin-top:20px;
+    }
+    .brand { display:flex; align-items:center; gap:12px; color:var(--brand); font-weight:800; }
+    .brand img { width:42px; height:42px; object-fit:contain; }
+    .success-icon {
+      width:64px;
+      height:64px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:var(--success-bg);
+      color:var(--success);
+      font-size:36px;
+      font-weight:900;
+      border:1px solid #bbf7d0;
+    }
+    h1 { margin:0; color:var(--brand); font-size:clamp(1.8rem, 5vw, 2.6rem); line-height:1.2; }
+    .lead { margin:0; color:#374151; font-size:1.08rem; }
+    .notice {
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      color:#334155;
+    }
+    .grid { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(280px, .85fr); gap:18px; margin-top:18px; }
+    .card {
+      background:#ffffff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:20px;
+      box-shadow:0 8px 24px rgba(17,24,39,0.05);
+    }
+    .card h2 { margin:0 0 12px; color:var(--brand); font-size:1.2rem; }
+    .summary-table { width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px; }
+    .summary-table th, .summary-table td { padding:10px 12px; border-bottom:1px solid #eef2f7; text-align:left; vertical-align:top; }
+    .summary-table th { width:36%; color:#475569; background:#f8fafc; font-weight:700; }
+    .summary-table td { color:#111827; word-break:break-word; }
+    .empty { color:var(--muted); background:#f8fafc; border-radius:12px; padding:14px; }
+    .actions {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+    .btn {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:48px;
+      padding:12px 24px;
+      border-radius:999px;
+      border:1px solid transparent;
+      text-decoration:none;
+      font-weight:800;
+      transition:transform .12s, box-shadow .12s, background .12s;
+      width:auto;
+      max-width:260px;
+      white-space:nowrap;
+    }
+    .btn:active { transform:translateY(1px); }
+    .btn-primary { min-width:150px; background:var(--brand); color:#fff; box-shadow:0 10px 22px rgba(37,99,235,0.20); }
+    .btn-primary:hover { background:var(--brand-dark); }
+    .btn-line { min-width:220px; background:#06c755; color:#fff; box-shadow:0 10px 22px rgba(6,199,85,0.18); }
+    .btn-ghost { background:#fff; color:var(--brand); border-color:#bfdbfe; }
+    .faq-list { display:grid; gap:10px; }
+    details {
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px 14px;
+      background:#fff;
+    }
+    summary { cursor:pointer; font-weight:800; color:#1f2937; }
+    details p { margin:8px 0 0; color:#4b5563; }
+    .tips { margin:0; padding-left:1.15rem; color:#4b5563; }
+    .success-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:12px}
+    .success-photo-grid a{display:block;text-decoration:none;color:#2563eb;font-size:13px}
+    .success-photo-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;background:#f8fafc;display:block;margin-bottom:4px}
+    .tips li + li { margin-top:6px; }
+    footer { text-align:center; color:var(--muted); font-size:.92rem; margin-top:22px; }
+    @media (max-width: 760px) {
+      .wrap { padding:18px 14px 32px; }
+      .hero { padding:20px; border-radius:20px; }
+      .grid { grid-template-columns:1fr; }
+      .card { padding:16px; }
+      .actions { display:grid; gap:10px; }
+      .btn { width:100%; max-width:none; min-width:0; white-space:normal; }
+      .summary-table th, .summary-table td { display:block; width:100%; }
+      .summary-table th { border-bottom:0; padding-bottom:2px; background:#fff; color:#64748b; }
+      .summary-table td { padding-top:2px; }
+    }
+  </style>
+  <script src="booking-storage.js"></script>
+  <script src="pricing.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="success-title">
+      <div class="brand">
+        <img src="logo-3.png" alt="自然大叔 Logo" />
+        <span>自然大叔｜線上預約</span>
+      </div>
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h1 id="success-title">感謝填寫，預約資料已送出</h1>
+      <p class="lead">我們已收到您的預約需求，將於 <strong>1–2 個工作天內</strong> 依您填寫的聯繫方式與方便聯繫時間和您確認細節。</p>
+      <div class="notice">提醒您：實際服務時間、清洗項目與報價，仍會由人員聯繫確認後安排。</div>
+      <div class="actions">
+        <a class="btn btn-line" href="https://lin.ee/OHk6Rn7" target="_blank" rel="noopener">加入 LINE / 直接聯繫</a>
+        <a class="btn btn-primary" href="index.html">回到首頁</a>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" aria-labelledby="summary-title">
+        <h2 id="summary-title">預約摘要</h2>
+        <div id="summary"></div>
+        <div class="estimate-card" data-estimate-card></div>
+      </section>
+
+      <aside class="card" aria-labelledby="next-title">
+        <h2 id="next-title">接下來會發生什麼？</h2>
+        <ul class="tips">
+          <li>人員會先確認服務內容、地址與可安排時段。</li>
+          <li>若有特殊環境、停車、門禁或設備狀況，會再與您確認。</li>
+          <li>到府前會再次確認時間，降低臨時改期或跑錯地點的情況。</li>
+        </ul>
+      </aside>
+    </div>
+
+    <section class="card" style="margin-top:18px" aria-labelledby="faq-title">
+      <h2 id="faq-title">常見問題</h2>
+      <div class="faq-list">
+        <details>
+          <summary>送出後還需要再做什麼嗎？</summary>
+          <p>不用重複填寫。若您有照片、補充地址資訊或想更快確認，可直接透過 LINE 傳訊息給我們。</p>
+        </details>
+        <details>
+          <summary>多久會聯繫我？</summary>
+          <p>通常會在 1–2 個工作天內聯繫；若遇假日或預約量較多，可能稍晚回覆。</p>
+        </details>
+        <details>
+          <summary>送出的資料可以修改嗎？</summary>
+          <p>可以。請使用 LINE 聯繫並告知姓名、電話與想修改的內容，我們會協助更新。</p>
+        </details>
+        <details>
+          <summary>價格會和表單顯示完全一樣嗎？</summary>
+          <p>表單內容主要用於初步評估，實際費用仍會依設備狀況、數量、樓層與施工環境確認。</p>
+        </details>
+      </div>
+    </section>
+
+    <footer>本頁摘要只保留於此瀏覽器中，方便您確認剛剛送出的內容。</footer>
+  </main>
+
+  <script>
+    (function(){
+      const SUCCESS_KEY = 'BOOKING_SUCCESS_DATA';
+      const labels = [
+        ['service_category','服務類別'],
+        ['service','服務類別'],
+        ['ac_type','冷氣類型'],
+        ['ac_count','清洗數量'],
+        ['indoor_floor','室內機所在樓層'],
+        ['ac_brand','冷氣品牌'],
+        ['ac_transformer_count','變形金剛系列台數'],
+        ['ac_transformer_unknown','變形金剛系列是否不清楚'],
+        ['anti_mold','防霉抗菌'],
+        ['ozone','臭氧消毒'],
+        ['ozone_room_count','臭氧消毒房間數'],
+        ['washer_count','洗衣機台數'],
+        ['washer_floor','洗衣機樓層'],
+        ['tank_count','水塔顆數'],
+        ['pipe_service','水管清洗戶型'],
+        ['pipe_reason','水管清洗原因'],
+        ['group_notes','團購預約說明'],
+        ['bulk_notes','大量清洗需求說明'],
+        ['contact_method','聯繫方式'],
+        ['social_name','聯繫帳號／名稱'],
+        ['other_contact_detail','其他聯繫說明'],
+        ['name','顧客姓名'],
+        ['phone','聯繫電話'],
+        ['address','地址'],
+        ['housing_type','居住地型態'],
+        ['contact_time_preference','方便聯繫時間'],
+        ['timeslot','可安排時段'],
+        ['note','備註'],
+        ['site_photo_count','現場照片數量'],
+        ['estimate_total','預估總額']
+      ];
+
+      function readData(){
+        try {
+          const success = JSON.parse(localStorage.getItem(SUCCESS_KEY) || '{}');
+          if(success && Object.keys(success).length) return success;
+          return window.BOOKING_STORAGE ? window.BOOKING_STORAGE.get() : {};
+        }
+        catch(e) { return {}; }
+      }
+      function hasValue(v){
+        return !(v == null || v === '' || (Array.isArray(v) && v.length === 0));
+      }
+      function valueText(v){
+        if (Array.isArray(v)) return v.join('、');
+        return String(v || '');
+      }
+      function appendRow(tbody, label, value){
+        const tr = document.createElement('tr');
+        const th = document.createElement('th');
+        const td = document.createElement('td');
+        th.textContent = label;
+        td.textContent = label === '預估總額' && !Number.isNaN(Number(value)) ? '$' + Number(value).toLocaleString('zh-TW') : valueText(value);
+        tr.appendChild(th);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+
+      const data = readData();
+      const summary = document.getElementById('summary');
+      const table = document.createElement('table');
+      table.className = 'summary-table';
+      const tbody = document.createElement('tbody');
+      const used = new Set();
+
+      labels.forEach(([key, label]) => {
+        if (used.has(label)) return;
+        if (hasValue(data[key])) {
+          appendRow(tbody, label, data[key]);
+          used.add(label);
+        }
+      });
+
+      if (hasValue(data._submittedAt)) {
+        const submitted = new Date(data._submittedAt);
+        if (!Number.isNaN(submitted.getTime())) appendRow(tbody, '送出時間', submitted.toLocaleString('zh-TW'));
+      }
+
+      if (tbody.children.length) {
+        table.appendChild(tbody);
+        summary.appendChild(table);
+        if (Array.isArray(data.site_photo_urls) && data.site_photo_urls.length) {
+          const title = document.createElement('h3');
+          title.textContent = '現場照片';
+          title.style.margin = '16px 0 8px';
+          title.style.fontSize = '1rem';
+          const grid = document.createElement('div');
+          grid.className = 'success-photo-grid';
+          data.site_photo_urls.forEach((url, idx) => {
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '現場照片 ' + (idx + 1);
+            const cap = document.createElement('span');
+            cap.textContent = '照片 ' + (idx + 1);
+            a.appendChild(img);
+            a.appendChild(cap);
+            grid.appendChild(a);
+          });
+          summary.appendChild(title);
+          summary.appendChild(grid);
+        }
+      } else {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = '目前沒有可顯示的預約摘要。若您已成功送出，請留意後續聯繫，或透過 LINE 直接與我們確認。';
+        summary.appendChild(empty);
+      }
+    })();
+  </script>
+</body>
+</html>

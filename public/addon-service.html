@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>加購服務專區</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" />
+  <style>
+    :root { --brand:#2563eb; --brand-d:#1e40af; --ink:#111827; --muted:#6b7280; --bg:#ffffff; --card:#f9fafb; --line:#e5e7eb; --capsule-h:52px; --capsule-radius:18px; --capsule-border:2px; }
+    .addon-page, .addon-page * { box-sizing: border-box; }
+    .addon-page { font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: var(--ink); background: var(--bg); min-height: 100dvh; }
+    .addon-page h1, .addon-page h2, .addon-page p, .addon-page ul { margin: 0; }
+    .addon-page ul { padding-left: 1.2em; }
+    .addon-page a { color: inherit; text-decoration: none; }
+    .addon-page button, .addon-page a, .addon-page label { -webkit-tap-highlight-color: transparent; }
+
+    /* container */
+    .addon-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+    /* hero */
+    .addon-hero { margin-bottom: 14px; text-align:left; }
+    .addon-hero__title { font-size: 1.6rem; color: var(--brand); font-weight: 800; letter-spacing: .3px; margin-bottom: 6px; }
+    .addon-hero__sub { color: var(--muted); font-size: 1.03rem; }
+
+    /* sections */
+    .addon-section { border: 1px solid var(--line); border-radius: 16px; background: var(--card); padding: 16px; margin: 14px 0; box-shadow: 0 4px 16px rgba(17,24,39,0.04) }
+    .addon-section__title { font-size: 1.12rem; color: var(--brand); font-weight: 700; margin-bottom: 12px; display: flex; gap: 6px; align-items: center; }
+
+    /* capsule option */
+    .option-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; align-items:stretch; width:100%; min-width:0}
+    @media (max-width:560px){ .option-grid{grid-template-columns:1fr} }
+    label.option-card{display:grid; grid-template-columns:24px 1fr; align-items:center; column-gap:10px; padding:10px 14px; min-height:var(--capsule-h); background:#fff; border:var(--capsule-border) solid var(--line); border-radius:var(--capsule-radius); box-shadow:0 2px 8px rgba(0,0,0,.04); font-size:1rem; line-height:1.25; cursor:pointer; user-select:none; width:100%; min-width:0}
+    label.option-card:active{border-color:var(--brand)}
+    label.option-card.selected{border-color:var(--brand); background:#eef2ff; box-shadow:0 4px 12px rgba(37,99,235,.12)}
+    label.option-card input[type="checkbox"]{width:20px; height:20px; margin:0; accent-color:var(--brand)}
+    label.option-card span{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+    /* notes + price */
+    .addon-note{ margin:8px 2px 2px; color:var(--muted); font-size:.98rem }
+    .addon-field{display:block;margin:14px 0 0;padding:14px;border-radius:14px;background:#f8fbff;border:1px solid var(--line)}
+    .addon-field span{display:block;font-weight:800;color:#1f2937;margin-bottom:8px}
+    .addon-field input{width:180px;max-width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:1rem}
+    .addon-field input:disabled{background:#f1f5f9;color:#94a3b8}
+    .addon-field small{display:block;margin-top:8px;color:var(--muted);line-height:1.5}
+    .addon-price{ color:#dc2626; font-weight:700; font-size:1.05rem; }
+
+    /* contact-like nav */
+    .nav { display: flex; gap: 12px; margin-top: 22px; }
+    .nav a { flex: 1; text-align: center; padding: 12px 16px; background: var(--brand); color: #fff; border-radius: 10px; text-decoration: none; }
+    .nav a:hover { background: #1e40af; }
+
+    /* fab */
+    .addon-fab { position: fixed; right: 18px; bottom: 72px; width: 56px; height: 56px; background: var(--brand); color: #fff; border-radius: 50%; box-shadow: 0 2px 12px rgba(37,99,235,.10); display: flex; align-items: center; justify-content: center; font-size: 2rem; z-index: 1010; border: none; }
+    .addon-fab:active { background: var(--brand-d); transform: scale(.94); transition: transform .1s ease, background .1s ease; }
+
+    /* misc */
+    .addon-page img, .addon-page table, .addon-page input, .addon-page select, .addon-page textarea, .addon-page button { max-width: 100%; }
+    .addon-page a:focus-visible, .addon-page input:focus-visible, .addon-page button:focus-visible { outline: 3px solid rgba(37,99,235,.5); outline-offset: 2px; border-radius: 8px; }
+  
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  </style>
+  <script src="booking-storage.js"></script>
+  <script src="pricing.js"></script>
+</head>
+<body>
+  <main class="addon-page">
+    <div class="addon-container">
+      <section class="addon-hero" aria-labelledby="page-title">
+        <h1 id="page-title" class="addon-hero__title">防霉・消毒｜加購服務專區</h1>
+        <p class="addon-hero__sub">為提升清洗效果與環境品質，我們提供以下兩項可選擇加購服務：</p>
+      </section>
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item is-current">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+
+
+      <!-- Anti-mold -->
+      <section class="addon-section" id="sec-anti-mold" aria-labelledby="sec-anti-mold-title">
+        <h2 class="addon-section__title" id="sec-anti-mold-title">🟢 冷氣防霉抗菌處理</h2>
+        <div class="option-grid">
+          <label class="option-card">
+            <input id="anti_mold" name="anti_mold" type="checkbox" value="防霉抗菌處理" />
+            <span>需要</span>
+          </label>
+        </div>
+        <div class="addon-note addon-price">每台 300 元，5 台以上每台 250 元</div>
+        <ul class="addon-note" aria-label="服務說明">
+          <li>奈米級抗菌，無香料、無化學添加，純水性原料</li>
+          <li>噴塗鰭片／風鼓／風道，延緩黴菌灰塵附著</li>
+        </ul>
+      </section>
+
+      <!-- Ozone -->
+      <section class="addon-section" id="sec-ozone" aria-labelledby="sec-ozone-title">
+        <h2 class="addon-section__title" id="sec-ozone-title">🟢 臭氧空間全面消毒（可密閉房間）</h2>
+        <div class="option-grid">
+          <label class="option-card">
+            <input id="ozone" name="ozone" type="checkbox" value="臭氧空間消毒" />
+            <span>需要</span>
+          </label>
+        </div>
+        <label class="addon-field" for="ozone_room_count">
+          <span>預計消毒房間數</span>
+          <input id="ozone_room_count" name="ozone_room_count" type="number" min="0" step="1" inputmode="numeric" placeholder="例如：2" disabled />
+          <small>請填寫可關門、可密閉的房間數；未勾選臭氧時可留空。</small>
+        </label>
+        <div class="addon-note addon-price">每間房間 200 元，依實際可施作房間數計算</div>
+        <ul class="addon-note" aria-label="服務說明">
+          <li>臭氧消毒需要在可密閉空間施作，通常以房間為主。</li>
+          <li>客廳、餐廳、開放式廚房等開放式空間通常無法有效密閉，因此一般不建議或無法施作。</li>
+          <li>去除黴菌／異味，降低過敏源；實際可施作空間會由人員確認。</li>
+        </ul>
+      </section>
+
+      <!-- contact-like nav -->
+      <div class="estimate-card" data-estimate-card></div>
+
+      <div class="nav">
+        <a href="ac-booking.html" id="back">返回上一步</a>
+        <a href="other-service-ac-addon.html" id="next">下一步</a>
+      </div>
+    </div>
+
+    <a class="addon-fab" aria-label="回首頁" href="index.html">🏠</a>
+  </main>
+
+  <script>
+    (function () {
+      const KEY = 'BOOKING_DATA';
+      const $ = (s) => document.querySelector(s);
+      function collect() {
+        const out = {};
+        const anti = $('#anti_mold'); if (anti && anti.checked) out.anti_mold = anti.value;
+        const oz = $('#ozone');
+        const ozCount = $('#ozone_room_count');
+        if (oz && oz.checked) {
+          out.ozone = oz.value;
+          out.ozone_room_count = ozCount ? String(Math.max(0, Number(ozCount.value || 0))) : '';
+        } else {
+          out.ozone = '';
+          out.ozone_room_count = '';
+        }
+        return out;
+      }
+      function save(part) {
+        try { window.BOOKING_STORAGE.save(part); } catch (e) {}
+      }
+      // capsule selected state
+      (function(){
+        document.querySelectorAll('.option-grid input[type="checkbox"]').forEach(function(input){
+          function refresh(){
+            const card = input.closest('label.option-card');
+            if(!card) return;
+            if(input.checked) card.classList.add('selected');
+            else card.classList.remove('selected');
+          }
+          input.addEventListener('change', refresh);
+          refresh();
+        });
+      })();
+      const ozone = $('#ozone');
+      const ozoneCount = $('#ozone_room_count');
+      function syncOzoneCount(){
+        if(!ozone || !ozoneCount) return;
+        ozoneCount.disabled = !ozone.checked;
+        if(!ozone.checked) ozoneCount.value = '';
+        else if(!ozoneCount.value) ozoneCount.value = '1';
+      }
+      if(ozone) ozone.addEventListener('change', syncOzoneCount);
+      syncOzoneCount();
+
+      // save on change and before leaving via nav
+      document.addEventListener('input', () => save(collect()));
+      document.addEventListener('change', () => { syncOzoneCount(); save(collect()); });
+      ['back','next'].forEach((id) => {
+        const a = document.getElementById(id);
+        if (!a) return;
+        a.addEventListener('click', (event) => {
+          const data = collect();
+          if(id === 'next' && data.ozone && Number(data.ozone_room_count || 0) <= 0){
+            event.preventDefault();
+            alert('請填寫臭氧消毒的可密閉房間數；若不需要臭氧消毒，請取消勾選。');
+            return;
+          }
+          save(data);
+        }, { capture: true });
+      });
+      // debug helpers
+      window.debugAddon = () => collect();
+      window.debugLS = () => window.BOOKING_STORAGE.get();
+    })();
+  </script>
+</body>
+</html>

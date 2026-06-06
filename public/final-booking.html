@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
+<title>安排時段填寫</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
+    :root { --brand:#2563eb; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
+    * { box-sizing: border-box; }
+    body { font-family: "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; margin:0; color:var(--ink); background:#fff; }
+
+    /* ===== Header ===== */
+    .header { padding: 22px 16px; border-bottom:1px solid var(--line); background:#fff; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .header h1 { margin: 0; color: var(--brand); font-size: 1.5rem; }
+    .desc { color: var(--muted); margin-top: 6px; }
+
+    /* ===== Form sections (stacked) ===== */
+    form { max-width: 960px; margin: 16px auto; padding: 0 16px; }
+    .section { background: var(--card); border:1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; overflow: hidden; }
+    .section h2 { margin: 0 0 8px; color: var(--brand); font-size: 1.1rem; }
+    .section h2.req::after { content: " *"; color:#dc2626; margin-left:4px; font-weight:700; }
+    p.help { margin: 6px 0 0; color: var(--muted); font-size:.95rem; }
+
+    /* ===== Option cards (checkbox/radio) ===== */
+    .group { display:flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
+    label.option-card { display:flex; align-items:center; gap:14px; background:#fff; border:2px solid #e5e7eb; border-radius:16px; padding:16px 14px; font-size:1.06rem; box-shadow:0 1px 8px rgba(0,0,0,0.04); cursor:pointer; min-height:48px; transition: border .13s, box-shadow .13s, background .12s; }
+    label.option-card:active { background:#e0e7ff; border-color:#2563eb; }
+    label.option-card input[type="checkbox"], label.option-card input[type="radio"] { accent-color:#2563eb; width:22px; height:22px; margin:0 6px 0 0; flex-shrink:0; }
+    .option-card.selected { border: 2.5px solid #2563eb; background:#e0e7ff; box-shadow:0 2px 12px rgba(37,99,235,0.10); }
+
+    /* ===== Hidden extra inputs (for "其他") ===== */
+    .hidden-input { display:none; margin: 2px 0 0 34px; }
+    .hidden-input input, .hidden-input textarea { width: 100%; max-width: 100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:12px; font-size:1.06rem; line-height:1.5; min-height:48px; }
+
+    /* ===== Textarea / table ===== */
+    textarea { width: 100%; padding: 10px; border:1px solid #cbd5e1; border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: .98rem; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    th, td { border-bottom: 1px solid #eee; padding: 10px 12px; text-align:left; vertical-align: top; }
+    th { width: 34%; color:#334155; background:#f8fafc; }
+
+    /* ===== Tips / details ===== */
+    .aside { display:grid; gap:6px; margin-top: 8px; }
+    .aside .tip { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px; color:var(--muted); font-size:.92rem; }
+    details { background:#fff; border:1px dashed var(--line); border-radius:10px; padding:10px; }
+    details>summary { cursor:pointer; font-weight:700; color:var(--ink); }
+
+    /* ===== Bottom nav ===== */
+    .nav { display:flex; gap:12px; max-width:960px; margin: 18px auto; padding: 0 16px; }
+    .nav a, .nav button { flex:1; text-align:center; padding:12px 16px; background:var(--brand); color:#fff; border-radius:10px; text-decoration:none; border:none; cursor:pointer; font: 500 16px/1.5 "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .nav a:hover, .nav button:hover { background:#1e40af; }
+
+    /* ===== Active micro-interactions ===== */
+    .card:active, .go:active, button:active { box-shadow:0 2px 12px rgba(37,99,235,0.12); filter:brightness(0.98); transition: box-shadow .05s; }
+    button, .go, .card { transition: box-shadow .18s, transform .10s, filter .10s; cursor:pointer; }
+
+    /* ===== Responsive safe-guards ===== */
+    body, html { max-width:100%; overflow-x:hidden; }
+    img { max-width:100%; height:auto; }
+    table, input, select, textarea, button { max-width:100%; box-sizing:border-box; }
+
+    /* ===== FAB (mobile only) ===== */
+    .fab-home { position:fixed; right:18px; bottom:72px; width:54px; height:54px; background:#2563eb; color:#fff; border-radius:50%; box-shadow:0 2px 12px rgba(37,99,235,0.08); display:flex; align-items:center; justify-content:center; font-size:2.1em; z-index:1010; text-decoration:none; transition: background .13s, transform .13s; border:none; }
+    .fab-home:active { background:#1d4ed8; transform:scale(0.92); }
+    
+    /* ===== Error state (可對接驗證) ===== */
+    .input-error { color:#dc2626; background:#fef2f2; border-radius:8px; padding:6px 10px; margin-top:6px; font-size:.93rem; font-weight:600; }
+    .form-row.error input, .form-row.error textarea, .form-row.error select { border: 2px solid #dc2626; background:#fef2f2; }
+      /* ===== Two-column layout for upper part ===== */
+    .two-col { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    .two-col .full { grid-column: 1 / -1; }
+    
+    .option-card{ width:100%; }
+    .two-col .hidden-input{ grid-column: 1 / -1; }
+    /* ==== Unified form control sizing to match option cards ==== */
+    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select {
+      width: 100%; padding: 12px 14px; border:1px solid #cbd5e1; border-radius:12px;
+      font-size: 1.06rem; line-height: 1.5; min-height:48px; background:#fff;
+    }
+    ::placeholder { color:#94a3b8; }
+    input[type="text"], input[type="tel"], input[type="email"], input[type="number"], input[type="datetime-local"], select, textarea {
+      box-shadow: none; outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color:#2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.18);
+    }
+  
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  
+/* === 共用：必填錯誤彈窗 + 欄位高亮 === */
+.validation-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease-out;
+}
+.validation-backdrop.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.validation-modal{
+  max-width:320px;
+  width:90%;
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px 20px 16px;
+  box-shadow:0 24px 60px rgba(15,23,42,0.45);
+  font-family:inherit;
+}
+.validation-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--brand,#2563eb);
+  margin-bottom:4px;
+}
+.validation-message{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--ink,#111827);
+  margin-bottom:12px;
+}
+.validation-btn{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  height:40px;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--brand,#2563eb);
+  color:#ffffff;
+}
+.validation-btn:hover{
+  background:var(--brand-700,#1e40af);
+}
+.field-error-highlight{
+  box-shadow:0 0 0 2px rgba(239,68,68,0.7);
+  border-radius:14px;
+  transition:box-shadow .25s ease-out, transform .25s ease-out;
+  transform:translateY(-1px);
+}
+
+
+/* ===== 送出前預覽：精簡估價摘要 ===== */
+.preview-estimate-summary{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px 14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+.preview-estimate-summary .label{
+  display:block;
+  font-size:.88rem;
+  color:#9a3412;
+  font-weight:700;
+  margin-bottom:2px;
+}
+.preview-estimate-summary .amount{
+  display:block;
+  font-size:1.45rem;
+  line-height:1.2;
+  color:#7c2d12;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.preview-estimate-summary .hint{
+  flex-basis:100%;
+  color:#7c2d12;
+  font-size:.88rem;
+  line-height:1.5;
+}
+@media (max-width: 560px){
+  .preview-estimate-summary{display:block;}
+  .preview-estimate-summary .hint{margin-top:6px;}
+}
+
+
+    .photo-upload-box {
+      background:#fff;
+      border:1px dashed #cbd5e1;
+      border-radius:12px;
+      padding:14px;
+      margin-top:10px;
+    }
+    .photo-upload-box input[type="file"] {
+      width:100%;
+      padding:10px;
+      background:#f8fafc;
+      border:1px solid #e5e7eb;
+      border-radius:10px;
+    }
+    .photo-help {
+      color:#64748b;
+      font-size:.92rem;
+      line-height:1.6;
+      margin:8px 0 0;
+    }
+    .photo-preview {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:12px;
+    }
+    .photo-thumb {
+      width:88px;
+      height:88px;
+      border-radius:10px;
+      object-fit:cover;
+      border:1px solid #e5e7eb;
+      background:#fff;
+    }
+    .photo-status {
+      color:#1d4ed8;
+      background:#eff6ff;
+      border:1px solid #bfdbfe;
+      border-radius:10px;
+      padding:8px 10px;
+      margin-top:10px;
+      font-size:.92rem;
+      display:none;
+      line-height:1.5;
+    }
+    .photo-error {
+      color:#b91c1c;
+      background:#fef2f2;
+      border:1px solid #fecaca;
+      border-radius:10px;
+      padding:8px 10px;
+      margin-top:10px;
+      font-size:.92rem;
+      display:none;
+    }
+
+</style>
+
+  <script src="validation-dialog.js"></script>
+  <script src="booking-storage.js"></script>
+  <script src="pricing.js"></script>
+</head>
+<body>
+<!-- Header -->
+<div class="header">
+<div class="wrap">
+<h1>安排時段填寫</h1>
+<p class="desc">請選擇可安排時段並補充說明。下方提供送出前預覽。</p>
+</div>
+</div>
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item is-current">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+
+<!-- Form (stacked sections) -->
+<form action="#" id="booking-form" onsubmit="return false;">
+<!-- 可安排時段 -->
+<div class="section">
+<h2 class="req req">可安排時段（可複選）</h2>
+<div class="group two-col" id="timeslot">
+<label class="option-card"><input name="timeslot" type="checkbox" value="平日"/>平日</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="假日"/>假日</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="上午"/>上午</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="下午"/>下午</label>
+<label class="option-card"><input data-other-id="time_other" name="timeslot" type="checkbox" value="其他指定時間"/>其他指定時間</label>
+<label class="option-card"><input name="timeslot" type="checkbox" value="皆可"/>皆可</label>
+<div class="hidden-input full" id="time_other_wrap">
+<input id="time_other" name="time_other" placeholder="例如 6/9 09:00–11:00"/>
+</div>
+</div>
+<details><summary>送出後流程</summary><p>我司將收到您的預約資料，人員會於「方便聯繫時間」內與您聯絡，確認細節與到府時間。</p></details>
+</div>
+<!-- 其他備註說明 -->
+<div class="section">
+<h2>其他備註說明</h2>
+<textarea name="note" placeholder="可補充社區停車、門禁、寵物、聯絡前需簡訊告知等資訊" rows="4"></textarea>
+</div>
+<!-- 現場照片（選填） -->
+<div class="section">
+<h2>現場照片（選填）</h2>
+<div class="photo-upload-box">
+<input accept="image/jpeg,image/png,image/webp" id="sitePhotos" multiple type="file"/>
+<p class="photo-help">
+建議上傳設備外觀、安裝位置或現場環境照片，讓我們可提前評估並提供更準確的服務建議與報價。<br/>
+若有高處施工、窗外機、狹小空間、特殊機型等情況，請務必拍攝，有助於避免現場無法施作或需改期。<br/>
+<span style="color:#2b6cb0;">📷 有照片通常可更快安排與確認</span><br/>
+<span style="color:#999;">最多 5 張；支援 JPG / PNG / WebP。系統會在送出前自動壓縮照片，讓上傳更快、更穩定。照片不會暫存在瀏覽器，請於送出前選擇。</span>
+</p>
+<div class="photo-status" id="photoStatus"></div>
+<div class="photo-error" id="photoError"></div>
+<div class="photo-preview" id="photoPreview"></div>
+</div>
+</div>
+<!-- 送出前預覽（移到最下面） -->
+<div class="section">
+<h2>送出前預覽</h2>
+<table id="preview"><tbody></tbody></table>
+</div>
+<div class="estimate-card" data-estimate-card></div>
+<!-- 導覽按鈕 -->
+<div class="nav">
+<a href="contact.html" id="back">返回上一步</a>
+<button id="submit" type="button">完成填寫並送出</button>
+</div>
+</form>
+<!-- 提交成功彈窗 -->
+<div class="ok" id="ok" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center; z-index:10000;">
+<div class="modal" style="background:#fff; border-radius:12px; padding:24px; max-width:420px; box-shadow:0 10px 30px rgba(0,0,0,.25);">
+<h3>已送出</h3>
+<p>感謝您填寫預約資料🙏</p>
+<p>我們將盡快與您聯繫，安排最合適的清洗服務時段！</p>
+</div>
+</div>
+<!-- FAB 回首頁（行動版） -->
+<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
+<script>
+    (function(){
+      const KEY='BOOKING_DATA';
+      const FN='/submit';
+      const form = document.getElementById('booking-form');
+      const $ = s => document.querySelector(s);
+
+      function toggleOtherWrap(name){
+        form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
+          const id = el.dataset.otherId;
+          const wrap = id && document.getElementById(id + '_wrap');
+          if (wrap) wrap.style.display = el.checked ? 'block' : 'none';
+        });
+      }
+
+      function collect(){
+        const out = {};
+        form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
+          const n = el.name; if(!n) return;
+          if (el.type === 'checkbox') {
+            if (!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if (oid) {
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if (extra) v = v + '：' + extra;
+            }
+            (out[n]||(out[n]=[])).push(v);
+          } else {
+            const v = (el.value||'').trim();
+            if (v) out[n]=v;
+          }
+        });
+        return out;
+      }
+
+
+      let compressedPhotoFiles = [];
+      let photoProcessingPromise = Promise.resolve(true);
+      const PHOTO_MAX_COUNT = 5;
+      const PHOTO_SOURCE_MAX_SIZE = 20 * 1024 * 1024;
+      const PHOTO_UPLOAD_MAX_SIZE = 5 * 1024 * 1024;
+      const PHOTO_MAX_DIMENSION = 1600;
+      const PHOTO_JPEG_QUALITY = 0.82;
+
+      function getSelectedPhotoFiles(){
+        return compressedPhotoFiles.slice();
+      }
+
+      function formatBytes(bytes){
+        if (!bytes) return '0 MB';
+        const mb = bytes / 1024 / 1024;
+        return mb >= 1 ? mb.toFixed(1) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+      }
+
+      function setPhotoMessage(type, message){
+        const statusBox = document.getElementById('photoStatus');
+        const errorBox = document.getElementById('photoError');
+        if (statusBox) {
+          statusBox.style.display = type === 'status' && message ? 'block' : 'none';
+          statusBox.textContent = type === 'status' ? message : '';
+        }
+        if (errorBox) {
+          errorBox.style.display = type === 'error' && message ? 'block' : 'none';
+          errorBox.textContent = type === 'error' ? message : '';
+        }
+      }
+
+      function loadImageFromFile(file){
+        return new Promise((resolve, reject)=>{
+          const url = URL.createObjectURL(file);
+          const img = new Image();
+          img.onload = ()=>{ URL.revokeObjectURL(url); resolve(img); };
+          img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error('照片讀取失敗：' + (file.name || '未命名照片'))); };
+          img.src = url;
+        });
+      }
+
+      function canvasToBlob(canvas, type, quality){
+        return new Promise((resolve, reject)=>{
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('照片壓縮失敗，請換一張照片再試。')), type, quality);
+        });
+      }
+
+      function compressedFileName(name){
+        const base = (name || 'site-photo').replace(/\.[^.]+$/, '');
+        return base + '-compressed.jpg';
+      }
+
+      async function compressImageFile(file){
+        const img = await loadImageFromFile(file);
+        const sourceWidth = img.naturalWidth || img.width;
+        const sourceHeight = img.naturalHeight || img.height;
+        if (!sourceWidth || !sourceHeight) throw new Error('照片尺寸讀取失敗：' + (file.name || '未命名照片'));
+
+        const scale = Math.min(1, PHOTO_MAX_DIMENSION / Math.max(sourceWidth, sourceHeight));
+        const targetWidth = Math.max(1, Math.round(sourceWidth * scale));
+        const targetHeight = Math.max(1, Math.round(sourceHeight * scale));
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+        ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+        const blob = await canvasToBlob(canvas, 'image/jpeg', PHOTO_JPEG_QUALITY);
+        if (blob.size > PHOTO_UPLOAD_MAX_SIZE) {
+          throw new Error('照片壓縮後仍超過 5MB：' + (file.name || '未命名照片') + '（' + formatBytes(blob.size) + '）');
+        }
+
+        if (blob.size >= file.size && file.size <= PHOTO_UPLOAD_MAX_SIZE) {
+          return file;
+        }
+
+        return new File([blob], compressedFileName(file.name), { type:'image/jpeg', lastModified: Date.now() });
+      }
+
+      async function renderPhotoPreview(){
+        const input = document.getElementById('sitePhotos');
+        const previewBox = document.getElementById('photoPreview');
+        const submitButton = document.getElementById('submit');
+        if (!input || !previewBox) return true;
+        const files = Array.from(input.files || []);
+        previewBox.innerHTML = '';
+        compressedPhotoFiles = [];
+        setPhotoMessage('', '');
+        if (!files.length) { refresh(); return true; }
+        if (files.length > PHOTO_MAX_COUNT) {
+          setPhotoMessage('error', '最多只能上傳 5 張照片。');
+          input.value = '';
+          refresh();
+          return false;
+        }
+
+        try {
+          if (submitButton) submitButton.disabled = true;
+          setPhotoMessage('status', '照片壓縮處理中，請稍候...');
+          let originalTotal = 0;
+          let compressedTotal = 0;
+          for (const file of files) {
+            originalTotal += file.size || 0;
+            if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+              throw new Error('照片格式僅支援 JPG、PNG、WebP。');
+            }
+            if (file.size > PHOTO_SOURCE_MAX_SIZE) {
+              throw new Error('單張原始照片不可超過 20MB：' + file.name + '（' + formatBytes(file.size) + '）');
+            }
+            const compressed = await compressImageFile(file);
+            compressedTotal += compressed.size || 0;
+            compressedPhotoFiles.push(compressed);
+
+            const img = document.createElement('img');
+            img.className = 'photo-thumb';
+            img.alt = file.name || '現場照片';
+            img.src = URL.createObjectURL(compressed);
+            img.onload = () => URL.revokeObjectURL(img.src);
+            previewBox.appendChild(img);
+          }
+          setPhotoMessage('status', '已完成照片壓縮：' + formatBytes(originalTotal) + ' → ' + formatBytes(compressedTotal) + '，送出會更快更穩定。');
+          refresh();
+          return true;
+        } catch(err) {
+          compressedPhotoFiles = [];
+          input.value = '';
+          previewBox.innerHTML = '';
+          setPhotoMessage('error', err.message || '照片處理失敗，請重新選擇照片。');
+          refresh();
+          return false;
+        } finally {
+          if (submitButton) submitButton.disabled = false;
+        }
+      }
+
+      function preview(payload){
+        const has = (k)=>{const v=payload[k]; return !(v==null || v==='' || (Array.isArray(v)&&!v.length));};
+        /* SERVICE_FALLBACK */
+        const tbody = document.querySelector('#preview tbody');
+        tbody.innerHTML = '';
+        const show = (k,label)=>{
+          const v = payload[k];
+          if(v==null || v==='' || (Array.isArray(v)&&!v.length)) return;
+          const txt = Array.isArray(v) ? v.join('、') : v;
+          const tr = document.createElement('tr');
+          const th = document.createElement('th');
+          const td = document.createElement('td');
+          th.textContent = label;
+          td.textContent = txt;
+          tr.appendChild(th);
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        };
+        const showEstimateSummary = ()=>{
+          const total = Number(payload.estimate_total || 0);
+          if(!total) return;
+          const tr = document.createElement('tr');
+          const th = document.createElement('th');
+          const td = document.createElement('td');
+          th.textContent = '預估金額';
+          const summary = document.createElement('div');
+          summary.className = 'preview-estimate-summary';
+          const main = document.createElement('div');
+          const label = document.createElement('span');
+          const amount = document.createElement('strong');
+          label.className = 'label';
+          label.textContent = '預估總額';
+          amount.className = 'amount';
+          amount.textContent = window.BOOKING_PRICING ? window.BOOKING_PRICING.money(total) : ('$' + total.toLocaleString('zh-TW'));
+          main.appendChild(label);
+          main.appendChild(amount);
+          const hint = document.createElement('div');
+          hint.className = 'hint';
+          hint.textContent = '詳細品項請看下方「即時預估金額」。此為線上初步估算，實際金額仍由專人確認。';
+          summary.appendChild(main);
+          summary.appendChild(hint);
+          td.appendChild(summary);
+          tr.appendChild(th);
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        };
+        // === 舊版完整欄位回填 ===
+        show('service_category','服務類別');
+        if(!has('service_category')) show('service','服務類別');
+        show('ac_type','冷氣類型');
+        show('ac_count','清洗數量');
+        show('indoor_floor','室內機所在樓層');
+        show('ac_brand','冷氣品牌');
+        show('ac_transformer_count','變形金剛系列台數');
+        show('ac_transformer_unknown','變形金剛系列是否不清楚');
+        show('anti_mold','防霉抗菌');
+        show('ozone','臭氧消毒');
+        show('ozone_room_count','臭氧消毒房間數');
+        show('washer_count','洗衣機台數');
+        show('washer_floor','洗衣機樓層');
+        show('tank_count','水塔顆數');
+        show('pipe_service','水管清洗戶型');
+        show('pipe_reason','水管清洗原因');
+        show('group_notes','團購預約說明');
+        show('bulk_notes','大量清洗需求說明');
+        show('contact_method','聯繫方式');
+        // 聯繫帳號與補充說明，依有無填寫決定是否顯示
+        show('social_name','聯繫帳號／名稱');
+        show('other_contact_detail','其他聯繫說明');
+        show('name','顧客姓名');
+        show('phone','聯繫電話');
+        show('address','地址');
+        show('housing_type','居住地型態');
+        show('contact_time_preference','方便聯繫時間');
+        // 本頁欄位
+        show('timeslot','可安排時段');
+        show('note','備註');
+        const photoCount = getSelectedPhotoFiles().length;
+        if (photoCount) {
+          const tr = document.createElement('tr');
+          const th = document.createElement('th');
+          const td = document.createElement('td');
+          th.textContent = '現場照片';
+          td.textContent = photoCount + ' 張，送出後會附在預約資料中';
+          tr.appendChild(th);
+          tr.appendChild(td);
+          tbody.appendChild(tr);
+        }
+        showEstimateSummary();
+      }
+
+      function buildPayload(){
+        let prev = {};
+        try { prev = window.BOOKING_STORAGE.get(); } catch(e){}
+        const formData = collect();
+        const payload = Object.assign({}, prev, formData, { _page:{title:document.title,path:location.pathname,url:location.href}, _final:true });
+        try {
+          const estimate = window.BOOKING_PRICING && window.BOOKING_PRICING.calculate(payload);
+          if (estimate && estimate.hasEstimate) {
+            payload.estimate_total = estimate.total;
+            payload.estimate_items = estimate.items.map(function(item){ return item.label + ' × ' + item.qty + '：' + window.BOOKING_PRICING.money(item.subtotal); });
+            payload.estimate_notes = estimate.notes;
+          }
+        } catch(e) {}
+        return payload;
+      }
+
+      function refresh(){
+        const p = buildPayload();
+        window.lastPayload = p;
+        preview(p);
+        if (window.BOOKING_PRICING && window.BOOKING_PRICING.refreshAll) {
+          window.BOOKING_PRICING.refreshAll(p);
+        }
+      }
+
+      // 初始狀態
+      ['timeslot'].forEach(n=>{
+        form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
+          el.addEventListener('change', ()=>{ toggleOtherWrap(n); refresh(); save(); });
+        });
+        toggleOtherWrap(n);
+      });
+      form.addEventListener('input', ()=>{ refresh(); save(); });
+      document.getElementById('sitePhotos')?.addEventListener('change', ()=>{ photoProcessingPromise = renderPhotoPreview(); });
+
+      function save(){
+        try { window.BOOKING_STORAGE.replace(buildPayload()); } catch(e){}
+      }
+
+      // 樣式同步：選中時給卡片高亮
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.group').forEach(function(group){
+          group.querySelectorAll('input[type="checkbox"],input[type="radio"]').forEach(function(input){
+            function sync(){
+              if(input.checked) input.closest('.option-card')?.classList.add('selected');
+              else input.closest('.option-card')?.classList.remove('selected');
+            }
+            input.addEventListener('change', sync);
+            sync();
+          });
+        });
+      });
+
+      // 返回鍵：保留資料
+      document.getElementById('back')?.addEventListener('click', ()=>{ save(); }, {capture:true});
+
+      // 送出
+      document.getElementById('submit')?.addEventListener('click', async ()=>{
+  const loading = document.getElementById('loading');
+  loading.style.display = 'flex';
+        const payload = buildPayload();
+        try{
+          const photosReady = await photoProcessingPromise;
+          if (!photosReady) throw new Error('照片尚未處理完成或照片格式不符合，請重新選擇照片。');
+          const files = getSelectedPhotoFiles();
+          let res;
+          if (files.length) {
+            const fd = new FormData();
+            fd.append('data', JSON.stringify(payload));
+            files.forEach(file => fd.append('photos', file, file.name));
+            res = await fetch(FN, { method:'POST', body: fd });
+          } else {
+            res = await fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+          }
+          const t = await res.text();
+          if(!res.ok) throw new Error('['+res.status+'] '+t);
+          let serverResult = {};
+          try { serverResult = JSON.parse(t || '{}'); } catch(e) {}
+          try {
+            localStorage.setItem('BOOKING_SUCCESS_DATA', JSON.stringify(Object.assign({}, payload, {
+              site_photo_urls: serverResult.photo_urls || payload.site_photo_urls || [],
+              site_photo_count: (serverResult.photo_urls || []).length || payload.site_photo_count || '',
+              _submittedAt: new Date().toISOString()
+            })));
+            window.BOOKING_STORAGE.clear();
+          } catch(e) {}
+          location.href='booking-success.html';
+        }catch(err){
+          loading.style.display = 'none';
+          if (window.showValidationDialog) {
+            window.showValidationDialog('提交失敗：' + err.message);
+          } else {
+            alert('提交失敗：' + err.message);
+          }
+        }
+      });
+
+      // 初次渲染
+      refresh();
+    })();
+  </script>
+<script>
+  // === 必填驗證：可安排時段（可複選） — 使用美化彈窗 ===
+  (function () {
+    function timeslotValid() {
+      var checked = document.querySelectorAll('input[name="timeslot"]:checked');
+      return checked && checked.length > 0;
+    }
+
+    function guardAndBlock(e) {
+      if (!timeslotValid()) {
+        if (e) {
+          e.preventDefault();
+          if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+          else if (e.stopPropagation) e.stopPropagation();
+        }
+        var grp = document.getElementById('timeslot') || document.querySelector('.group[id="timeslot"]') || null;
+        if (window.showValidationDialog) {
+          window.showValidationDialog('請至少選擇一個可安排時段', grp || null);
+        } else {
+          alert('請至少選擇一個可安排時段');
+          if (grp && grp.scrollIntoView) {
+            grp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+        return false;
+      }
+      return true;
+    }
+
+    // 1) 攔截提交按鈕 click（捕獲階段，先於其他監聽器執行）
+    document.addEventListener('DOMContentLoaded', function () {
+      var submitBtn = document.getElementById('submit') ||
+                      document.querySelector('button[type="submit"], input[type="submit"], [data-role="submit"]');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function (e) {
+          guardAndBlock(e);
+        }, true); // 捕獲
+      }
+    });
+
+    // 2) 同時攔截表單 submit（無論透過鍵盤或程式呼叫）
+    document.addEventListener('submit', function (e) {
+      if (!guardAndBlock(e)) return false;
+    }, true); // 捕獲
+  })();
+</script>
+<!-- 等待動畫區塊 -->
+<div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.75); z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center;">
+<div class="spinner"></div>
+<div style="margin-top:16px; font-size:1.1rem; color:#2563eb; font-weight:500;">資料送出中...請稍候</div>
+</div>
+<!-- CSS -->
+<style>
+.spinner {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  position: relative;
+  animation: spinnerRotate 1s linear infinite;
+}
+.spinner::before {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #2563eb;
+  animation: spinnerSpin 0.6s linear infinite;
+}
+@keyframes spinnerRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes spinnerSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* ===== 送出前預覽：精簡估價摘要 ===== */
+.preview-estimate-summary{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px 14px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+.preview-estimate-summary .label{
+  display:block;
+  font-size:.88rem;
+  color:#9a3412;
+  font-weight:700;
+  margin-bottom:2px;
+}
+.preview-estimate-summary .amount{
+  display:block;
+  font-size:1.45rem;
+  line-height:1.2;
+  color:#7c2d12;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.preview-estimate-summary .hint{
+  flex-basis:100%;
+  color:#7c2d12;
+  font-size:.88rem;
+  line-height:1.5;
+}
+@media (max-width: 560px){
+  .preview-estimate-summary{display:block;}
+  .preview-estimate-summary .hint{margin-top:6px;}
+}
+
+</style>
+</body>
+</html>

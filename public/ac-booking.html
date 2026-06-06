@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>冷氣清洗｜預約表單</title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png"/>
+
+  <style>
+    /* ===== Scoped Reset (只作用在 .acv2) ===== */
+    .acv2, .acv2 *, .acv2 *::before, .acv2 *::after { box-sizing: border-box; }
+    .acv2 { line-height: 1.5; -webkit-text-size-adjust: 100%; color: #111827;  font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; --brand-700:#1e40af; }
+    .acv2 h1, .acv2 h2, .acv2 h3, .acv2 h4, .acv2 p { margin: 0; }
+    .acv2 img { max-width: 100%; height: auto; display: block; }
+    .acv2 a { color: inherit; text-decoration: none; }
+    .acv2 input, .acv2 select, .acv2 textarea, .acv2 button { font: inherit; color: inherit; }
+    .acv2 table, .acv2 input, .acv2 select, .acv2 textarea, .acv2 button { max-width: 100%; }
+
+    /* ===== Theme tokens ===== */
+    .acv2 { --brand:#2563eb; --brand-700:#1e40af; --ink:#111827; --muted:#6b7280; --card:#f9fafb; --line:#e5e7eb; }
+
+    /* ===== Layout ===== */
+    .acv2 .wrap { max-width: 960px; margin: 0 auto; }
+    .acv2 .header { padding: 22px 16px; border-bottom: 1px solid var(--line); background: #fff; }
+    .acv2 .header h1 { color: var(--brand); font-size: 1.5rem; font-weight: 800; }
+    .acv2 .desc { color: var(--muted); margin-top: 6px; }
+    .acv2 .price-hint { font-size: 0.95rem; line-height: 1.6; padding: 0.75rem 1rem; border-radius: 8px; background: #f5f7fb; border-left: 4px solid var(--brand); margin-top: 10px; }
+    .acv2 form { max-width: 960px; margin: 16px auto; padding: 0 16px; }
+
+    /* ===== Sections ===== */
+    .acv2 .section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 16px 0; }
+    .acv2 .section h2 { color: var(--brand); font-size: 1.1rem; margin: 0 0 8px; }
+    .acv2 .section h2.req::after { content: " *"; color: #dc2626; margin-left: 4px; font-weight: 700; }
+    .acv2 p.help { margin: 6px 0 0; color: var(--muted); font-size: .95rem; }
+
+    /* ===== Group & Option Cards ===== */
+    .acv2 .group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 10px; }
+    .acv2 .group.model-group { display: flex; flex-direction: column; gap: 12px; }
+
+    /* 手機：預設所有群組維持 2 欄，僅 .onecol-mobile 改為 1 欄 */
+    @media (max-width: 640px) {
+      .acv2 .group { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .acv2 .group.onecol-mobile { grid-template-columns: 1fr; }
+    }
+
+    .acv2 .option-card { width: 100%; }
+    .acv2 .option-card { display: flex; align-items: center; gap: 14px; background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 16px 14px; font-size: 1.13rem; box-shadow: 0 1px 8px rgba(0,0,0,0.04); cursor: pointer; min-height: 48px; transition: border .13s, box-shadow .13s, background .12s; position: relative; }
+    .acv2 .option-card:active { background: #e0e7ff; border-color: var(--brand); }
+    .acv2 .option-card input[type="radio"], .acv2 .option-card input[type="checkbox"] { accent-color: var(--brand); width: 22px; height: 22px; margin-right: 6px; margin-left: 0; flex-shrink: 0; }
+    .acv2 .option-card.selected { border: 2.5px solid var(--brand); background: #e0e7ff; box-shadow: 0 2px 12px rgba(37,99,235,0.10); }
+    .acv2 .option-card img.opt-img { width: 88px; border-radius: 10px; margin-top: 0; border:1px solid var(--line); padding:2px; background:#fff; }
+
+    /* ===== Hidden inputs for "其他" - 膠囊式 ===== */
+    .acv2 .hidden-input { display: none; margin: 10px 0 0 0; grid-column: 1 / -1; }
+    .acv2 .hidden-input input {
+      width: 100%;
+      max-width: 520px;
+      padding: 12px 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 9999px;
+      font: inherit;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .acv2 .hidden-input input::placeholder { color: #9ca3af; font-size: 1rem; }
+
+    /* ===== Aside / Tips ===== */
+    .acv2 .aside { display: grid; gap: 6px; margin-top: 8px; }
+    .acv2 .aside .tip { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; color: #6b7280; font-size: .92rem; }
+    .acv2 details { background: #fff; border: 1px dashed var(--line); border-radius: 10px; padding: 10px; }
+    .acv2 details > summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+    .acv2 .aside .tip img.opt-img { width: 450px; height: auto; border:1px solid var(--line); border-radius:8px; margin-top:6px; padding:2px; background:#fff; }
+
+    /* ===== Nav ===== */
+    
+
+    /* ===== FAB Home (行動) ===== */
+    .acv2 .fab-home { position: fixed; right: 18px; bottom: 72px; width: 54px; height: 54px; background: var(--brand); color: #fff; border-radius: 50%; box-shadow: 0 2px 12px rgba(37,99,235,0.08); display: flex; align-items: center; justify-content: center; font-size: 2.1em; z-index: 1010; border: none; }
+    .acv2 .fab-home:active { background: #1d4ed8; transform: scale(0.92); }
+
+    /* ===== Error Style ===== */
+    .acv2 .input-error { color: #dc2626; background: #fef2f2; border-radius: 8px; padding: 5px 10px; margin-top: 4px; font-size: .93rem; font-weight: 600; }
+    .acv2 .form-row.error input, .acv2 .form-row.error textarea, .acv2 .form-row.error select { border: 2px solid #dc2626; background: #fef2f2; }
+  
+    
+
+  
+    /* === Nav copied to match contact.html exactly === */
+    
+
+  
+    /* === addon-service 同款底部導覽（桌機/手機一致） === */
+    .acv2 .nav { display: flex; gap: 12px; margin-top: 22px; }
+    .acv2 .nav a { 
+      flex: 1; text-align: center; padding: 12px 16px; 
+      background: var(--brand); color: #fff; border-radius: 10px; 
+      text-decoration: none; 
+    }
+    .acv2 .nav a:hover { background: #1e40af; }
+
+  
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  
+/* === 共用：必填錯誤彈窗 + 欄位高亮 === */
+.validation-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease-out;
+}
+.validation-backdrop.is-active{
+  opacity:1;
+  pointer-events:auto;
+}
+.validation-modal{
+  max-width:320px;
+  width:90%;
+  background:#ffffff;
+  border-radius:16px;
+  padding:18px 20px 16px;
+  box-shadow:0 24px 60px rgba(15,23,42,0.45);
+  font-family:inherit;
+}
+.validation-title{
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--brand,#2563eb);
+  margin-bottom:4px;
+}
+.validation-message{
+  font-size:.95rem;
+  line-height:1.6;
+  color:var(--ink,#111827);
+  margin-bottom:12px;
+}
+.validation-btn{
+  width:100%;
+  border:none;
+  border-radius:999px;
+  height:40px;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  background:var(--brand,#2563eb);
+  color:#ffffff;
+}
+.validation-btn:hover{
+  background:var(--brand-700,#1e40af);
+}
+.field-error-highlight{
+  box-shadow:0 0 0 2px rgba(239,68,68,0.7);
+  border-radius:14px;
+  transition:box-shadow .25s ease-out, transform .25s ease-out;
+  transform:translateY(-1px);
+}
+</style>
+
+  <script src="validation-dialog.js"></script>
+  <script src="booking-storage.js"></script>
+  <script src="pricing.js"></script>
+</head>
+<body>
+  <div class="acv2">
+    <div class="header">
+      <div class="wrap">
+        <h1>冷氣清洗｜預約表單</h1>
+        <p class="desc">請提供機型與數量，以便安排合適人員與時間。若選擇「以上／其他」，請輸入實際數字或品牌。</p>
+        <p class="price-hint">
+          💡 參考價格：<br>
+          一般住家分離式冷氣清洗，單台約 <strong>NT$1,800</strong>，<br>
+          一次三台以上多數情況約 <strong>NT$1,500 / 台</strong>。<br>
+          室內機長度超過 182cm、變形金剛系列，或富士通一體式水盤等特殊機型，<br>
+          每台會依狀況再加 <strong>NT$300–500</strong> 施工費。<br>
+          實際金額會在與您聯繫確認服務內容時一併說明。
+        </p>
+      </div>
+    </div>
+
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item is-current">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+
+    <form id="booking-form" action="addon-service.html" method="get" novalidate>
+      <input type="hidden" name="service_category" value="冷氣清洗" />
+
+      <div class="section">
+        <h2 class="req">冷氣類型</h2>
+        <div class="group onecol-mobile">
+          <label class="option-card">
+            <input type="radio" name="ac_type" value="分離式冷氣"  />分離式冷氣
+            <img class="opt-img" alt="分離式冷氣示意圖" src="imagessplit-ac.jpg" />
+          </label>
+          <label class="option-card">
+            <input type="radio" name="ac_type" value="吊隱式冷氣" />吊隱式冷氣
+            <img class="opt-img" alt="吊隱式冷氣示意圖" src="imagesceiling-ac.jpg" />
+          </label>
+        </div>
+        <p class="help">若同場不同型式，請在最終頁備註欄補充。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="req">清洗數量</h2>
+        <div class="group">
+          <label class="option-card"><input type="radio" name="ac_count" value="1台"  />1 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="2台" />2 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="3台" />3 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="4台" />4 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="5台" />5 台</label>
+          <label class="option-card"><input type="radio" name="ac_count" value="5台以上" data-other-id="ac_count_other" />5 台以上</label>
+          <div id="ac_count_other_wrap" class="hidden-input">
+            <input type="number" id="ac_count_other" name="ac_count_other" min="6" placeholder="請輸入實際台數（≥6）" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="req">室內機所在樓層（可複選）</h2>
+        <div class="group">
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="1樓" />1 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="2樓" />2 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="3樓" />3 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="4樓" />4 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="5樓" />5 樓</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="5樓以上" data-other-id="indoor_floor_other" />5 樓以上</label>
+          <div id="indoor_floor_other_wrap" class="hidden-input">
+            <input type="text" id="indoor_floor_other" name="indoor_floor_other" placeholder="請輸入樓層（如 6樓、頂樓加蓋）" />
+          </div>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="透天（同樓層）" />透天（同樓層）</label>
+          <label class="option-card"><input type="checkbox" name="indoor_floor" value="大樓（同樓層）" />大樓（同樓層）</label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="req">冷氣品牌（可複選）</h2>
+        <div class="group">
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="HITACHI 日立" />HITACHI 日立</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Panasonic 國際牌" />Panasonic 國際牌</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="DAIKIN 大金" />DAIKIN 大金</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="MITSUBISHI 三菱" />MITSUBISHI 三菱</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="FUJITSU 富士通" />FUJITSU 富士通</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="LG" />LG</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="TECO 東元" />TECO 東元</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="SANLUX 三洋" />SANLUX 三洋</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="SAMPO 聲寶" />SAMPO 聲寶</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Heran 禾聯" />Heran 禾聯</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="Kolin 歌林" />Kolin 歌林</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="TATUNG 大同" />TATUNG 大同</label>
+          <label class="option-card"><input type="checkbox" name="ac_brand" value="其他" data-other-id="ac_brand_other" />其他</label>
+          <div id="ac_brand_other_wrap" class="hidden-input">
+            <input type="text" id="ac_brand_other" name="ac_brand_other" placeholder="請輸入品牌" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>變形金剛系列冷氣台數</h2>
+        <p class="help">若總共 3 台冷氣，只有 1 台是變形金剛系列，請填 1；沒有則填 0。此項目會依填寫台數加價，不會套用到全部冷氣。</p>
+        <div class="group model-group">
+          <label class="option-card">
+            <span style="display:block;width:100%;font-weight:700;margin-bottom:8px;">變形金剛系列台數</span>
+            <input type="number" id="ac_transformer_count" name="ac_transformer_count" value="0" min="0" step="1" inputmode="numeric" placeholder="例如：0" style="width:100%;padding:12px 14px;border:1.5px solid #d1d5db;border-radius:12px;" />
+          </label>
+          <label class="option-card"><input type="checkbox" name="ac_transformer_unknown" value="不清楚（現場由人員判斷）" />不清楚（現場由人員判斷）</label>
+        </div>
+        <div class="aside">
+          <div class="tip">
+            <strong>什麼是「變形金剛系列」？</strong>
+            <p class="help">特定系列之機型拆裝流程較不同。若不確定請勾選「不清楚」，由現場人員協助判斷。</p>
+            <img class="opt-img" alt="常見變形金剛系列參考照片" src="imagestransformer-ac.jpg" />
+          </div>
+        </div>
+      </div>
+
+      <div class="estimate-card" data-estimate-card></div>
+
+      <div class="nav">
+        <a href="index.html" id="back">回首頁</a>
+        <a href="#" id="next" data-next-href="addon-service.html">下一步</a>
+      </div>
+    </form>
+
+
+
+
+
+    <a class="fab-home" href="index.html" aria-label="回首頁">🏠</a>
+  </div>
+
+  <script>
+    (function(){
+      const KEY = 'BOOKING_DATA';
+      const form = document.getElementById('booking-form');
+
+      function toggleOtherWrap(name){
+        form.querySelectorAll('input[name="'+name+'"]').forEach(el=>{
+          const id = el.dataset.otherId;
+          const wrap = id && document.getElementById(id + '_wrap');
+          if(wrap) wrap.style.display = el.checked ? 'block' : 'none';
+        });
+      }
+      function collect(){
+        const out = { service_category: '冷氣清洗' };
+
+        // 先建立 checkbox 的空值；取消勾選後也會覆蓋 localStorage 舊資料，
+        // 避免「變形金剛系列是否不清楚」曾勾選後取消仍被送出。
+        form.querySelectorAll('input[type="checkbox"][name]').forEach(el=>{
+          if(!out[el.name]) out[el.name] = [];
+        });
+
+        form.querySelectorAll('input[name],select[name],textarea[name]').forEach(el=>{
+          const n = el.name; if(!n) return;
+          if(el.type==='radio'){
+            if(!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if(oid){
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if(extra) v = v + '：' + extra;
+            }
+            out[n] = v;
+          }else if(el.type==='checkbox'){
+            if(!el.checked) return;
+            let v = el.value || '';
+            const oid = el.dataset.otherId;
+            if(oid){
+              const extra = (form.querySelector('#'+oid)?.value||'').trim();
+              if(extra) v = v + '：' + extra;
+            }
+            out[n].push(v);
+          }else{
+            const v = (el.value||'').trim();
+            if(v) out[n] = v;
+          }
+        });
+        return out;
+      }
+      function save(part){
+      try{ window.BOOKING_STORAGE.save(part); }catch(e){}
+    }
+
+      // 變形金剛系列台數預設為 0，避免空白造成估價誤判。
+      const transformerCountInput = document.getElementById('ac_transformer_count');
+      if (transformerCountInput && transformerCountInput.value === '') {
+        transformerCountInput.value = '0';
+      }
+
+      ['ac_count','indoor_floor','ac_brand'].forEach(n=>{
+        form.querySelectorAll('input[name="'+n+'"]').forEach(el=>{
+          el.addEventListener('change', ()=>{
+            toggleOtherWrap(n);
+            save(collect());
+          });
+        });
+        toggleOtherWrap(n);
+      });
+      form.addEventListener('input', ()=> save(collect()));
+      
+
+      window.debugCollectAC = ()=>collect();
+      window.debugLS = () => window.BOOKING_STORAGE.get();
+    })();
+  </script>
+  <script>
+    // 卡片選中視覺狀態（僅限 .acv2 內部）
+    document.addEventListener('DOMContentLoaded', function () {
+      const root = document.querySelector('.acv2');
+      root.querySelectorAll('.group').forEach(function(group) {
+        group.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(function(input){
+          input.addEventListener('change', function(){
+            if(input.type === 'radio') { group.querySelectorAll('.option-card').forEach(function(card){ card.classList.remove('selected'); }); }
+            if(input.checked) input.closest('.option-card').classList.add('selected');
+            else input.closest('.option-card').classList.remove('selected');
+          });
+          if(input.checked) input.closest('.option-card').classList.add('selected');
+        });
+      });
+    });
+  </script>
+
+  <script>
+    
+  </script>
+
+<script>
+// === 統一：單一彈窗、依頁面順序、阻止舊邏輯干擾 ===
+
+// 防重複彈窗 / 提交抖動
+window.__ALERT_LAST_MSG__ = '';
+window.__ALERT_LAST_TS__ = 0;
+window.__BLOCK_SUBMIT_UNTIL__ = 0;
+function showOnceAlert(msg, targetEl){
+  var now = Date.now();
+  if (window.__ALERT_LAST_MSG__ === msg && (now - window.__ALERT_LAST_TS__) < 2000) return;
+  window.__ALERT_LAST_MSG__ = msg;
+  window.__ALERT_LAST_TS__ = now;
+
+  if (window.showValidationDialog) {
+    window.showValidationDialog(msg, targetEl || null);
+  } else {
+    alert(msg);
+    if (targetEl && targetEl.scrollIntoView) {
+      targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  window.__BLOCK_SUBMIT_UNTIL__ = Date.now() + 1200;
+}
+
+// 驗證（依 DOM 出現順序）
+function runValidation(){
+  function requireRadio(name, label){
+    var picked = document.querySelector('input[type="radio"][name="'+name+'"]:checked');
+    if(!picked){
+      return { ok:false, msg:'請選擇『'+label+'』', field:null };
+    }
+    var oid = picked && picked.dataset.otherId;
+    if(oid){
+      var other = document.getElementById(oid);
+      if(other && !(other.value||'').trim()){
+        return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
+      }
+    }
+    return { ok:true, field:null };
+  }
+
+  function requireCheckbox(name, label){
+    var checked = document.querySelectorAll(
+      'input[type="checkbox"][name="'+name+'"]:checked,'+
+      'input[type="checkbox"][name="'+name+'[]"]:checked'
+    );
+    if(checked.length===0){
+      return { ok:false, msg:'請至少勾選一個『'+label+'』', field:null };
+    }
+    for(var i=0;i<checked.length;i++){
+      var el = checked[i];
+      var oid = el.dataset.otherId;
+      if(oid){
+        var other = document.getElementById(oid);
+        if(other && other.offsetParent !== null && !(other.value||'').trim()){
+          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
+        }
+      }
+    }
+    return { ok:true, field:null };
+  }
+
+  function requireVisibleOthers(){
+    var nodes = document.querySelectorAll('.other-input');
+    for (var i=0;i<nodes.length;i++){
+      var el = nodes[i];
+      var vis = el.classList.contains('show') || el.offsetParent !== null;
+      if(vis && !(el.value||'').trim()){
+        return { ok:false, msg:'您選擇了需補充的「其他／以上」項目，請填寫說明', field:el };
+      }
+    }
+    return { ok:true, field:null };
+  }
+
+
+  function parseIntFromText(text, fallback){
+    var m = String(text || '').match(/\d+/);
+    return m ? parseInt(m[0], 10) : (fallback || 0);
+  }
+
+  function getAcTotalCount(){
+    var picked = document.querySelector('input[name="ac_count"]:checked');
+    if(!picked) return 0;
+    if(picked.dataset && picked.dataset.otherId){
+      var other = document.getElementById(picked.dataset.otherId);
+      return parseIntFromText(other && other.value, parseIntFromText(picked.value, 0));
+    }
+    return parseIntFromText(picked.value, 0);
+  }
+
+  function requireTransformerCount(){
+    var el = document.getElementById('ac_transformer_count');
+    if(!el) return { ok:true, field:null };
+    var raw = (el.value || '').trim();
+    if(!raw) return { ok:true, field:null };
+    var n = Number(raw);
+    if(!Number.isInteger(n) || n < 0){
+      return { ok:false, msg:'變形金剛系列台數請填 0 或正整數', field:el };
+    }
+    var total = getAcTotalCount();
+    if(total > 0 && n > total){
+      return { ok:false, msg:'變形金剛系列台數不能大於冷氣清洗總台數', field:el };
+    }
+    return { ok:true, field:null };
+  }
+
+  function groupRoot(name){
+    var el = document.querySelector('input[name="'+name+'"], input[name="'+name+'[]"]');
+    if(!el) return null;
+    var sec = el.closest && el.closest('.section');
+    return sec || (el.closest && el.closest('.form-row')) || el.parentElement || el;
+  }
+
+  var groups = [
+    {name:'ac_type', label:'冷氣類型', type:'radio'},
+    {name:'ac_count', label:'清洗數量', type:'radio'},
+    {name:'indoor_floor', label:'室內機所在樓層', type:'checkbox'},
+    {name:'ac_brand', label:'冷氣品牌', type:'checkbox'}
+  ];
+  groups.forEach(function(g){ g.root = groupRoot(g.name); });
+  groups = groups.filter(function(g){ return !!g.root; });
+  groups.sort(function(a,b){
+    if (a.root === b.root) return 0;
+    var pos = a.root.compareDocumentPosition(b.root);
+    if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1;
+    if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1;
+    return 0;
+  });
+
+  for (var i=0;i<groups.length;i++){
+    var g = groups[i], r;
+    if (g.type === 'radio') r = requireRadio(g.name, g.label);
+    else r = requireCheckbox(g.name, g.label);
+    if (!r.ok){
+      return { ok:false, msg:r.msg, field: r.field || g.root };
+    }
+  }
+
+  var ro = requireVisibleOthers();
+  if(!ro.ok){
+    return { ok:false, msg:ro.msg, field: ro.field || null };
+  }
+
+  var tc = requireTransformerCount();
+  if(!tc.ok){
+    return { ok:false, msg:tc.msg, field:tc.field || null };
+  }
+
+  return { ok:true, msg:'', field:null };
+}
+
+// 下一步控制
+document.addEventListener('DOMContentLoaded', function(){
+  var form = document.getElementById('booking-form');
+  var nextBtn = document.getElementById('next');
+  if(!form || !nextBtn) return;
+
+  // click：先驗證，不過就攔截且只彈一次；通過才前進
+  nextBtn.addEventListener('click', function(e){
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg, res.field);
+      return false;
+    } else {
+      e.preventDefault(); e.stopImmediatePropagation();
+      // 正確前往 data-next-href 或提交
+      var href = nextBtn.getAttribute('data-next-href') || nextBtn.getAttribute('href');
+      if (href && href !== '#') window.location.href = href;
+      else if (form.requestSubmit) form.requestSubmit();
+      else form.submit();
+      return false;
+    }
+  }, true); // capture 先於其他監聽執行
+
+  // 全域 submit 捕獲：任何提交路徑都必須通過驗證
+  document.addEventListener('submit', function(e){
+    var f = e.target;
+    if (!f || f.id !== 'booking-form') return;
+
+    if (Date.now() < (window.__BLOCK_SUBMIT_UNTIL__ || 0)) {
+      e.preventDefault(); e.stopImmediatePropagation();
+      return false;
+    }
+    var res = runValidation();
+    if(!res.ok){
+      e.preventDefault(); e.stopImmediatePropagation();
+      showOnceAlert(res.msg, res.field);
+      return false;
+    }
+  }, true);
+});
+</script>
+</body>
+</html>

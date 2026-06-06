@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#2563eb" name="theme-color"/>
+<title>大量清洗</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>:root{--brand:#2563eb;--brand-700:#1e40af;--line:#e5e7eb}body{font-family:"Noto Sans TC",system-ui;margin:0}
+header{padding:20px 16px;border-bottom:1px solid var(--line)}header h1{margin:0;color:var(--brand);text-align:center;text-indent:0;}
+main{max-width:900px;margin:18px auto;padding:0 16px}.section{border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+.section h2{margin:0 0 8px;color:#2563eb}.desc{margin:0 0 10px;color:#555}
+.price-hint{font-size:.95rem;line-height:1.6;padding:.75rem 1rem;border-radius:8px;background:#f5f7fb;border-left:4px solid var(--brand);margin:8px 0 12px;}
+textarea{width:100%;min-height:160px;padding:10px;border:1px solid #ccc;border-radius:8px;resize:vertical;box-sizing:border-box;}
+.nav{display:flex;gap:12px;margin:18px 0}.nav a{flex:1;text-align:center;padding:12px 16px;background:#2563eb;color:#fff;border-radius:10px;text-decoration:none}
+.nav a:hover{background:#1e40af}
+
+    /* ===== 共用：預約流程步驟指示 ===== */
+    .step-flow {
+      border-radius: 999px;
+      border: 1px solid var(--line, #e5e7eb);
+      background: var(--card, #f9fafb);
+      margin: 12px auto 8px;
+      padding: 6px 10px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .step-flow-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: max-content;
+      font-size: 0.85rem;
+      color: var(--muted, #6b7280);
+    }
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .step-index {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 2px solid var(--muted, #9ca3af);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--muted, #6b7280);
+    }
+    .step-label {
+      letter-spacing: 0.02em;
+    }
+    .step-divider {
+      flex-shrink: 0;
+      width: 20px;
+      height: 1px;
+      background: var(--line, #e5e7eb);
+      opacity: 0.9;
+    }
+    .step-item.is-current .step-index {
+      border-color: var(--brand, #2563eb);
+      background: var(--brand, #2563eb);
+      color: #ffffff;
+    }
+    .step-item.is-current .step-label {
+      color: var(--brand, #2563eb);
+      font-weight: 600;
+    }
+    @media (max-width: 480px) {
+      .step-flow {
+        border-radius: 14px;
+        padding: 6px 8px;
+      }
+      .step-flow-inner {
+        font-size: 0.8rem;
+      }
+      .step-label {
+        letter-spacing: 0;
+      }
+    }
+
+  
+    /* Desktop 調整：讓流程指示更精簡、置中 */
+    @media (min-width: 900px) {
+      .step-flow {
+        max-width: 760px;
+        padding: 4px 12px 10px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+        background: transparent;
+        border-color: transparent;
+      }
+      .step-flow-inner {
+        justify-content: center;
+        gap: 16px;
+      }
+      .step-index {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      .step-label {
+        font-size: 0.85rem;
+      }
+      .step-divider {
+        width: 28px;
+        opacity: 0.4;
+      }
+    }
+
+  </style>
+<style>
+  body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  table, input, select, textarea, button {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 覆寫 bulk-booking 導覽按鈕樣式，讓高度與其他頁面一致 */
+  .nav{
+    display:flex;
+    gap:12px;
+    margin:18px 0;
+  }
+  .nav a{
+    flex:1;
+    text-align:center;
+    padding:12px 16px;
+    background:var(--brand);
+    color:#fff;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:600;
+    font-size:0.95rem;
+  }
+  .nav a:hover{
+    background:var(--brand-700);
+  }
+
+  @media (max-width: 720px){
+    .nav{flex-direction:row;}
+  }
+</style><style>
+/* ==== Card & Button Active ==== */
+.card:active, .go:active, button:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 12px rgba(37,99,235,0.12);
+  filter: brightness(0.97);
+  transition: transform .05s, box-shadow .05s;
+}
+button, .go, .card {
+  transition: box-shadow .18s, transform .10s, filter .10s;
+  cursor: pointer;
+}
+
+/* ==== Visual Upgrade ==== */
+.hero h1 {
+  font-size: 1.9rem;
+  letter-spacing: .5px;
+  font-weight: 800;
+  color: #2563eb;
+  margin-bottom: 4px;
+}
+.hero p {
+  color: #64748b;
+  font-size: 1.04rem;
+}
+.grid { gap: 22px; }
+.card {
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  font-size: 1rem;
+}
+.card h3 {
+  font-size: 1.16rem;
+  font-weight: 700;
+  letter-spacing: .1px;
+}
+.card p {
+  color: #6b7280;
+  font-size: .99rem;
+}
+footer {
+  margin-bottom: 0;
+}
+
+/* ==== Error Message ==== */
+.input-error {
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 5px 10px;
+  margin-top: 4px;
+  font-size: .93rem;
+  font-weight: 600;
+}
+.form-row.error input, .form-row.error textarea, .form-row.error select {
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+}
+
+/* ==== FAB ==== */
+.fab-home {
+  position: fixed; right: 18px; bottom: 72px;
+  width: 54px; height: 54px;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.1em;
+  z-index: 1010;
+  text-decoration: none;
+  transition: background .13s, transform .13s;
+  border: none;
+}
+.fab-home:active { background: #1d4ed8; transform: scale(0.92);}
+
+</style>  <script src="booking-storage.js"></script>
+</head><body>
+<header><h1>大量清洗需求</h1></header>
+    <div class="step-flow" aria-label="預約流程步驟">
+      <div class="step-flow-inner">
+        <div class="step-item is-current">
+          <span class="step-index">1</span>
+          <span class="step-label">選擇服務內容</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">2</span>
+          <span class="step-label">加購服務（若適用）</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">3</span>
+          <span class="step-label">聯繫資料與偏好</span>
+        </div>
+        <div class="step-divider" aria-hidden="true"></div>
+        <div class="step-item">
+          <span class="step-index">4</span>
+          <span class="step-label">安排時段與送出</span>
+        </div>
+      </div>
+    </div>
+<main>
+<input name="service_category" type="hidden" value="大量清洗需求"/>
+<section class="section"><h2>多台預約說明</h2>
+<p class="desc">請描述台數、機型分布、場域型態（民宿/大樓/學校）、可施工時段與任何限制。</p>
+<p class="price-hint">
+  💡 參考價格：大量清洗（如民宿、公司、學校等）會依 <strong>設備台數、場域大小、樓層與施工時段</strong> 評估，
+  採專案報價方式，多為整體方案的總金額。
+  您提供越完整的設備與場域資訊，我們越能幫您安排合適的方案與優惠。
+</p>
+<textarea name="bulk_notes" placeholder="例：共 12 台分離式，兩層，民宿無電梯；希望 6/15～6/16 下午；需 4 間臭氧。"></textarea></section>
+<div class="nav"><a href="index.html" id="back">回首頁</a><a href="contact.html?from=bulk" id="next">下一步</a></div>
+</main>
+<script>(function(){const KEY='BOOKING_DATA';const $=s=>document.querySelector(s);const $$=s=>[].slice.call(document.querySelectorAll(s));
+function save(part){
+      try{ window.BOOKING_STORAGE.save(part); }catch(e){}
+    }
+function collect(root=document){const out={service_category:'大量清洗需求'};$$('input[name],textarea[name],select[name]',root).forEach(el=>{const n=el.name;if(!n)return;const v=(el.value||'').trim();if(v)out[n]=v;});return out;}
+document.addEventListener('input',()=>save(collect()));['back','next'].forEach(id=>{const a=document.getElementById(id);if(a)a.addEventListener('click',()=>save(collect()),{capture:true});});
+window.debugBulk=()=>collect();window.debugLS = () => window.BOOKING_STORAGE.get();})();</script>
+
+<a aria-label="回首頁" class="fab-home" href="index.html">🏠</a>
+</body></html>

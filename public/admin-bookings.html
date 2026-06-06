@@ -1,0 +1,1556 @@
+
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>預約資料管理（Cloudinary）</title>
+<link href="https://res.cloudinary.com/dijzndzw2/image/upload/v1757176751/logo-3_hddq08.png" rel="icon" type="image/png"/>
+<style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;margin:0;background:#f8fafc;color:#0f172a}
+    header{padding:26px 20px 8px}
+    h1{margin:0 0 4px;font-size:22px}
+    .sub{color:#64748b;font-size:13px}
+    .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
+    .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
+    .input{display:flex;flex-direction:column;gap:6px}
+    .input input{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:220px}
+    .btn{height:38px;padding:0 14px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;cursor:pointer}
+    .btn.primary{background:#0f172a;border-color:#0f172a;color:#fff}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden}
+    th,td{padding:12px 14px;font-size:14px;border-bottom:1px solid #e5e7eb}
+    th{background:#f9fafb;color:#374151;text-align:left;position:sticky;top:0}
+    tr:hover{background:#f6f9ff;cursor:pointer}
+    .grid{display:grid;grid-template-columns: 1fr 380px;gap:16px;align-items:start}
+    .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px}
+    .panel h3{margin:0 0 10px}
+    .fullview-wrap{display:flex;flex-direction:column;gap:12px}
+    .card.fullview{border:1px solid #e5e7eb;border-radius:12px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .card.fullview .card-h{padding:10px 12px;font-weight:600;color:#3b82f6}
+    .card.fullview .card-b{padding:8px 12px 12px}
+    .card.fullview .row{display:grid;grid-template-columns:160px 1fr;padding:6px 0;border-bottom:1px dotted #eef2f7}
+    .card.fullview .row:last-child{border-bottom:0}
+    .card.fullview .k{color:#6b7280}
+    .card.fullview .v{color:#111827;white-space:pre-wrap}
+    .photo-cell{min-width:82px}
+    .admin-photo-mini{width:54px;height:54px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;background:#f8fafc;display:block}
+    .admin-photo-count{font-size:12px;color:#64748b;margin-top:4px;white-space:nowrap}
+    .admin-photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .admin-photo-link{display:block;text-decoration:none;color:#2563eb;font-size:13px}
+    .admin-photo-link img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;background:#f8fafc;display:block;margin-bottom:4px}
+    .email-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1000}
+    .email-dialog{width:min(720px,92vw);background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px}
+    .email-dialog h3{margin:0 0 10px}
+    .email-dialog textarea{width:100%;height:320px;border:1px solid #e5e7eb;border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+    .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+
+    .admin-select{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:140px}
+    .admin-pagination{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+    .admin-pagination #pageInfo{font-size:14px;color:#475569;min-width:86px;text-align:center}
+
+/* highlight style for matched text */
+.highlight { background: yellow; padding: 0 2px; border-radius: 2px; }
+
+/* === Admin Login Modal === */
+.login-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:999}
+.login-dialog{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.18);width:min(520px,92vw);padding:18px 18px 16px;border:1px solid #e5e7eb}
+.login-h{margin:2px 4px 2px;font-size:20px;font-weight:700;color:#111827}
+.login-sub{margin:0 4px 14px;font-size:14px;color:#6b7280}
+.login-field{display:flex;flex-direction:column;gap:6px;margin:10px 4px}
+.login-label{font-size:13px;color:#374151}
+.login-input{height:40px;border-radius:12px;border:1px solid #e5e7eb;padding:8px 12px;background:#fff;outline:none}
+.login-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.login-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+.btn-secondary{background:#f3f4f6;border:1px solid #e5e7eb;color:#111827;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn-primary{background:#0f172a;color:#fff;border:1px solid #111827;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.login-error{margin:6px 4px 0;color:#b91c1c;font-size:13px;display:none}
+
+/* === Login Dialog 輸入框在手機時不全螢幕 === */
+@media (max-width: 640px){
+  .login-dialog{
+    max-width: 360px;
+    width: calc(100% - 32px);
+    margin: 0 auto;              /* 置中 */
+    border-radius: 16px;
+  }
+  .login-input input{
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+
+/* === 頁面標題與說明置中 === */
+header {
+  text-align: center;
+}
+
+header h1 {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+header .sub {
+  text-align: center;
+  display: block;
+  margin-bottom: 12px;
+  color: #64748b;
+}
+
+
+/* === 手機字體與可點性優化 === */
+@media (max-width: 640px){
+  html { font-size: 17px; }          /* 提升整體字級 */
+  body { line-height: 1.6; }
+
+  /* 標題與副標 */
+  header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  header .sub { font-size: 15px; line-height: 1.4; }
+
+  /* 表單輸入與按鈕 */
+  .input input { font-size: 16px; height: 48px; padding: 0 12px; }
+  .btn, .btn.primary { font-size: 16px; height: 48px; }
+
+  /* 表格可讀性 */
+  th { font-size: 15px; font-weight: 600; }
+  td { font-size: 15px; line-height: 1.5; }
+  tr { min-height: 48px; }
+
+  /* 詳情面板 key/value */
+  .card.fullview .k { font-size: 14px; }
+  .card.fullview .v { font-size: 16px; }
+}
+
+
+/* === 隱藏詳情面板內容 === */
+.card.fullview .card-b {
+  display: none;    /* 隱藏內容區 */
+}
+
+.card.fullview .card-h::after {
+  content: '';      
+}
+
+
+/* === Mobile layout: put buttons next to end-date === */
+@media (max-width: 640px){
+  .row{ display: grid; grid-template-columns: 1fr auto auto; gap:10px; align-items: end; }
+  .row label.input{ grid-column: 1 / -1; }
+  #btnSearch{ grid-column: 1 / 2; }
+  #btnCsv{ grid-column: 2 / 3; }
+}
+
+</style>
+<style>
+/* ====== Mobile-first: 通用可用性 ====== */
+:root{
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+*{ -webkit-tap-highlight-color: transparent; }
+button, input, textarea, select{ font-size:16px; } /* iOS 避免焦點時自動放大 */
+body{ overscroll-behavior-y: none; }
+
+/* ====== 版面：改為小螢幕單欄、放大可點區域 ====== */
+@media (max-width: 1024px){
+  .wrap{ padding:0 16px 24px; }
+  .grid{ grid-template-columns: 1fr !important; gap: 12px; }
+  header{ padding: calc(16px + var(--safe-top)) 16px 6px; }
+  h1{ font-size:20px; }
+  .sub{ font-size:13px; }
+  .row{ gap:8px; align-items: stretch; }
+  .input input, .admin-select{ min-width:0; width:100%; height:44px; }
+  .btn, .btn.primary{ height:44px; padding:0 16px; border-radius:12px; }
+  .panel{ padding:12px; border-radius:12px; }
+}
+
+/* ====== 表格可橫向捲動 ====== */
+.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; }
+.table-wrap > table{ min-width:720px; }
+
+@media (max-width: 640px){
+  th, td{ padding:10px 12px; font-size:14px; }
+  tr:hover{ background:#f6f9ff; }
+  th{ top:0; }
+}
+
+/* 鍵盤可達性：列可聚焦（配合JS加 tabindex） */
+tr:focus-within{ outline:2px solid #93c5fd; outline-offset:-2px; background:#f0f7ff; }
+
+/* ====== 卡片（詳情）在手機更易讀 ====== */
+@media (max-width: 640px){
+  .card.fullview{ border-radius:12px; }
+  .card.fullview .card-h{ padding:10px 12px; font-size:15px; }
+  .card.fullview .card-b{ padding:8px 12px 12px; }
+  .card.fullview .row{ grid-template-columns: 1fr !important; gap: 2px; padding:8px 0; }
+  .card.fullview .k{ font-size:13px; color:#6b7280; }
+  .card.fullview .v{ font-size:15px; }
+}
+
+/* ====== 模態：手機全螢幕、好關閉、鍵盤不遮擋 ====== */
+@media (max-width: 640px){
+  .login-dialog,
+  .email-dialog{
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto;
+    max-height: calc(100dvh - 16px - var(--safe-top) - var(--safe-bottom));
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: max(16px, var(--safe-bottom));
+  }
+  .email-dialog textarea{ height: 40dvh; }
+}
+
+/* ====== 觸控目標大小與狀態 ====== */
+.btn, .btn.primary, .btn-primary, .btn-secondary{
+  min-width: 44px; min-height: 44px;
+}
+.btn:active, .btn-primary:active, .btn-secondary:active{ transform: translateY(1px); }
+
+/* ====== iOS 背景鎖定（配合JS在開啟模態時加 body--modal-open） ====== */
+body.body--modal-open{ height:100dvh; overflow:hidden; }
+</style>
+<style>.card.fullview .card-b{display:block !important;}</style>
+
+<!-- BEGIN: btn-del strong style -->
+<style>
+  .btn-del{
+    padding: 6px 12px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    background: #e53935 !important; /* red */
+    color: #fff !important;          /* white text */
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+    cursor: pointer !important;
+    transition: transform .05s ease, opacity .2s ease !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15) !important;
+  }
+  .btn-del:hover{ opacity: .9 !important; }
+  .btn-del:active{ transform: scale(.98) !important; }
+  .btn-del[disabled]{ opacity: .55 !important; cursor: not-allowed !important; }
+</style>
+<!-- END: btn-del strong style -->
+
+
+<style>
+/* === FINAL MOBILE OVERRIDE (max-width:640px) ===
+   Force: buttons side-by-side on the line BELOW the end date.
+   This wins over any earlier rules. */
+@media (max-width: 640px){
+  .wrap .row{
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    align-items: end !important;
+  }
+  /* 所有查詢與篩選欄位各佔一行 */
+  .wrap .row label.input{
+    grid-column: 1 / -1 !important;
+  }
+  /* Buttons share the next row (50% / 50%) */
+  #btnSearch, #btnCsv{
+    width: 100% !important;
+  }
+  #btnSearch{ grid-column: 1 / 2 !important; }
+  #btnCsv{    grid-column: 2 / 3 !important; }
+}
+</style>
+</head>
+<body>
+<div aria-modal="true" class="login-backdrop" id="loginModal" role="dialog">
+<div class="login-dialog">
+<div class="login-h">管理登入</div>
+<div class="login-sub">請輸入帳號與密碼以檢視資料。</div>
+<div class="login-field">
+<label class="login-label" for="login-username">帳號</label>
+<input autocomplete="username" class="login-input" id="login-username" placeholder="admin" type="text"/>
+</div>
+<div class="login-field">
+<label class="login-label" for="login-password">密碼</label>
+<input autocomplete="current-password" class="login-input" id="login-password" placeholder="••••••••" type="password"/>
+</div>
+<div class="login-error" id="login-error">登入失敗，請確認帳號密碼。</div>
+<div class="login-actions">
+<button class="btn-secondary" id="login-clear" type="button">清除</button>
+<button class="btn-primary" id="login-submit" type="button">登入</button>
+</div>
+</div>
+</div>
+<header>
+<h1>預約資料管理（Cloudinary）</h1>
+<div class="sub">僅展示 姓名 / 電話 / 服務 / 建立時間；詳情面板可直接「查看完整內容」。</div>
+</header>
+<div class="wrap">
+<div class="row">
+<label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
+<label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
+<label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
+<label class="input"><span>快速日期</span><select id="datePreset" class="admin-select"><option value="all">全部日期</option><option value="today">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option></select></label>
+<label class="input"><span>狀態</span><select id="statusFilter" class="admin-select"><option value="all">全部狀態</option><option value="pending">未處理</option><option value="scheduled">已登錄</option><option value="done">已完成</option><option value="cancelled">已取消</option></select></label>
+<button class="btn primary" id="btnSearch">查詢</button>
+<button class="btn" id="btnCsv">匯出 CSV</button>
+</div>
+<div class="grid">
+<div>
+<div class="table-wrap"><table id="tbl">
+<thead><tr><th>姓名</th><th>電話</th><th>服務</th><th>照片</th><th>建立時間</th><th>操作</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div id="foot" style="margin-top:8px;color:#6b7280"></div>
+<div class="admin-pagination" id="pagination">
+  <button class="btn" id="prevPage" type="button">上一頁</button>
+  <span id="pageInfo">第 1 頁</span>
+  <button class="btn" id="nextPage" type="button">下一頁</button>
+</div>
+</div>
+<div class="panel">
+<div id="preview" style="min-height:120px;"></div>
+<div style="margin-top:8px;display:flex;gap:8px">
+<button class="btn" id="btnPaste">貼上信件內容（僅顯示）</button>
+<button class="btn primary" id="btnEdit" type="button">✏️ 編輯案件</button>
+<button id="btnDelete" class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+</div>
+</div>
+</div>
+<div class="email-modal" id="emailModal">
+<div class="email-dialog">
+<h3>貼上信件內容 → 解析並回填</h3>
+<div style="color:#6b7280;font-size:13px;margin-bottom:6px">請從 Gmail 直接複製可見文字貼上；會自動解析欄位並同步到 Cloudinary context。</div>
+<textarea id="emailPaste"></textarea>
+<div class="actions">
+<button class="btn" id="emailCancel">取消</button>
+<button class="btn primary" id="emailApply">解析並回填</button>
+</div>
+<div id="emailMsg" style="color:#2563eb;font-size:13px;margin-top:6px"></div>
+</div>
+</div>
+<!-- 案件編輯視窗 -->
+<div class="case-edit-modal" id="caseEditModal" aria-hidden="true">
+  <div class="case-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="caseEditTitle">
+    <div class="case-edit-head">
+      <div>
+        <h3 id="caseEditTitle">編輯案件資料</h3>
+        <div class="case-edit-sub">修改後會同步更新 Cloudinary context，後台重新讀取即可看到新資料。</div>
+      </div>
+      <button type="button" class="case-edit-close" id="caseEditClose" aria-label="關閉">×</button>
+    </div>
+    <form id="caseEditForm">
+      <div class="case-edit-grid" id="caseEditFields"></div>
+      <div class="case-edit-actions">
+        <button type="button" class="btn" id="caseEditCancel">取消</button>
+        <button type="submit" class="btn primary" id="caseEditSave">儲存修改</button>
+      </div>
+      <div class="case-edit-msg" id="caseEditMsg"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+const API_LIST = "/.netlify/functions/list-bookings";
+const API_LOGIN = "/.netlify/functions/auth-login";
+const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
+let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
+let CURRENT_ITEM = null;
+let CURRENT_LIST = [];
+let CURRENT_NEXT_CURSOR = null;
+let PAGE_CURSORS = [null];
+let CURRENT_PAGE = 1;
+const PAGE_SIZE = 20;
+const $ = (s)=>document.querySelector(s);
+
+/* 漂亮版確認視窗：回傳 Promise<boolean> */
+function showConfirmDialog(opts = {}){
+  return new Promise((resolve)=>{
+    const modal = document.getElementById('confirmModal');
+    if (!modal) {
+      const ok = window.confirm(opts.message || '確定要刪除此筆預約嗎？');
+      return resolve(ok);
+    }
+
+    const titleEl = document.getElementById('confirmTitle');
+    const msgEl   = document.getElementById('confirmMessage');
+    const btnOk   = document.getElementById('confirmOk');
+    const btnCancel = document.getElementById('confirmCancel');
+
+    titleEl.textContent = opts.title || '確認刪除';
+    msgEl.textContent   = opts.message || '確定要刪除此筆預約嗎？這個動作無法復原。';
+    btnOk.textContent   = opts.confirmText || '確認刪除';
+    btnCancel.textContent = opts.cancelText || '取消';
+
+    const close = (result)=>{
+      modal.classList.remove('is-open');
+      if (typeof lockScrollForModal === 'function') lockScrollForModal(false);
+      document.removeEventListener('keydown', onKey);
+      btnOk.onclick = null;
+      btnCancel.onclick = null;
+      resolve(result);
+    };
+
+    const onKey = (e)=>{
+      if (e.key === 'Escape') close(false);
+      if (e.key === 'Enter')  close(true);
+    };
+
+    btnOk.onclick = ()=> close(true);
+    btnCancel.onclick = ()=> close(false);
+    document.addEventListener('keydown', onKey);
+
+    modal.classList.add('is-open');
+    if (typeof lockScrollForModal === 'function') lockScrollForModal(true);
+    setTimeout(()=>btnOk.focus(), 30);
+  });
+}
+
+/* Toast：type = 'success' | 'error' */
+function showToast(message, type = 'success'){
+  const container = document.getElementById('toastContainer');
+  if (!container){
+    alert(message);
+    return;
+  }
+  const el = document.createElement('div');
+  el.className = 'toast' + (type === 'error' ? ' toast--error' : '');
+  const icon = type === 'error' ? '⚠️' : '✅';
+  el.innerHTML = `
+    <span class="toast__icon">${icon}</span>
+    <span class="toast__text">${message}</span>
+  `;
+  container.appendChild(el);
+
+  setTimeout(()=>{
+    el.style.animation = 'toast-out .18s ease-in forwards';
+    setTimeout(()=>{ el.remove(); }, 200);
+  }, 2200);
+}
+
+
+
+function needLogin(){ return !ADMIN_TOKEN; }
+
+async function login(){
+  return new Promise((resolve)=>{
+    const modal = document.getElementById('loginModal');
+    const uEl = document.getElementById('login-username');
+    const pEl = document.getElementById('login-password');
+    const err = document.getElementById('login-error');
+    const btnSubmit = document.getElementById('login-submit');
+    const btnClear = document.getElementById('login-clear');
+    // init
+    err.style.display = 'none';
+    uEl.value = '';
+    pEl.value = '';
+    modal.style.display = 'flex';
+    uEl.focus();
+
+    const doSubmit = async ()=>{
+      btnSubmit.disabled = true;
+      err.style.display = 'none';
+      const u = uEl.value.trim();
+      const p = pEl.value;
+      if(!u || !p){ err.textContent = "請輸入帳號與密碼"; err.style.display='block'; btnSubmit.disabled=false; return; }
+      try{
+        const r = await fetch(API_LOGIN, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ username:u, password:p }) });
+        const j = await r.json();
+        if (!r.ok){ err.textContent = j.message || j.error || "登入失敗"; err.style.display='block'; btnSubmit.disabled=false; return; }
+        ADMIN_TOKEN = j.token; localStorage.setItem("admin_token", ADMIN_TOKEN);
+        modal.style.display = 'none';
+        resolve(true);
+      }catch(e){
+        err.textContent = "網路錯誤，請稍後重試"; err.style.display='block';
+        btnSubmit.disabled = false;
+      }
+    };
+
+    btnSubmit.onclick = doSubmit;
+    btnClear.onclick = ()=>{ uEl.value=''; pEl.value=''; uEl.focus(); };
+    pEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSubmit(); });
+    uEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pEl.focus(); });
+  });
+}
+function fmtDate(d){ return new Date(d).toLocaleString(); }
+function pick(obj, keys, fb=""){ for(const k of keys){ if(obj && obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return fb; }
+
+
+function decodeArray(val){
+  try {
+    const decoded = decodeURIComponent(val || "");
+    const parsed = JSON.parse(decoded);
+    if (Array.isArray(parsed)) return parsed.join(", ");
+    return parsed;
+  } catch (e){
+    return val;
+  }
+}
+
+function decodePhotoUrls(val){
+  if (!val) return [];
+  if (Array.isArray(val)) return val.filter(Boolean);
+  const raw = String(val || '').trim();
+  if (!raw) return [];
+  const candidates = [raw];
+  try { candidates.push(decodeURIComponent(raw)); } catch(e) {}
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate);
+      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+      if (typeof parsed === 'string' && parsed) return [parsed];
+    } catch(e) {}
+  }
+  return raw.split(/[\n,、]+/).map(s => s.trim()).filter(Boolean);
+}
+
+function renderPhotoCell(urls){
+  const photos = decodePhotoUrls(urls);
+  if (!photos.length) return '<span style="color:#94a3b8">—</span>';
+  const first = escapeHtmlForRender(photos[0]);
+  return `<div class="photo-cell"><img class="admin-photo-mini" src="${first}" alt="現場照片縮圖" loading="lazy"><div class="admin-photo-count">${photos.length} 張</div></div>`;
+}
+
+function renderPhotoSection(urls){
+  const photos = decodePhotoUrls(urls);
+  if (!photos.length) return '';
+  return `<div class="admin-photo-grid">${photos.map((url, idx) => {
+    const safeUrl = escapeHtmlForRender(url);
+    return `<a class="admin-photo-link" href="${safeUrl}" target="_blank" rel="noopener"><img src="${safeUrl}" alt="現場照片 ${idx + 1}" loading="lazy"><span>照片 ${idx + 1}</span></a>`;
+  }).join('')}</div>`;
+}
+
+
+function normalizeContext(item){
+  const c = (item.context && item.context.custom) ? item.context.custom : (item.context || {});
+  const m = item.metadata || {};
+  const get = (names, fb="") => pick(c, names, pick(m, names, fb));
+  return {
+    bulk_notes: get(["bulk_notes", "大量清洗備註"]),
+    group_notes: get(["group_notes", "團購備註"]),
+    service_description: get(["service_description", "其他服務說明"]),
+    contact_method: get(["contact_method"]),
+    social_name: get(["social_name"]),
+    other_contact_detail: get(["other_contact_detail"]),
+    housing_type: get(["housing_type"]),
+    contact_time_preference: decodeArray(get(["contact_time_preference"])),
+    washer_count: get(["washer_count"]),
+    washer_floor: decodeArray(get(["washer_floor"])),
+    tank_count: get(["tank_count"]),
+    pipe_service: get(["pipe_service"]),
+    pipe_reason: decodeArray(get(["pipe_reason"])),
+    name: get(["name","customer_name","fullname","姓名"]),
+    phone: get(["phone","phone_number","mobile","tel","電話"]),
+    service: get(["service","service_category","service_item","select_service","服務"]),
+    address: get(["address","地址"]),
+    brand: decodeArray(get(["ac_brand","brand","冷氣品牌"])),
+    ac_type: get(["ac_type","冷氣類型"]),
+    count: get(["ac_count","count","quantity","清洗數量"]),
+    floor: decodeArray(get(["indoor_floor","floor","樓層","室內機所在樓層"])),
+    transformer_count: get(["ac_transformer_count","變形金剛系列台數"]),
+    transformer_unknown: decodeArray(get(["ac_transformer_unknown","變形金剛系列是否不清楚"])),
+    antifungus: get(["anti_mold","antifungus","冷氣防霉抗菌處理"]),
+    ozone: get(["ozone","臭氧殺菌消毒"]),
+    ozone_room_count: get(["ozone_room_count","臭氧消毒房間數","臭氧空間消毒房間數"]),
+    extra_service: get(["extra_service","其他清洗服務"]),
+    line_id: get(["line_or_fb","line_id","LINE","聯絡Line"]),
+    fb_name: get(["social_name","fb_name","facebook","FB","LINE & Facebook 姓名"]),
+    timeslot: get(["timeslot","預約時段"]),
+    date: get(["date","預約日期"]),
+    note: get(["note","備註"]),
+    storage_warning: get(["storage_warning"]),
+    photo_urls: (() => {
+      const original = decodePhotoUrls(get(["site_photo_urls","photo_urls","photos","現場照片"]));
+      const split = [1,2,3,4,5].map(i => get([`site_photo_url_${i}`])).filter(Boolean);
+      return original.length ? original : split;
+    })(),
+    photo_count: get(["site_photo_count","photo_count","照片數量"]),
+  };
+}
+
+/* -----------------------------
+   New helper functions for client-side filtering & highlighting
+   ----------------------------- */
+
+/* escape HTML to avoid injection when inserting innerHTML */
+function escapeHtmlForRender(s){
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* escape regex special chars */
+function escapeRegExp(s){ return String(s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+/* highlight for normal text fields (name, service): case-insensitive substring highlight */
+function highlightTextMatch(text, q){
+  if(!q) return escapeHtmlForRender(text || '');
+  const escapedQuery = String(q || '').trim();
+  if(!escapedQuery) return escapeHtmlForRender(text || '');
+  const re = new RegExp(escapeRegExp(escapedQuery), 'gi');
+  const escapedText = escapeHtmlForRender(text || '');
+  return escapedText.replace(re, (m) => `<span class="highlight">${m}</span>`);
+}
+
+/* normalize digits in a string (phone) */
+function digitsOnly(s){ return String(s || '').replace(/\D/g, ''); }
+
+/*
+  highlightPhoneMatch:
+  - q may contain digits; match those digits in the displayed phone string even if phone contains hyphens/spaces.
+  - Approach: build a regex that allows non-digit chars between digits, e.g. '0912' -> /0\D*?9\D*?1\D*?2/gi
+  - Replace matched substring in the original displayed phone string with <span class="highlight">...</span>.
+*/
+function highlightPhoneMatch(phoneText, q){
+  const raw = String(phoneText || '');
+  if(!q) return escapeHtmlForRender(raw || '');
+  const qDigits = String(q).replace(/\D/g, '');
+  if(!qDigits) return escapeHtmlForRender(raw || '');
+  // build pattern allowing non-digit between each digit
+  const pattern = qDigits.split('').map(d => escapeRegExp(d)).join('\\D*?');
+  const re = new RegExp(pattern, 'gi');
+  const escapedPhone = escapeHtmlForRender(raw);
+  // We want to replace the matched portion(s) in the original phone text.
+  // But working on escaped text: we map replacement using function on matched substring.
+  return escapedPhone.replace(re, (m) => `<span class="highlight">${m}</span>`);
+}
+
+/* Main renderer: filter by name OR phone OR service.
+   - q: user input
+   - name match: substring (case-insensitive)
+   - phone match: digits-only substring (partial digits allowed)
+   - service match: substring (case-insensitive)
+*/
+function renderFilteredList(items){
+  const q = String($("#q").value || "").trim();
+  const qLower = q.toLowerCase();
+  const qDigits = q.replace(/\D/g, '');
+  const tbody = $("#tbl tbody");
+  tbody.innerHTML = ""; // clear
+
+  let shown = 0;
+  for (const it of (items || [])){
+    const ctx = normalizeContext(it);
+    const name = String(ctx.name || "");
+    const phone = String(ctx.phone || ctx.mobile || ctx.phone_number || "");
+    const service = String(ctx.service || ctx.service_description || "");
+
+    // decide match
+    let matched = false;
+    // name match (case-insensitive substring)
+    if (!q) matched = true;
+    else {
+      if (name && name.toLowerCase().includes(qLower)) matched = true;
+      // phone: compare digits only
+      else if (qDigits && digitsOnly(phone).includes(qDigits)) matched = true;
+      // service match (case-insensitive)
+      else if (service && service.toLowerCase().includes(qLower)) matched = true;
+    }
+
+    if (!matched) continue;
+
+    // build row
+    const tr = document.createElement("tr");
+
+    const nameCellHtml = highlightTextMatch(name || "(未填)", q);
+    const phoneCellHtml = highlightPhoneMatch(phone || "", q);
+    const serviceCellHtml = highlightTextMatch(service || "", q);
+
+    const status = (it.context?.custom?.status || it.context?.status || "pending");
+    tr.innerHTML = `
+      <td class="td-name">${ nameCellHtml }</td>
+      <td>${ phoneCellHtml }</td>
+      <td>${ serviceCellHtml }</td>
+      <td>${ renderPhotoCell(ctx.photo_urls) }</td>
+      <td>${ escapeHtmlForRender(fmtDate(it.created_at) || "") }</td>
+      <td>
+        <button class="btn-status status-${status}">${statusLabel(status)}</button>
+        <button class="btn-edit-row" title="編輯" aria-label="編輯此筆預約">✏️ 編輯</button>
+        <button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+      </td>
+    `;
+
+    // keep prior behaviors (click to open details, delete, status update)
+    tr.onclick = ()=> openDetails(it);
+
+    const btnEditRow = tr.querySelector('.btn-edit-row');
+    if (btnEditRow) {
+      btnEditRow.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        openDetails(it);
+        openEditModal(it);
+      });
+    }
+
+    // delete button
+    const btn = tr.querySelector('.btn-del');
+    if (btn) {
+      btn.addEventListener('click', async (ev)=>{
+        ev.stopPropagation();
+        if (btn.dataset.busy === '1') return;
+        const confirmed = await showConfirmDialog({
+          title: '確認刪除',
+          message: '確定要刪除此筆預約嗎？這個動作無法復原。',
+          confirmText: '確認刪除',
+          cancelText: '取消'
+        });
+        if (!confirmed) return;
+        btn.dataset.busy = '1';
+        btn.disabled = true;
+
+        if (typeof window.needLogin === 'function' && needLogin()) {
+          const loggedIn = await (typeof window.login === 'function' ? login() : Promise.resolve(false));
+          if (!loggedIn && (typeof window.needLogin === 'function' && needLogin())) {
+            btn.disabled = false; btn.dataset.busy = '0';
+            showToast('尚未登入或權杖失效，請先登入再刪除。', 'error');
+            return;
+          }
+        }
+
+        let ok = false;
+        if (typeof window.handleDeleteBooking === 'function') {
+          ok = await handleDeleteBooking(it, btn);
+        } else {
+          try {
+            const url = new URL('/.netlify/functions/delete-booking', location.origin);
+            url.searchParams.set('public_id', it.public_id);
+            if (it.resource_type) url.searchParams.set('resource_type', it.resource_type);
+            let resp = await fetch(url.toString(), {
+              method: 'DELETE',
+              headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+            });
+            if (resp.status === 401 && typeof window.login === 'function') {
+              const loggedIn = await login();
+              if (loggedIn) {
+                try { window.ADMIN_TOKEN = localStorage.getItem('admin_token') || window.ADMIN_TOKEN || ''; } catch(e){}
+                resp = await fetch(url.toString(), {
+                  method: 'DELETE',
+                  headers: { 'x-admin-token': window.ADMIN_TOKEN || '' }
+                });
+              }
+            }
+            ok = resp.ok;
+          } catch(e) { ok = false; }
+        }
+
+        if (ok) { tr.remove(); showToast('刪除成功', 'success'); } else {
+          btn.disabled = false;
+          btn.dataset.busy = '0';
+          showToast('刪除失敗，請稍後再試。', 'error');
+        }
+      });
+    }
+
+    // status button behavior (same as original)
+    const btnStatus = tr.querySelector(".btn-status");
+    if (btnStatus) {
+      btnStatus.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const nextStatus = {
+          pending: "scheduled",
+          scheduled: "done",
+          done: "cancelled",
+          cancelled: "pending"
+        };
+        let current = btnStatus.textContent.trim();
+        let code = Object.keys(nextStatus).find(key => statusLabel(key) === current) || "pending";
+        let newStatus = nextStatus[code];
+        btnStatus.textContent = statusLabel(newStatus);
+        btnStatus.className = `btn-status status-${newStatus}`;
+        it.context = it.context || {};
+        it.context.custom = it.context.custom || {};
+        it.context.custom.status = newStatus;
+        try {
+          await fetch("/.netlify/functions/update-booking-context", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-admin-token": ADMIN_TOKEN
+            },
+            body: JSON.stringify({
+             public_id: it.public_id,
+             resource_type: it.resource_type || "raw",
+             type: it.type || "upload",
+             context: { status: newStatus }
+           })
+          });
+        } catch (e) {
+          alert("更新狀態失敗，請稍後再試");
+        }
+      });
+    }
+
+    tbody.appendChild(tr);
+    shown++;
+  }
+  $("#foot").textContent = `共 ${shown} 筆`;
+}
+
+function debounce(fn, delay){
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const runSearchFromFirstPage = debounce(() => {
+  if (!ADMIN_TOKEN) return;
+  doSearch({ reset: true });
+}, 350);
+
+$("#q").addEventListener("input", runSearchFromFirstPage);
+</script>
+<script>
+function kv(label, value){
+  const shown = (value==null||String(value).trim()==="") ? "—" : String(value);
+  return `<div class="row"><div class="k">${escapeHtmlForRender(label)}</div><div class="v">${escapeHtmlForRender(shown)}</div></div>`;
+}
+function sectionCard(title, rowsHtml){ return `<div class="card fullview"><div class="card-h">${escapeHtmlForRender(title)}</div><div class="card-b">${rowsHtml}</div></div>`; }
+function renderFullContent(item, mount){
+  const data = normalizeContext(item);
+  const blocks = [];
+
+  if (data.storage_warning) {
+    blocks.push(sectionCard("資料儲存提醒", kv("提醒", data.storage_warning)));
+  }
+
+
+if (data.service === "冷氣清洗") {
+  blocks.push(sectionCard("服務資訊",
+    kv("服務類別", data.service) +
+    kv("冷氣類型", data.ac_type) +
+    kv("清洗數量", data.count) +
+    kv("室內機所在樓層", data.floor) +
+    kv("冷氣品牌", data.brand) +
+    kv("變形金剛系列台數", data.transformer_count) +
+    kv("變形金剛系列是否不清楚", data.transformer_unknown)
+  ));
+} 
+else {
+  blocks.push(sectionCard("服務資訊",
+    kv("服務類別", data.service)
+  ));
+}
+
+if (data.service === "團購預約清洗" || data.service === "大量清洗需求") {
+  let descTitle = (data.service === "團購預約清洗") ? "團購預約說明" : "大量需求說明";
+  blocks.push(sectionCard(descTitle, kv("內容", data.group_notes || data.bulk_notes)));
+}
+
+
+if (data.service_description) {
+  blocks.push(sectionCard("其他服務說明", kv("內容", data.service_description)));
+}
+
+
+  if (data.service === "冷氣清洗") {
+  blocks.push(sectionCard("防霉・消毒｜加購服務專區", kv("冷氣防霉抗菌處理", data.antifungus ? "需要" : "不需要") + kv("臭氧殺菌消毒", data.ozone ? "需要" : "不需要") + kv("臭氧消毒房間數", data.ozone ? data.ozone_room_count : "")));
+}
+if (data.service === "冷氣清洗" || data.service === "其他保養清洗") {
+  blocks.push(sectionCard("其他清洗服務",
+  kv("直立式洗衣機清洗（台數）", data.washer_count) +
+  kv("洗衣機樓層", data.washer_floor) +
+  kv("家用水塔清洗（顆數）", data.tank_count) +
+  kv("自來水管清洗戶型方案", data.pipe_service) +
+  kv("自來水管清洗原因", data.pipe_reason)
+));
+}
+const photoHtml = renderPhotoSection(data.photo_urls);
+if (photoHtml) {
+  blocks.push(sectionCard("現場照片", photoHtml));
+}
+  blocks.push(sectionCard("聯繫資料",
+    kv("聯絡人", data.name) +
+    kv("聯絡電話", data.phone) +
+    kv("與我們聯繫方式", data.contact_method) +
+    kv("聯繫帳號／名稱", data.social_name) +
+    kv("其他聯繫說明", data.other_contact_detail) +
+    kv("居住地型態", data.housing_type) +
+    kv("方便聯繫時間", data.contact_time_preference) +
+    kv("地址", data.address) +
+    kv("可安排時段", decodeArray(data.timeslot)) +
+    kv("備註", data.note) +
+    kv("建立時間", new Date(item.created_at).toLocaleString())
+  ));
+  mount.innerHTML = `<div class="fullview-wrap">${blocks.join("")}</div>`;
+}
+function statusLabel(code) {
+  switch (code) {
+    case "scheduled": return "已登錄";
+    case "done": return "已完成";
+    case "cancelled": return "已取消";
+    default: return "未處理"; // pending
+  }
+}
+
+function formatDateInput(d){
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}/${m}/${day}`;
+}
+
+function getSelectedDateRange(){
+  const preset = $("#datePreset") ? $("#datePreset").value : "all";
+  const manualStart = $("#start").value.trim();
+  const manualEnd = $("#end").value.trim();
+  if (preset === "all") return { start: manualStart, end: manualEnd };
+
+  const now = new Date();
+  const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startDate = new Date(endDate);
+  if (preset === "today") {
+    // same start/end date
+  } else {
+    startDate.setDate(startDate.getDate() - (parseInt(preset, 10) - 1));
+  }
+  return { start: formatDateInput(startDate), end: formatDateInput(endDate) };
+}
+
+function updatePaginationUI(){
+  const info = $("#pageInfo");
+  const prev = $("#prevPage");
+  const next = $("#nextPage");
+  if (info) info.textContent = `第 ${CURRENT_PAGE} 頁`;
+  if (prev) prev.disabled = CURRENT_PAGE <= 1;
+  if (next) next.disabled = !CURRENT_NEXT_CURSOR;
+}
+
+async function doSearch(options = {}){
+  const reset = options.reset !== false;
+  if (reset) {
+    CURRENT_PAGE = 1;
+    PAGE_CURSORS = [null];
+    CURRENT_NEXT_CURSOR = null;
+  }
+  const cursor = options.cursor || PAGE_CURSORS[CURRENT_PAGE - 1] || null;
+  const range = getSelectedDateRange();
+  const payload = {
+    q: $("#q").value.trim(),
+    start: range.start,
+    end: range.end,
+    status: $("#statusFilter") ? $("#statusFilter").value : "all",
+    max: PAGE_SIZE,
+    cursor
+  };
+  const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
+  if (r.status === 401){ ADMIN_TOKEN=""; localStorage.removeItem("admin_token"); if(await login()) return doSearch(options); return; }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    CURRENT_LIST = [];
+    CURRENT_NEXT_CURSOR = null;
+    renderFilteredList([]);
+    const detail = data.detail || data.error || `HTTP ${r.status}`;
+    showToast(`預約資料讀取失敗：${detail}`, 'error');
+    $("#foot").textContent = "預約資料讀取失敗，請檢查 Cloudinary 環境變數或函式紀錄";
+    updatePaginationUI();
+    return;
+  }
+  const list = data.resources || data.items || [];
+  CURRENT_LIST = list;
+  CURRENT_NEXT_CURSOR = data.next_cursor || null;
+  if (CURRENT_NEXT_CURSOR) PAGE_CURSORS[CURRENT_PAGE] = CURRENT_NEXT_CURSOR;
+
+  renderFilteredList(CURRENT_LIST);
+  const startNo = list.length ? ((CURRENT_PAGE - 1) * PAGE_SIZE + 1) : 0;
+  const endNo = (CURRENT_PAGE - 1) * PAGE_SIZE + list.length;
+  const moreText = CURRENT_NEXT_CURSOR ? "，可前往下一頁" : "，已是最後一頁";
+  $("#foot").textContent = `本頁 ${list.length} 筆（第 ${startNo}–${endNo} 筆${moreText}）`;
+  updatePaginationUI();
+}
+
+function openDetails(item){
+  CURRENT_ITEM = item;
+  const pv = $("#preview");
+  if (pv) pv.innerHTML = "";
+  // 點選左側列時，顯示 Cloudinary 詳細內容
+  renderFullContent(item, $("#preview"));
+}
+
+$("#btnSearch").onclick = () => doSearch({ reset: true });
+$("#datePreset").onchange = () => doSearch({ reset: true });
+$("#statusFilter").onchange = () => doSearch({ reset: true });
+$("#prevPage").onclick = () => {
+  if (CURRENT_PAGE <= 1) return;
+  CURRENT_PAGE--;
+  doSearch({ reset: false, cursor: PAGE_CURSORS[CURRENT_PAGE - 1] || null });
+};
+$("#nextPage").onclick = () => {
+  if (!CURRENT_NEXT_CURSOR) return;
+  CURRENT_PAGE++;
+  doSearch({ reset: false, cursor: CURRENT_NEXT_CURSOR });
+};
+$("#btnCsv").onclick = () => {
+  const rows = [["姓名","電話","服務","照片數量","建立時間"]];
+  for (const it of CURRENT_LIST){
+    const c = normalizeContext(it);
+    rows.push([c.name||"", c.phone||"", c.service||"", (c.photo_urls||[]).length || "", fmtDate(it.created_at)]);
+  }
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "bookings.csv"; a.click(); URL.revokeObjectURL(a.href);
+};
+
+// paste-from-email modal
+$("#btnPaste").onclick = ()=>{
+  if (!CURRENT_ITEM) { alert("請先點列表選擇一筆資料"); return; }
+  $("#emailPaste").value = ""; $("#emailMsg").textContent=""; $("#emailModal").style.display="flex";
+};
+$("#emailCancel").onclick = ()=> $("#emailModal").style.display = "none";
+function escapeHtml(s){
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+$("#emailApply").onclick = async ()=>{
+  const text = $("#emailPaste").value;
+  const msg = $("#emailMsg");
+  const lines = String(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const kvs = {};
+  for (const ln of lines){
+    let m = ln.match(/^(.+?)[:：]\s*(.+)$/);
+    if (!m) m = ln.match(/^(.+?)\s+(.+)$/);
+    if (m){ kvs[m[1].trim()] = m[2].trim(); }
+  }
+  const pick = (obj, keys)=>{ for(const k of keys){ if(obj[k]!=null && String(obj[k]).trim()!=="") return String(obj[k]).trim(); } return ""; };
+  const ctx = {
+    name: pick(kvs, ["聯絡人","姓名","name"]),
+    phone: pick(kvs, ["聯絡電話","電話","phone"]),
+    service: pick(kvs, ["服務類別","服務","service"]),
+    address: pick(kvs, ["地址","住址","address"]),
+    ac_type: pick(kvs, ["冷氣類型","ac_type"]),
+    count: pick(kvs, ["清洗數量","數量","count"]),
+    floor: pick(kvs, ["室內機所在樓層","樓層","floor"]),
+    brand: pick(kvs, ["冷氣品牌","brand"]),
+    is_inverter: pick(kvs, ["是否為變頻機型系列","變頻","is_inverter"]),
+    ac_transformer_count: pick(kvs, ["變形金剛系列台數","ac_transformer_count"]),
+    ac_transformer_unknown: pick(kvs, ["變形金剛系列是否不清楚","是否為變形金剛系列","ac_transformer_unknown"]),
+    antifungus: pick(kvs, ["冷氣防霉抗菌處理","antifungus"]),
+    ozone: pick(kvs, ["臭氧殺菌消毒","臭氧空間消毒","ozone"]),
+    ozone_room_count: pick(kvs, ["臭氧消毒房間數","臭氧空間消毒房間數","ozone_room_count"]),
+    extra_service: pick(kvs, ["其他清洗服務","extra_service"]),
+    line_id: pick(kvs, ["LINE","LINE / Facebook","line_id"]),
+    fb_name: pick(kvs, ["LINE & Facebook 姓名","facebook","fb_name"]),
+    date: pick(kvs, ["預約日期","date"]),
+    timeslot: pick(kvs, ["預約時段","時段","timeslot"]),
+    note: pick(kvs, ["備註","note"]),
+    source: pick(kvs, ["來源","subject","page_title"]),
+  };
+  Object.keys(ctx).forEach(k=>{ if(!ctx[k]) delete ctx[k]; });
+
+  if (!text || !lines.length){
+    msg.textContent = "沒有讀到可解析的文字，請確認貼上的是純文字內容（僅顯示，不寫回）";
+    return;
+  }
+
+  // 只顯示在詳情面板（不寫回）
+  const pv = $("#preview");
+const toRows = (o)=> Object.keys(o).length
+    ? Object.entries(o).map(([k,v]) => `<div class="row"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join("")
+    : `<div class="row"><div class="k">解析結果</div><div class="v">（未偵測到可用欄位）</div></div>`;
+
+  const rawCard = `
+    <div class="card fullview">
+      <div class="card-h">Email 原始內容（僅顯示）</div>
+      <div class="card-b">
+        <div class="row"><div class="k">貼上文字</div><div class="v" style="white-space:pre-wrap">${escapeHtml(text)}</div></div>
+      </div>
+    </div>`;
+
+  const parsedCard = `
+    <div class="card fullview">
+      <div class="card-h">解析結果（未寫回）</div>
+      <div class="card-b">${toRows(ctx)}</div>
+    </div>`;
+
+  pv.innerHTML = `<div class="fullview-wrap">${rawCard}${parsedCard}</div>`;
+
+  // 提示＋關閉視窗
+  msg.textContent = "已顯示在右側詳情（未寫回）";
+  $("#emailModal").style.display = "none";
+};
+
+(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } doSearch({ reset: true }); })();
+
+
+const CASE_EDIT_FIELDS = [
+  { key: "customer_name", label: "聯絡人", aliases: ["name","customer_name","fullname","姓名"] },
+  { key: "phone", label: "聯絡電話", aliases: ["phone","phone_number","mobile","tel","電話"] },
+  { key: "service_category", label: "服務類別", aliases: ["service","service_category","service_item","select_service","服務"] },
+  { key: "address", label: "地址", aliases: ["address","地址"], full: true },
+  { key: "ac_type", label: "冷氣類型", aliases: ["ac_type","冷氣類型"] },
+  { key: "ac_count", label: "清洗數量", aliases: ["ac_count","count","quantity","清洗數量"] },
+  { key: "indoor_floor", label: "室內機所在樓層", aliases: ["indoor_floor","floor","樓層","室內機所在樓層"] },
+  { key: "ac_brand", label: "冷氣品牌", aliases: ["ac_brand","brand","冷氣品牌"] },
+  { key: "ac_transformer_count", label: "變形金剛系列台數", aliases: ["ac_transformer_count","變形金剛系列台數"] },
+  { key: "ac_transformer_unknown", label: "變形金剛系列是否不清楚", aliases: ["ac_transformer_unknown","變形金剛系列是否不清楚"] },
+  { key: "anti_mold", label: "冷氣防霉抗菌處理", aliases: ["anti_mold","antifungus","冷氣防霉抗菌處理"] },
+  { key: "ozone", label: "臭氧殺菌消毒", aliases: ["ozone","臭氧殺菌消毒"] },
+  { key: "ozone_room_count", label: "臭氧消毒房間數", aliases: ["ozone_room_count","臭氧消毒房間數","臭氧空間消毒房間數"] },
+  { key: "washer_count", label: "直立式洗衣機清洗（台數）", aliases: ["washer_count"] },
+  { key: "washer_floor", label: "洗衣機樓層", aliases: ["washer_floor"] },
+  { key: "tank_count", label: "家用水塔清洗（顆數）", aliases: ["tank_count"] },
+  { key: "pipe_service", label: "自來水管清洗戶型方案", aliases: ["pipe_service"] },
+  { key: "contact_method", label: "與我們聯繫方式", aliases: ["contact_method"] },
+  { key: "social_name", label: "聯繫帳號／名稱", aliases: ["social_name","fb_name","LINE & Facebook 姓名"] },
+  { key: "timeslot", label: "可安排時段", aliases: ["timeslot","預約時段"] },
+  { key: "note", label: "備註", aliases: ["note","備註"], type: "textarea", full: true },
+  { key: "bulk_notes", label: "大量需求說明", aliases: ["bulk_notes","大量清洗備註"], type: "textarea", full: true },
+  { key: "group_notes", label: "團購預約說明", aliases: ["group_notes","團購備註"], type: "textarea", full: true },
+  { key: "service_description", label: "其他服務說明", aliases: ["service_description","其他服務說明"], type: "textarea", full: true }
+];
+
+function getRawContext(item){
+  const c = (item && item.context && item.context.custom) ? item.context.custom : ((item && item.context) || {});
+  const m = (item && item.metadata) || {};
+  return Object.assign({}, m || {}, c || {});
+}
+function getCaseFieldValue(item, field){
+  const raw = getRawContext(item);
+  const keys = [field.key].concat(field.aliases || []);
+  const v = pick(raw, keys, "");
+  return decodeArray(v || "");
+}
+function setContextOnItem(item, ctx){
+  item.context = item.context || {};
+  item.context.custom = item.context.custom || {};
+  for (const [k,v] of Object.entries(ctx || {})) item.context.custom[k] = v;
+}
+function openEditModal(item){
+  if (!item || !item.public_id) {
+    showToast("請先選擇一筆案件", "error");
+    return;
+  }
+  CURRENT_ITEM = item;
+  const modal = document.getElementById("caseEditModal");
+  const box = document.getElementById("caseEditFields");
+  const msg = document.getElementById("caseEditMsg");
+  if (!modal || !box) return;
+  msg.textContent = "";
+  box.innerHTML = CASE_EDIT_FIELDS.map(field => {
+    const id = `case_edit_${field.key}`;
+    const val = escapeHtmlForRender(getCaseFieldValue(item, field));
+    const cls = "case-edit-field" + (field.full ? " full" : "");
+    if (field.type === "textarea") {
+      return `<div class="${cls}"><label for="${id}">${escapeHtmlForRender(field.label)}</label><textarea id="${id}" name="${field.key}">${val}</textarea></div>`;
+    }
+    return `<div class="${cls}"><label for="${id}">${escapeHtmlForRender(field.label)}</label><input id="${id}" name="${field.key}" value="${val}"></div>`;
+  }).join("");
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  lockScrollForModal(true);
+  const first = box.querySelector("input,textarea");
+  if (first) setTimeout(() => first.focus(), 50);
+}
+function closeEditModal(){
+  const modal = document.getElementById("caseEditModal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  lockScrollForModal(false);
+}
+function collectEditContext(){
+  const form = document.getElementById("caseEditForm");
+  const ctx = {};
+  CASE_EDIT_FIELDS.forEach(field => {
+    const el = form.querySelector(`[name="${field.key}"]`);
+    if (!el) return;
+    ctx[field.key] = (el.value || "").trim();
+  });
+  ctx.updated_at = new Date().toISOString();
+  ctx.edited_by_admin = "true";
+  return ctx;
+}
+async function saveCurrentEdit(ev){
+  if (ev) ev.preventDefault();
+  if (!CURRENT_ITEM || !CURRENT_ITEM.public_id) return showToast("請先選擇一筆案件", "error");
+  const saveBtn = document.getElementById("caseEditSave");
+  const msg = document.getElementById("caseEditMsg");
+  const ctx = collectEditContext();
+  saveBtn.disabled = true;
+  msg.textContent = "儲存中…";
+  try {
+    let resp = await fetch(API_UPDATE_CTX, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-token": ADMIN_TOKEN },
+      body: JSON.stringify({
+        public_id: CURRENT_ITEM.public_id,
+        resource_type: CURRENT_ITEM.resource_type || "raw",
+        type: CURRENT_ITEM.type || "upload",
+        context: ctx
+      })
+    });
+    if (resp.status === 401) {
+      ADMIN_TOKEN = "";
+      localStorage.removeItem("admin_token");
+      if (await login()) {
+        resp = await fetch(API_UPDATE_CTX, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-admin-token": ADMIN_TOKEN },
+          body: JSON.stringify({
+            public_id: CURRENT_ITEM.public_id,
+            resource_type: CURRENT_ITEM.resource_type || "raw",
+            type: CURRENT_ITEM.type || "upload",
+            context: ctx
+          })
+        });
+      }
+    }
+    const result = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(result.detail || result.error || "更新失敗");
+    setContextOnItem(CURRENT_ITEM, ctx);
+    renderFullContent(CURRENT_ITEM, document.getElementById("preview"));
+    renderFilteredList(CURRENT_LIST);
+    closeEditModal();
+    showToast("案件資料已更新", "success");
+  } catch (e) {
+    msg.textContent = "儲存失敗：" + (e && e.message ? e.message : String(e));
+    showToast("案件資料更新失敗", "error");
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+document.getElementById("btnEdit").onclick = () => {
+  if (!CURRENT_ITEM) return showToast("請先點選一筆案件", "error");
+  openEditModal(CURRENT_ITEM);
+};
+document.getElementById("caseEditClose").onclick = closeEditModal;
+document.getElementById("caseEditCancel").onclick = closeEditModal;
+document.getElementById("caseEditModal").addEventListener("click", (e) => {
+  if (e.target && e.target.id === "caseEditModal") closeEditModal();
+});
+document.getElementById("caseEditForm").addEventListener("submit", saveCurrentEdit);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && document.getElementById("caseEditModal")?.classList.contains("is-open")) closeEditModal();
+});
+
+document.getElementById("btnDelete").onclick = async () => {
+  if (!CURRENT_ITEM || !CURRENT_ITEM.public_id) {
+    showToast("無法刪除：找不到 public_id。", 'error');
+    return;
+  }
+
+  const ok = await showConfirmDialog({
+    title: '確認刪除',
+    message: '是否確定要刪除此訂單？此操作無法復原！',
+    confirmText: '確認刪除',
+    cancelText: '取消'
+  });
+  if (!ok) return;
+
+  try {
+    const res = await fetch("/.netlify/functions/delete-booking?public_id=" + encodeURIComponent(CURRENT_ITEM.public_id), {
+      method: "DELETE",
+      headers: {
+        "x-admin-token": ADMIN_TOKEN
+      }
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) throw new Error(result.error || "刪除失敗");
+
+    showToast('刪除成功', 'success');
+    CURRENT_ITEM = null;
+    document.getElementById("preview").innerHTML = "";
+    doSearch();
+  } catch (e) {
+    showToast('刪除失敗：' + e.message, 'error');
+  }
+};
+</script>
+<script>
+  // 1) 模態開關時鎖定背景捲動
+  function lockScrollForModal(open){
+    document.body.classList.toggle('body--modal-open', !!open);
+  }
+
+  // 2) 表格列支援 Enter/Space 觸發 click（無障礙）
+  document.addEventListener('keydown', (e)=>{
+    const tr = e.target && e.target.closest && e.target.closest('tr[tabindex="0"]');
+    if(!tr) return;
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      tr.click();
+    }
+  });
+
+  // 3) 自動為表格列加 tabindex="0"，初次與動態新增都會套用
+  function enhanceRowsTabIndex(){
+    document.querySelectorAll('table#tbl tbody tr').forEach(tr=>{
+      if(!tr.hasAttribute('tabindex')) tr.setAttribute('tabindex','0');
+    });
+  }
+  const mo = new MutationObserver(enhanceRowsTabIndex);
+  window.addEventListener('DOMContentLoaded', ()=>{
+    enhanceRowsTabIndex();
+    const tbody = document.querySelector('table#tbl tbody');
+    if(tbody) mo.observe(tbody, {childList:true, subtree:true});
+  });
+
+  // 4) iOS：輸入框聚焦時，避免被鍵盤遮住
+  const autoScrollInputs = ['INPUT','TEXTAREA'];
+  document.addEventListener('focusin', (e)=>{
+    if(autoScrollInputs.includes(e.target.tagName)){
+      setTimeout(()=>{ e.target.scrollIntoView({block:'center'}); }, 100);
+    }
+  });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(btn => {
+    if (btn.textContent.includes("貼上信件內容（僅顯示）")) {
+      btn.style.display = "none";
+    }
+  });
+});
+</script>
+    <style>
+  /* === Status Button 狀態按鈕 === */
+  .btn-status {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+  .status-pending { background: #9ca3af; color: white; }   /* 未處理 */
+  .status-scheduled { background: #3b82f6; color: white; } /* 已安排 */
+  .status-done { background: #10b981; color: white; }      /* 已完成 */
+  .status-cancelled { background: #ef4444; color: white; } /* 已取消 */
+  /* ===== 自訂刪除確認視窗 ===== */
+  .confirm-modal{
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+  }
+  .confirm-modal.is-open{ display:flex; }
+
+  .confirm-dialog{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 24px 60px rgba(15,23,42,.35);
+    width:min(420px,92vw);
+    padding:20px 20px 16px;
+    border:1px solid #e5e7eb;
+    text-align:left;
+  }
+  .confirm-icon{
+    width:40px;
+    height:40px;
+    border-radius:999px;
+    background:#fee2e2;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    color:#b91c1c;
+    margin-bottom:10px;
+  }
+  .confirm-dialog h3{
+    margin:0 0 4px;
+    font-size:18px;
+    color:#111827;
+  }
+  .confirm-dialog p{
+    margin:0 0 16px;
+    font-size:14px;
+    color:#4b5563;
+    line-height:1.5;
+  }
+  .confirm-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .confirm-actions .btn{
+    border-radius:999px;
+    padding:8px 14px;
+    font-size:14px;
+  }
+  .confirm-cancel{
+    background:#f3f4f6;
+    border:1px solid #e5e7eb;
+    color:#374151;
+  }
+  .confirm-cancel:hover{ background:#e5e7eb; }
+  .confirm-danger{
+    background:#dc2626;
+    border:1px solid #b91c1c;
+    color:#fff;
+  }
+  .confirm-danger:hover{ background:#b91c1c; }
+
+  @media (max-width:640px){
+    .confirm-dialog{
+      width:calc(100% - 32px);
+      margin:0 16px;
+      border-radius:16px;
+    }
+  }
+
+  /* ===== Toast 提示 ===== */
+  .toast-container{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1100;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    pointer-events:none;
+  }
+  .toast{
+    min-width:260px;
+    max-width:360px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:#16a34a;
+    color:#fff;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 18px 45px rgba(15,23,42,.35);
+    opacity:0;
+    transform:translateY(-6px);
+    animation:toast-in .18s ease-out forwards;
+  }
+  .toast--error{
+    background:#dc2626;
+  }
+  .toast__icon{
+    font-size:18px;
+  }
+  .toast__text{
+    flex:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  @keyframes toast-in{
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @keyframes toast-out{
+    to{ opacity:0; transform:translateY(-4px); }
+  }
+
+</style>
+
+<!-- BEGIN: global fetch interceptor for delete-booking -->
+<script>
+(function(){
+  const _origFetch = window.fetch;
+  window.fetch = function(input, init){
+    try {
+      const url = typeof input === 'string' ? input : (input && input.url) || '';
+      if (/\/\.netlify\/functions\/delete-booking/.test(url)) {
+        init = init || {};
+        init.headers = Object.assign({}, init.headers || {});
+        // ensure token
+        if (!window.ADMIN_TOKEN) {
+          try { window.ADMIN_TOKEN = localStorage.getItem('admin_token') || ''; } catch(e){}
+        }
+        if (!init.headers['x-admin-token']) {
+          init.headers['x-admin-token'] = window.ADMIN_TOKEN || '';
+        }
+        if (!init.headers['x-admin-token']) {
+          console.warn('[delete-booking] missing x-admin-token, request may 401');
+        }
+      }
+    } catch(e) {}
+    return _origFetch.apply(this, arguments);
+  };
+})();
+</script>
+<!-- END: global fetch interceptor for delete-booking -->
+
+
+<style>
+  .btn-edit-row{
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid #bfdbfe;
+    background:#eff6ff;
+    color:#1d4ed8;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    margin-left:4px;
+  }
+  .btn-edit-row:hover{ background:#dbeafe; }
+  .case-edit-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.48);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:1060;
+    padding:16px;
+  }
+  .case-edit-modal.is-open{ display:flex; }
+  .case-edit-dialog{
+    width:min(860px,96vw);
+    max-height:calc(100dvh - 32px);
+    overflow:auto;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    box-shadow:0 24px 70px rgba(15,23,42,.35);
+    padding:18px;
+  }
+  .case-edit-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+  .case-edit-head h3{margin:0;font-size:20px;color:#111827}
+  .case-edit-sub{font-size:13px;color:#64748b;margin-top:3px}
+  .case-edit-close{border:0;background:#f1f5f9;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px}
+  .case-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .case-edit-field{display:flex;flex-direction:column;gap:5px}
+  .case-edit-field label{font-size:13px;color:#475569;font-weight:600}
+  .case-edit-field input,.case-edit-field textarea,.case-edit-field select{border:1px solid #e5e7eb;border-radius:11px;padding:9px 10px;background:#fff;min-height:38px}
+  .case-edit-field textarea{min-height:82px;resize:vertical}
+  .case-edit-field.full{grid-column:1 / -1}
+  .case-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .case-edit-msg{font-size:13px;margin-top:8px;color:#2563eb;min-height:18px}
+  @media(max-width:640px){
+    .case-edit-modal{align-items:flex-end;padding:0}
+    .case-edit-dialog{width:100vw;max-height:calc(100dvh - 8px);border-radius:18px 18px 0 0;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+    .case-edit-grid{grid-template-columns:1fr}
+  }
+</style>
+
+<!-- 刪除確認視窗 -->
+<div class="confirm-modal" id="confirmModal" aria-hidden="true">
+  <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-icon">🗑</div>
+    <h3 id="confirmTitle">確認刪除</h3>
+    <p id="confirmMessage">確定要刪除此筆預約嗎？這個動作無法復原。</p>
+    <div class="confirm-actions">
+      <button type="button" class="btn confirm-cancel" id="confirmCancel">取消</button>
+      <button type="button" class="btn confirm-danger" id="confirmOk">確認刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast 提示容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+</body>
+</html>
