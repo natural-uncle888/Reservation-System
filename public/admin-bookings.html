@@ -99,9 +99,10 @@
     margin: 0 auto;              /* 置中 */
     border-radius: 16px;
   }
-  .login-input input{
+  .login-input{
     width: 100%;
     box-sizing: border-box;
+    font-size: 16px; /* iOS/PWA：避免點 input 時自動放大，讓鍵盤穩定跳出 */
   }
 }
 
@@ -701,7 +702,16 @@ async function login(){
     uEl.value = '';
     pEl.value = '';
     modal.style.display = 'flex';
-    uEl.focus();
+
+    // 手機 / PWA 模式不要用 JS 強制 focus，
+    // iOS/Android 需要使用者手動點擊 input 才會穩定跳出鍵盤。
+    const isMobileLike = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      || window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+
+    if (!isMobileLike) {
+      setTimeout(() => uEl.focus(), 100);
+    }
 
     const doSubmit = async ()=>{
       btnSubmit.disabled = true;
@@ -723,7 +733,16 @@ async function login(){
     };
 
     btnSubmit.onclick = doSubmit;
-    btnClear.onclick = ()=>{ uEl.value=''; pEl.value=''; uEl.focus(); };
+    btnClear.onclick = ()=>{
+      uEl.value='';
+      pEl.value='';
+      // 手機/PWA 不自動 focus，避免清除後鍵盤不穩或無法重新叫出。
+      if (!(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+        || window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true)) {
+        uEl.focus();
+      }
+    };
     pEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') doSubmit(); });
     uEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') pEl.focus(); });
   });
@@ -1820,6 +1839,8 @@ document.getElementById("btnDelete").onclick = async () => {
   const autoScrollInputs = ['INPUT','TEXTAREA'];
   document.addEventListener('focusin', (e)=>{
     if(autoScrollInputs.includes(e.target.tagName)){
+      // 登入彈窗內不要自動捲動，避免手機 PWA 點輸入框時焦點被干擾。
+      if (e.target.closest && e.target.closest('#loginModal')) return;
       setTimeout(()=>{ e.target.scrollIntoView({block:'center'}); }, 100);
     }
   });
