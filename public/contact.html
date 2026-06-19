@@ -338,6 +338,7 @@
 
   <script src="validation-dialog.js"></script>
   <script src="booking-storage.js"></script>
+  <link rel="stylesheet" href="option-card-unified.css" />
 </head>
 <body>
 <div class="wrap">
@@ -426,7 +427,7 @@
   <div class="social-name-layout">
     <div class="social-name-text-input">
       <label>
-        若您勾選 LINE / Facebook，請填寫您的顯示名稱或帳號
+        若您選擇 LINE / Facebook，請填寫您的顯示名稱或帳號
       </label>
       <img src="imagesexample.jpg" alt="LINE 或 Facebook 顯示名稱 / 帳號填寫示意" class="social-name-img"/>
       <input type="text" name="social_name" placeholder="例：小明、Ming Chen、LINE ID、FB 名稱等"/>
@@ -434,7 +435,7 @@
   </div>
 
   <label style="margin-top:6px;">
-    若您勾選「其他」或希望以特定方式聯繫，也可以補充說明
+    若您選擇「其他」或希望以特定方式聯繫，也可以補充說明
   </label>
   <textarea name="other_contact_detail" rows="2" placeholder="例：請改用 Email 聯繫；我比較常看 IG 訊息等"></textarea>
 </div>
@@ -538,7 +539,7 @@
     </div>
 
     <div class="row">
-      <div class="label-col">請勾選平常較方便接電話或看訊息的時段</div>
+      <div class="label-col">請選擇平常較方便接電話或看訊息的時段</div>
       <div class="field-group">
         <div class="option-grid">
           <label class="option-card">
@@ -581,7 +582,7 @@
         <details class="hint-block">
           <summary>為什麼需要了解方便聯繫時間？</summary>
           <ul>
-            <li>若您平日白天較忙，我們會盡量安排在您勾選的時段打電話或傳訊息。</li>
+            <li>若您平日白天較忙，我們會盡量安排在您選擇的時段打電話或傳訊息。</li>
             <li>若是「時間皆可」，我們通常會在完成前一位客戶服務後，於下一個空檔聯繫您。</li>
             <li>臨時有天候或特殊狀況需要調整時間時，也會依照您提供的偏好先聯繫。</li>
           </ul>
@@ -862,5 +863,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+  <script src="option-card-toggle.js"></script>
 </body>
 </html>

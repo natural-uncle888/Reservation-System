@@ -263,6 +263,7 @@
   <script src="validation-dialog.js"></script>
   <script src="booking-storage.js"></script>
   <script src="pricing.js"></script>
+  <link rel="stylesheet" href="option-card-unified.css" />
 </head>
 <body>
   <div class="acv2">
@@ -390,7 +391,7 @@
         <div class="aside">
           <div class="tip">
             <strong>什麼是「變形金剛系列」？</strong>
-            <p class="help">特定系列之機型拆裝流程較不同。若不確定請勾選「不清楚」，由現場人員協助判斷。</p>
+            <p class="help">特定系列之機型拆裝流程較不同。若不確定請選擇「不清楚」，由現場人員協助判斷。</p>
             <img class="opt-img" alt="常見變形金剛系列參考照片" src="imagestransformer-ac.jpg" />
           </div>
         </div>
@@ -554,7 +555,7 @@ function runValidation(){
       'input[type="checkbox"][name="'+name+'[]"]:checked'
     );
     if(checked.length===0){
-      return { ok:false, msg:'請至少勾選一個『'+label+'』', field:null };
+      return { ok:false, msg:'請至少選擇一個『'+label+'』', field:null };
     }
     for(var i=0;i<checked.length;i++){
       var el = checked[i];
@@ -562,7 +563,7 @@ function runValidation(){
       if(oid){
         var other = document.getElementById(oid);
         if(other && other.offsetParent !== null && !(other.value||'').trim()){
-          return { ok:false, msg:'您勾選了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
+          return { ok:false, msg:'您選擇了『'+label+'』的「其他／以上」選項，請補充說明', field:other };
         }
       }
     }
@@ -700,5 +701,6 @@ document.addEventListener('DOMContentLoaded', function(){
   }, true);
 });
 </script>
+  <script src="option-card-toggle.js"></script>
 </body>
 </html>

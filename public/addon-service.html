@@ -160,6 +160,7 @@
   </style>
   <script src="booking-storage.js"></script>
   <script src="pricing.js"></script>
+  <link rel="stylesheet" href="option-card-unified.css" />
 </head>
 <body>
   <main class="addon-page">
@@ -221,7 +222,7 @@
         <label class="addon-field" for="ozone_room_count">
           <span>預計消毒房間數</span>
           <input id="ozone_room_count" name="ozone_room_count" type="number" min="0" step="1" inputmode="numeric" placeholder="例如：2" disabled />
-          <small>請填寫可關門、可密閉的房間數；未勾選臭氧時可留空。</small>
+          <small>請填寫可關門、可密閉的房間數；未選擇臭氧時可留空。</small>
         </label>
         <div class="addon-note addon-price">每間房間 200 元，依實際可施作房間數計算</div>
         <ul class="addon-note" aria-label="服務說明">
@@ -298,7 +299,7 @@
           const data = collect();
           if(id === 'next' && data.ozone && Number(data.ozone_room_count || 0) <= 0){
             event.preventDefault();
-            alert('請填寫臭氧消毒的可密閉房間數；若不需要臭氧消毒，請取消勾選。');
+            alert('請填寫臭氧消毒的可密閉房間數；若不需要臭氧消毒，請再次點選取消。');
             return;
           }
           save(data);
@@ -309,5 +310,6 @@
       window.debugLS = () => window.BOOKING_STORAGE.get();
     })();
   </script>
+  <script src="option-card-toggle.js"></script>
 </body>
 </html>
