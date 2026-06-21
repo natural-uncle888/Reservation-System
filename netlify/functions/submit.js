@@ -235,6 +235,116 @@ function buildLineReplySection(p, timeslotText){
   </div>`;
 }
 
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    const text = nb(value);
+    if (text) return text;
+  }
+  return "";
+}
+
+function buildAdminLineNotificationText(p, pdfUrl) {
+  const serviceName = firstNonEmpty(p.service_category, p.service, p.service_item, "新預約");
+  const name = firstNonEmpty(p.customer_name, p.name, "未填");
+  const phone = firstNonEmpty(p.phone, p.phone_number, p.mobile, "未填");
+  const contactMethod = firstNonEmpty(p.contact_method, p.line_or_fb, p.line_id, p.line, p.facebook, "未填");
+  const address = firstNonEmpty(p.address, "未填");
+  const timeslot = firstNonEmpty(
+    p.timeslot,
+    p.time_slot,
+    p.available_time,
+    p.availableTime,
+    p.preferred_time,
+    p.contact_time_preference,
+    "未填"
+  );
+  const total = firstNonEmpty(
+    p.estimated_total,
+    p.estimateTotal,
+    p.total,
+    p.total_amount,
+    p.price_total,
+    p.amount,
+    p.price,
+    "未提供"
+  );
+
+  const serviceDetails = [];
+  if (nb(p.ac_type)) serviceDetails.push(`冷氣類型：${nb(p.ac_type)}`);
+  if (nb(p.ac_count)) serviceDetails.push(`冷氣台數：${nb(p.ac_count)}`);
+  if (nb(p.ac_brand)) serviceDetails.push(`冷氣品牌：${nb(p.ac_brand)}`);
+  if (nb(p.ac_transformer_count)) serviceDetails.push(`變形金剛：${nb(p.ac_transformer_count)} 台`);
+  if (toArr(p.anti_mold || p.antifungus).map(nb).filter(Boolean).length) serviceDetails.push("防霉抗菌：需要");
+  if (toArr(p.ozone).map(nb).filter(Boolean).length) {
+    serviceDetails.push(`臭氧消毒：需要${nb(p.ozone_room_count) ? `（${nb(p.ozone_room_count)} 間）` : ""}`);
+  }
+  if (nb(p.washer_count)) serviceDetails.push(`洗衣機：${nb(p.washer_count)}`);
+  if (nb(p.tank_count)) serviceDetails.push(`水塔：${nb(p.tank_count)}`);
+  if (nb(p.pipe_service)) serviceDetails.push(`水管清洗：${nb(p.pipe_service)}`);
+
+  const photoCount = Array.isArray(p.site_photo_urls) ? p.site_photo_urls.length : Number(nb(p.site_photo_count) || 0);
+  const siteBaseUrl = getSiteBaseUrl();
+
+  const lines = [
+    "【自然大叔｜新預約通知】",
+    "",
+    `服務：${serviceName}`,
+    ...serviceDetails,
+    `姓名：${name}`,
+    `電話：${phone}`,
+    `聯絡方式：${contactMethod}`,
+    `地址：${address}`,
+    `可安排時段：${timeslot}`,
+    `預估金額：${total}`,
+    photoCount ? `現場照片：${photoCount} 張` : "",
+    nb(p.note) ? `備註：${nb(p.note)}` : "",
+    pdfUrl ? `PDF：${pdfUrl}` : "",
+    siteBaseUrl ? `後台：${siteBaseUrl}/admin-bookings.html` : "",
+    "",
+    "請到後台查看完整預約資料。"
+  ].filter(Boolean);
+
+  const message = lines.join("\n");
+  // LINE 文字訊息上限為 5000 字；保守截斷避免推播失敗。
+  return message.length > 4800 ? message.slice(0, 4790) + "\n...(內容過長已截斷)" : message;
+}
+
+async function sendLineNotification(message) {
+  const token = nb(process.env.LINE_CHANNEL_ACCESS_TOKEN);
+  const userId = nb(process.env.LINE_ADMIN_USER_ID);
+
+  if (!token || !userId) {
+    console.warn("LINE notification skipped: missing LINE_CHANNEL_ACCESS_TOKEN or LINE_ADMIN_USER_ID");
+    return { ok: false, reason: "missing_line_env" };
+  }
+
+  try {
+    const res = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        to: userId,
+        messages: [{ type: "text", text: message }]
+      })
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("LINE notification failed:", res.status, errorText);
+      return { ok: false, status: res.status, error: errorText };
+    }
+
+    return { ok: true };
+  } catch (err) {
+    console.error("LINE notification error:", err);
+    return { ok: false, error: String((err && err.message) || err) };
+  }
+}
+
+
 function buildEmailHtml(p, pdfUrl){
   const KNOWN = ["平日","假日","上午","下午","晚上","皆可"];
 
@@ -663,24 +773,80 @@ exports.handler = async (event) => {
     }
 
     // Email via Brevo
-    const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "預約來了！"}`;
-    const html = buildEmailHtml(p, pdfUrl);
-    const toList = String(process.env.EMAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
-    if (!toList.length) throw new Error("EMAIL_TO 未設定");
+    // 通知失敗不應該讓預約提交失敗，避免客人重複送單、後台產生重複資料。
+    let emailStatus = "not_sent";
+    let emailError = "";
+    try {
+      const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "預約來了！"}`;
+      const html = buildEmailHtml(p, pdfUrl);
+      const toList = String(process.env.EMAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
+      const senderEmail = nb(process.env.EMAIL_FROM);
+      const senderId = nb(process.env.BREVO_SENDER_ID);
+      const brevoApiKey = nb(process.env.BREVO_API_KEY);
 
-    const senderEmail = nb(process.env.EMAIL_FROM);
-    const senderId = nb(process.env.BREVO_SENDER_ID);
-    if (!senderEmail && !senderId) throw new Error("Missing EMAIL_FROM or BREVO_SENDER_ID");
-    const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
+      if (!brevoApiKey) {
+        emailStatus = "skipped";
+        emailError = "BREVO_API_KEY 未設定";
+        console.warn(emailError);
+      } else if (!toList.length) {
+        emailStatus = "skipped";
+        emailError = "EMAIL_TO 未設定";
+        console.warn(emailError);
+      } else if (!senderEmail && !senderId) {
+        emailStatus = "skipped";
+        emailError = "EMAIL_FROM 或 BREVO_SENDER_ID 未設定";
+        console.warn(emailError);
+      } else {
+        const sender = senderEmail ? { email: senderEmail } : { id: Number(senderId) };
+        const mailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: { "api-key": brevoApiKey, "content-type":"application/json" },
+          body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
+        });
 
-    const mailRes = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: { "api-key": nb(process.env.BREVO_API_KEY), "content-type":"application/json" },
-      body: JSON.stringify({ sender, to: toList, subject, htmlContent: html, tags:["reservation"] })
-    });
-    if (!mailRes.ok) throw new Error(`Brevo ${mailRes.status}: ${await mailRes.text()}`);
+        if (!mailRes.ok) {
+          emailStatus = "failed";
+          emailError = `Brevo ${mailRes.status}: ${await mailRes.text()}`;
+          console.error(emailError);
+        } else {
+          emailStatus = "sent";
+        }
+      }
+    } catch (mailErr) {
+      emailStatus = "failed";
+      emailError = String((mailErr && mailErr.message) || mailErr);
+      console.error("Brevo unexpected error:", mailErr);
+    }
 
-    return { statusCode: 200, body: JSON.stringify({ ok:true, email:"sent", pdf_url: pdfUrl, photo_urls: p.site_photo_urls || [] }) };
+    // LINE 新預約通知
+    let lineStatus = "not_sent";
+    let lineError = "";
+    try {
+      const lineMessage = buildAdminLineNotificationText(p, pdfUrl);
+      const lineResult = await sendLineNotification(lineMessage);
+      lineStatus = lineResult.ok ? "sent" : "failed";
+      if (!lineResult.ok) {
+        lineError = lineResult.error || lineResult.reason || `LINE status ${lineResult.status || "unknown"}`;
+      }
+    } catch (lineErr) {
+      lineStatus = "failed";
+      lineError = String((lineErr && lineErr.message) || lineErr);
+      console.error("LINE notification unexpected error:", lineErr);
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        ok: true,
+        email: emailStatus,
+        emailStatus,
+        lineStatus,
+        emailError,
+        lineError,
+        pdf_url: pdfUrl,
+        photo_urls: p.site_photo_urls || []
+      })
+    };
   }catch(err){
     return { statusCode: 500, body: JSON.stringify({ ok:false, error: String((err && err.message) || err) }) };
   }
