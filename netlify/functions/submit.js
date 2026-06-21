@@ -243,68 +243,78 @@ function firstNonEmpty(...values) {
   return "";
 }
 
+function isMeaningfulLineValue(value) {
+  const text = nb(value);
+  if (!text) return false;
+  return !/^(不需要|否|無|沒有|未選擇|false|0|no|null|undefined)$/i.test(text);
+}
+
+function hasSelectedLineOption(value) {
+  return toArr(value).map(nb).some(isMeaningfulLineValue);
+}
+
+function appendUnitIfNeeded(value, unit) {
+  const text = nb(value).replace(/\s+/g, "");
+  if (!text) return "";
+  return text.includes(unit) ? text : `${text}${unit}`;
+}
+
 function buildAdminLineNotificationText(p, pdfUrl) {
-  const serviceName = firstNonEmpty(p.service_category, p.service, p.service_item, "新預約");
-  const name = firstNonEmpty(p.customer_name, p.name, "未填");
-  const phone = firstNonEmpty(p.phone, p.phone_number, p.mobile, "未填");
-  const contactMethod = firstNonEmpty(p.contact_method, p.line_or_fb, p.line_id, p.line, p.facebook, "未填");
-  const address = firstNonEmpty(p.address, "未填");
+  const lines = ["自然大叔｜新預約通知", ""];
+
+  const serviceName = firstNonEmpty(p.service_category, p.service, p.service_item);
+  const acType = firstNonEmpty(p.ac_type, p.ac_kind, p.type);
+  const acCount = firstNonEmpty(p.ac_count_other, p.ac_count, p.count, p.quantity);
+  const washerCount = firstNonEmpty(p.washer_count);
+  const tankCount = firstNonEmpty(p.tank_count);
+  const pipeService = firstNonEmpty(p.pipe_service);
+  const name = firstNonEmpty(p.customer_name, p.name);
+  const phone = firstNonEmpty(p.phone, p.phone_number, p.mobile, p.tel);
+  const address = firstNonEmpty(p.address);
   const timeslot = firstNonEmpty(
     p.timeslot,
     p.time_slot,
     p.available_time,
     p.availableTime,
     p.preferred_time,
-    p.contact_time_preference,
-    "未填"
-  );
-  const total = firstNonEmpty(
-    p.estimated_total,
-    p.estimateTotal,
-    p.total,
-    p.total_amount,
-    p.price_total,
-    p.amount,
-    p.price,
-    "未提供"
+    p.contact_time_preference
   );
 
-  const serviceDetails = [];
-  if (nb(p.ac_type)) serviceDetails.push(`冷氣類型：${nb(p.ac_type)}`);
-  if (nb(p.ac_count)) serviceDetails.push(`冷氣台數：${nb(p.ac_count)}`);
-  if (nb(p.ac_brand)) serviceDetails.push(`冷氣品牌：${nb(p.ac_brand)}`);
-  if (nb(p.ac_transformer_count)) serviceDetails.push(`變形金剛：${nb(p.ac_transformer_count)} 台`);
-  if (toArr(p.anti_mold || p.antifungus).map(nb).filter(Boolean).length) serviceDetails.push("防霉抗菌：需要");
-  if (toArr(p.ozone).map(nb).filter(Boolean).length) {
-    serviceDetails.push(`臭氧消毒：需要${nb(p.ozone_room_count) ? `（${nb(p.ozone_room_count)} 間）` : ""}`);
+  if (serviceName) lines.push(`服務項目：${serviceName}`);
+  if (acType) lines.push(`冷氣類型：${acType}`);
+  if (acCount) lines.push(`冷氣台數：${appendUnitIfNeeded(acCount, "台")}`);
+
+  const hasAntiMold = hasSelectedLineOption(p.anti_mold || p.antifungus);
+  const hasOzone = hasSelectedLineOption(p.ozone);
+  const ozoneRoomCount = firstNonEmpty(p.ozone_room_count);
+
+  if (hasAntiMold || hasOzone || washerCount || tankCount || pipeService) {
+    lines.push("");
   }
-  if (nb(p.washer_count)) serviceDetails.push(`洗衣機：${nb(p.washer_count)}`);
-  if (nb(p.tank_count)) serviceDetails.push(`水塔：${nb(p.tank_count)}`);
-  if (nb(p.pipe_service)) serviceDetails.push(`水管清洗：${nb(p.pipe_service)}`);
 
-  const photoCount = Array.isArray(p.site_photo_urls) ? p.site_photo_urls.length : Number(nb(p.site_photo_count) || 0);
-  const siteBaseUrl = getSiteBaseUrl();
+  if (hasAntiMold) lines.push("防霉抗菌：需要");
+  if (hasOzone) {
+    lines.push(`臭氧消毒：需要${ozoneRoomCount ? `（${appendUnitIfNeeded(ozoneRoomCount, "間")}）` : ""}`);
+  }
+  if (washerCount) lines.push(`洗衣機：${appendUnitIfNeeded(washerCount, "台")}`);
+  if (tankCount) lines.push(`水塔：${appendUnitIfNeeded(tankCount, "顆")}`);
+  if (pipeService) lines.push(`水管清洗：${pipeService}`);
 
-  const lines = [
-    "【自然大叔｜新預約通知】",
-    "",
-    `服務：${serviceName}`,
-    ...serviceDetails,
-    `姓名：${name}`,
-    `電話：${phone}`,
-    `聯絡方式：${contactMethod}`,
-    `地址：${address}`,
-    `可安排時段：${timeslot}`,
-    `預估金額：${total}`,
-    photoCount ? `現場照片：${photoCount} 張` : "",
-    nb(p.note) ? `備註：${nb(p.note)}` : "",
-    pdfUrl ? `PDF：${pdfUrl}` : "",
-    siteBaseUrl ? `後台：${siteBaseUrl}/admin-bookings.html` : "",
-    "",
-    "請到後台查看完整預約資料。"
-  ].filter(Boolean);
+  if (name || phone || address || timeslot) {
+    lines.push("");
+  }
 
-  const message = lines.join("\n");
+  if (name) lines.push(`姓名：${name}`);
+  if (phone) lines.push(`電話：${phone}`);
+  if (address) lines.push(`清洗地址：${address}`);
+  if (timeslot) lines.push(`可安排時段：${timeslot}`);
+
+  const message = lines.filter((line, index, arr) => {
+    // 避免連續多個空行，也避免最後一行是空行。
+    if (line !== "") return true;
+    return index > 0 && index < arr.length - 1 && arr[index - 1] !== "" && arr[index + 1] !== "";
+  }).join("\n");
+
   // LINE 文字訊息上限為 5000 字；保守截斷避免推播失敗。
   return message.length > 4800 ? message.slice(0, 4790) + "\n...(內容過長已截斷)" : message;
 }
