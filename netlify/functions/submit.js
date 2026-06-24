@@ -52,9 +52,12 @@ const fs = require("fs");
 const path = require("path");
 const { PDFDocument, rgb } = require("pdf-lib");
 const fontkit = require("@pdf-lib/fontkit");
+const { loadNotificationSettings, canSendBrevoEmail, canSendLinePush } = require("./notification-utils");
 
 const nb = v => (v == null ? "" : String(v)).trim();
 const toArr = v => Array.isArray(v) ? v : (v == null || v === "" ? [] : [v]);
+
+// 通知設定工具由 notification-utils.js 共用。
 
 function getContentType(event){
   const h = event.headers || {};
@@ -726,6 +729,9 @@ exports.handler = async (event) => {
     const photoFiles = parsedBody.files || [];
     if (photoFiles.length > 5) throw new Error("最多只能上傳 5 張照片");
 
+    // 讀取後台通知設定；讀取失敗時使用預設開啟，避免影響既有接單流程。
+    const notificationSettings = await loadNotificationSettings();
+
     // 欄位正規化：確保 LINE/FB 名稱能被讀到
     p.customer_name = p.customer_name || p.name;
     p.line_or_fb =
@@ -786,7 +792,12 @@ exports.handler = async (event) => {
     // 通知失敗不應該讓預約提交失敗，避免客人重複送單、後台產生重複資料。
     let emailStatus = "not_sent";
     let emailError = "";
-    try {
+    const emailGate = canSendBrevoEmail(notificationSettings, "newBookingEmailEnabled");
+    if (!emailGate.ok) {
+      emailStatus = "skipped";
+      emailError = emailGate.reason;
+      console.info(emailError);
+    } else try {
       const subject = `${process.env.EMAIL_SUBJECT_PREFIX || ""}${p.subject || "預約來了！"}`;
       const html = buildEmailHtml(p, pdfUrl);
       const toList = String(process.env.EMAIL_TO || "").split(",").map(s=>s.trim()).filter(Boolean).map(email=>({ email }));
@@ -831,7 +842,12 @@ exports.handler = async (event) => {
     // LINE 新預約通知
     let lineStatus = "not_sent";
     let lineError = "";
-    try {
+    const lineGate = canSendLinePush(notificationSettings, "newBookingLineEnabled");
+    if (!lineGate.ok) {
+      lineStatus = "skipped";
+      lineError = lineGate.reason;
+      console.info(lineError);
+    } else try {
       const lineMessage = buildAdminLineNotificationText(p, pdfUrl);
       const lineResult = await sendLineNotification(lineMessage);
       lineStatus = lineResult.ok ? "sent" : "failed";
@@ -853,6 +869,7 @@ exports.handler = async (event) => {
         lineStatus,
         emailError,
         lineError,
+        notificationSettings,
         pdf_url: pdfUrl,
         photo_urls: p.site_photo_urls || []
       })

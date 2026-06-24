@@ -34,7 +34,26 @@
     .pricing-field small{font-size:12px;color:#64748b;line-height:1.45}
     .pricing-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
     .pricing-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
-    @media(max-width:760px){.admin-tabs{position:sticky;top:74px;z-index:18;background:#eef5ee;padding:8px 0;margin:8px 0 12px}.admin-tab-btn{flex:1;min-width:140px}.pricing-settings{padding:14px;border-radius:18px}.pricing-grid{grid-template-columns:1fr}.pricing-actions .btn{width:100%}}
+    .notification-settings{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(15,23,42,.06)}
+    .notification-settings h2{margin:0 0 6px;font-size:22px;color:#0f172a}
+    .notification-help{margin:0 0 16px;color:#64748b;font-size:14px;line-height:1.6}
+    .notification-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .notification-card{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:14px}
+    .notification-title{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:4px}
+    .notification-desc{font-size:13px;color:#64748b;line-height:1.45}
+    .notification-section-title{margin:18px 0 8px;font-size:14px;font-weight:900;color:#166534;letter-spacing:.03em}
+    .notification-card-wide{grid-column:1/-1;align-items:flex-start}
+    .notification-time-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;color:#475569;font-size:13px}
+    .notification-time-row input[type=time]{border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;background:#fff;font-size:14px;color:#0f172a}
+    .notify-switch{position:relative;display:inline-flex;align-items:center;width:58px;height:32px;flex:0 0 auto}
+    .notify-switch input{position:absolute;opacity:0;width:1px;height:1px}
+    .notify-slider{position:absolute;inset:0;border-radius:999px;background:#cbd5e1;transition:.2s;box-shadow:inset 0 0 0 1px rgba(15,23,42,.08)}
+    .notify-slider:before{content:'';position:absolute;width:26px;height:26px;left:3px;top:3px;border-radius:999px;background:#fff;box-shadow:0 2px 7px rgba(15,23,42,.25);transition:.2s}
+    .notify-switch input:checked + .notify-slider{background:#16a34a}
+    .notify-switch input:checked + .notify-slider:before{transform:translateX(26px)}
+    .notification-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .notification-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
+    @media(max-width:760px){.admin-tabs{position:sticky;top:74px;z-index:18;background:#eef5ee;padding:8px 0;margin:8px 0 12px}.admin-tab-btn{flex:1;min-width:140px}.pricing-settings,.notification-settings{padding:14px;border-radius:18px}.pricing-grid,.notification-grid{grid-template-columns:1fr}.pricing-actions .btn,.notification-actions .btn{width:100%}}
     .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
     .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
     .input{display:flex;flex-direction:column;gap:6px}
@@ -513,12 +532,13 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </div>
 <header>
 <h1>後台管理</h1>
-<div class="sub">可管理預約資料，也可調整前台即時估價的價格設定。</div>
+<div class="sub">可管理預約資料，也可調整前台即時估價與通知開關設定。</div>
 </header>
 <div class="wrap">
 <div class="admin-tabs" role="tablist" aria-label="後台功能分頁">
   <button class="admin-tab-btn is-active" id="tabBookingsBtn" type="button" role="tab" aria-selected="true" aria-controls="bookingAdminTab">預約資料管理</button>
   <button class="admin-tab-btn" id="tabPricingBtn" type="button" role="tab" aria-selected="false" aria-controls="pricingAdminTab">價格設定</button>
+  <button class="admin-tab-btn" id="tabNotificationsBtn" type="button" role="tab" aria-selected="false" aria-controls="notificationAdminTab">通知設定</button>
 </div>
 <section id="bookingAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabBookingsBtn">
 <div class="row">
@@ -571,6 +591,106 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
     <div class="pricing-status" id="pricingStatus" aria-live="polite"></div>
   </div>
 </section>
+<section id="notificationAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabNotificationsBtn" hidden>
+  <div class="notification-settings">
+    <h2>通知設定</h2>
+    <p class="notification-help">可手動開啟或關閉通知管道、指定事件通知，以及 LINE 夜間靜音。關閉後，客人仍可正常送出預約，後台資料與 PDF 也會照常建立。</p>
+
+    <div class="notification-section-title">通知管道總開關</div>
+    <div class="notification-grid">
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">Brevo Email 通知</div>
+          <div class="notification-desc">總開關。關閉後，所有後台 Email 通知都不會寄出。</div>
+        </div>
+        <label class="notify-switch" for="notifyBrevoEmail">
+          <input id="notifyBrevoEmail" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">LINE 推播通知</div>
+          <div class="notification-desc">總開關。關閉後，所有 LINE Bot 推播都不會送出。</div>
+        </div>
+        <label class="notify-switch" for="notifyLinePush">
+          <input id="notifyLinePush" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="notification-section-title">通知事件</div>
+    <div class="notification-grid">
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">新預約通知：Email</div>
+          <div class="notification-desc">有客人送出新預約時，寄信給 EMAIL_TO。</div>
+        </div>
+        <label class="notify-switch" for="notifyNewBookingEmail">
+          <input id="notifyNewBookingEmail" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">新預約通知：LINE</div>
+          <div class="notification-desc">有客人送出新預約時，推播到管理者 LINE。</div>
+        </div>
+        <label class="notify-switch" for="notifyNewBookingLine">
+          <input id="notifyNewBookingLine" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">價格設定變更通知</div>
+          <div class="notification-desc">後台儲存價格設定後，寄出 Email 紀錄。</div>
+        </div>
+        <label class="notify-switch" for="notifyPricingChangeEmail">
+          <input id="notifyPricingChangeEmail" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+      <div class="notification-card">
+        <div>
+          <div class="notification-title">案件刪除通知</div>
+          <div class="notification-desc">後台刪除案件後，寄出 Email 紀錄。</div>
+        </div>
+        <label class="notify-switch" for="notifyBookingDeleteEmail">
+          <input id="notifyBookingDeleteEmail" type="checkbox" checked>
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="notification-section-title">夜間靜音模式</div>
+    <div class="notification-grid">
+      <div class="notification-card notification-card-wide">
+        <div>
+          <div class="notification-title">LINE 夜間靜音</div>
+          <div class="notification-desc">啟用後，指定時間內不推播 LINE；Email 仍會正常寄出。時間以台灣時間 Asia/Taipei 判斷。</div>
+          <div class="notification-time-row">
+            <span>靜音時間</span>
+            <input id="notifyQuietStart" type="time" value="22:00">
+            <span>到</span>
+            <input id="notifyQuietEnd" type="time" value="08:00">
+          </div>
+        </div>
+        <label class="notify-switch" for="notifyQuietHours">
+          <input id="notifyQuietHours" type="checkbox">
+          <span class="notify-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="notification-actions">
+      <button class="btn" id="btnReloadNotificationSettings" type="button">重新讀取</button>
+      <button class="btn primary" id="btnSaveNotificationSettings" type="button">儲存通知設定</button>
+    </div>
+    <div class="notification-status" id="notificationStatus" aria-live="polite"></div>
+  </div>
+</section>
 </div>
 <div class="email-modal" id="emailModal">
 <div class="email-dialog">
@@ -611,6 +731,8 @@ const API_LOGIN = "/.netlify/functions/auth-login";
 const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
 const API_GET_PRICING = "/.netlify/functions/get-pricing";
 const API_UPDATE_PRICING = "/.netlify/functions/update-pricing";
+const API_GET_NOTIFICATION_SETTINGS = "/.netlify/functions/get-notification-settings";
+const API_UPDATE_NOTIFICATION_SETTINGS = "/.netlify/functions/update-notification-settings";
 let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
 let CURRENT_ITEM = null;
 let CURRENT_LIST = [];
@@ -1594,18 +1716,140 @@ async function savePricingSettings(){
     if (btn) btn.disabled = false;
   }
 }
+const DEFAULT_NOTIFICATION_SETTINGS = {
+  brevoEmailEnabled: true,
+  linePushEnabled: true,
+  newBookingEmailEnabled: true,
+  newBookingLineEnabled: true,
+  pricingChangeEmailEnabled: true,
+  bookingDeleteEmailEnabled: true,
+  quietHoursEnabled: false,
+  quietHoursStart: '22:00',
+  quietHoursEnd: '08:00',
+  quietHoursTimezone: 'Asia/Taipei'
+};
+let CURRENT_NOTIFICATION_SETTINGS = { ...DEFAULT_NOTIFICATION_SETTINGS };
+function setNotificationStatus(text, type){
+  const el = document.getElementById('notificationStatus');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.color = type === 'error' ? '#b91c1c' : '#2563eb';
+}
+function normalizeNotificationSettingsForAdmin(settings = {}){
+  return {
+    ...DEFAULT_NOTIFICATION_SETTINGS,
+    ...settings,
+    quietHoursStart: /^\d{2}:\d{2}$/.test(settings.quietHoursStart || '') ? settings.quietHoursStart : DEFAULT_NOTIFICATION_SETTINGS.quietHoursStart,
+    quietHoursEnd: /^\d{2}:\d{2}$/.test(settings.quietHoursEnd || '') ? settings.quietHoursEnd : DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnd,
+    quietHoursTimezone: settings.quietHoursTimezone || DEFAULT_NOTIFICATION_SETTINGS.quietHoursTimezone
+  };
+}
+function renderNotificationSettings(settings = CURRENT_NOTIFICATION_SETTINGS){
+  const s = normalizeNotificationSettingsForAdmin(settings);
+  const map = {
+    notifyBrevoEmail: 'brevoEmailEnabled',
+    notifyLinePush: 'linePushEnabled',
+    notifyNewBookingEmail: 'newBookingEmailEnabled',
+    notifyNewBookingLine: 'newBookingLineEnabled',
+    notifyPricingChangeEmail: 'pricingChangeEmailEnabled',
+    notifyBookingDeleteEmail: 'bookingDeleteEmailEnabled',
+    notifyQuietHours: 'quietHoursEnabled'
+  };
+  Object.entries(map).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!s[key];
+  });
+  const startEl = document.getElementById('notifyQuietStart');
+  const endEl = document.getElementById('notifyQuietEnd');
+  if (startEl) startEl.value = s.quietHoursStart;
+  if (endEl) endEl.value = s.quietHoursEnd;
+}
+function collectNotificationSettings(){
+  return {
+    brevoEmailEnabled: !!document.getElementById('notifyBrevoEmail')?.checked,
+    linePushEnabled: !!document.getElementById('notifyLinePush')?.checked,
+    newBookingEmailEnabled: !!document.getElementById('notifyNewBookingEmail')?.checked,
+    newBookingLineEnabled: !!document.getElementById('notifyNewBookingLine')?.checked,
+    pricingChangeEmailEnabled: !!document.getElementById('notifyPricingChangeEmail')?.checked,
+    bookingDeleteEmailEnabled: !!document.getElementById('notifyBookingDeleteEmail')?.checked,
+    quietHoursEnabled: !!document.getElementById('notifyQuietHours')?.checked,
+    quietHoursStart: document.getElementById('notifyQuietStart')?.value || DEFAULT_NOTIFICATION_SETTINGS.quietHoursStart,
+    quietHoursEnd: document.getElementById('notifyQuietEnd')?.value || DEFAULT_NOTIFICATION_SETTINGS.quietHoursEnd,
+    quietHoursTimezone: DEFAULT_NOTIFICATION_SETTINGS.quietHoursTimezone
+  };
+}
+async function fetchWithAdminReauth(url, options = {}){
+  const makeOptions = () => ({
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      'x-admin-token': ADMIN_TOKEN
+    }
+  });
+  let r = await fetch(url, makeOptions());
+  if (r.status === 401){
+    ADMIN_TOKEN = ''; localStorage.removeItem('admin_token');
+    if (await login()) r = await fetch(url, makeOptions());
+  }
+  return r;
+}
+async function loadNotificationSettings(){
+  renderNotificationSettings(CURRENT_NOTIFICATION_SETTINGS);
+  setNotificationStatus('讀取通知設定中…');
+  try{
+    const r = await fetchWithAdminReauth(API_GET_NOTIFICATION_SETTINGS, { headers: { 'Cache-Control': 'no-cache' } });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '讀取失敗');
+    CURRENT_NOTIFICATION_SETTINGS = normalizeNotificationSettingsForAdmin(data.settings || {});
+    renderNotificationSettings(CURRENT_NOTIFICATION_SETTINGS);
+    setNotificationStatus(data.source === 'default' ? '目前使用預設通知設定，儲存後會建立後台通知設定。' : '已讀取目前通知設定。');
+  }catch(e){
+    CURRENT_NOTIFICATION_SETTINGS = { ...DEFAULT_NOTIFICATION_SETTINGS };
+    renderNotificationSettings(CURRENT_NOTIFICATION_SETTINGS);
+    setNotificationStatus('通知設定讀取失敗，暫時顯示預設值：' + (e.message || e), 'error');
+  }
+}
+async function saveNotificationSettings(){
+  const settings = collectNotificationSettings();
+  const btn = document.getElementById('btnSaveNotificationSettings');
+  if (btn) btn.disabled = true;
+  setNotificationStatus('儲存通知設定中…');
+  try{
+    const r = await fetchWithAdminReauth(API_UPDATE_NOTIFICATION_SETTINGS, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ settings })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '儲存失敗');
+    CURRENT_NOTIFICATION_SETTINGS = normalizeNotificationSettingsForAdmin(data.settings || settings);
+    renderNotificationSettings(CURRENT_NOTIFICATION_SETTINGS);
+    setNotificationStatus('通知設定已儲存。下一筆新預約、價格變更或案件刪除會依照此設定執行。');
+    showToast('通知設定已儲存', 'success');
+  }catch(e){
+    setNotificationStatus('通知設定儲存失敗：' + (e.message || e), 'error');
+    showToast('通知設定儲存失敗', 'error');
+  }finally{
+    if (btn) btn.disabled = false;
+  }
+}
 function switchAdminTab(tab){
   const isPricing = tab === 'pricing';
-  document.getElementById('bookingAdminTab').hidden = isPricing;
+  const isNotifications = tab === 'notifications';
+  document.getElementById('bookingAdminTab').hidden = isPricing || isNotifications;
   document.getElementById('pricingAdminTab').hidden = !isPricing;
-  document.getElementById('tabBookingsBtn').classList.toggle('is-active', !isPricing);
+  document.getElementById('notificationAdminTab').hidden = !isNotifications;
+  document.getElementById('tabBookingsBtn').classList.toggle('is-active', !isPricing && !isNotifications);
   document.getElementById('tabPricingBtn').classList.toggle('is-active', isPricing);
-  document.getElementById('tabBookingsBtn').setAttribute('aria-selected', String(!isPricing));
+  document.getElementById('tabNotificationsBtn').classList.toggle('is-active', isNotifications);
+  document.getElementById('tabBookingsBtn').setAttribute('aria-selected', String(!isPricing && !isNotifications));
   document.getElementById('tabPricingBtn').setAttribute('aria-selected', String(isPricing));
+  document.getElementById('tabNotificationsBtn').setAttribute('aria-selected', String(isNotifications));
   if (isPricing) loadPricingSettings();
+  if (isNotifications) loadNotificationSettings();
 }
 
-(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } renderPricingFields(CURRENT_PRICING); doSearch({ reset: true }); })();
+(async ()=>{ if (needLogin()){ const ok = await login(); if(!ok) return; } renderPricingFields(CURRENT_PRICING); renderNotificationSettings(CURRENT_NOTIFICATION_SETTINGS); doSearch({ reset: true }); })();
 
 
 const CASE_EDIT_FIELDS = [
@@ -1750,9 +1994,12 @@ async function saveCurrentEdit(ev){
 
 document.getElementById("tabBookingsBtn").onclick = () => switchAdminTab('bookings');
 document.getElementById("tabPricingBtn").onclick = () => switchAdminTab('pricing');
+document.getElementById("tabNotificationsBtn").onclick = () => switchAdminTab('notifications');
 document.getElementById("btnReloadPricing").onclick = loadPricingSettings;
 document.getElementById("btnResetPricing").onclick = () => { CURRENT_PRICING = { ...DEFAULT_PRICING }; renderPricingFields(CURRENT_PRICING); setPricingStatus('已恢復表單為預設值，按「儲存價格設定」後才會正式套用。'); };
 document.getElementById("btnSavePricing").onclick = savePricingSettings;
+document.getElementById("btnReloadNotificationSettings").onclick = loadNotificationSettings;
+document.getElementById("btnSaveNotificationSettings").onclick = saveNotificationSettings;
 
 document.getElementById("btnEdit").onclick = () => {
   if (!CURRENT_ITEM) return showToast("請先點選一筆案件", "error");

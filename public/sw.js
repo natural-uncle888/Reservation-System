@@ -1,4 +1,4 @@
-const CACHE_NAME = 'booking-admin-pwa-v1';
+const CACHE_NAME = 'booking-admin-pwa-v3';
 const APP_SHELL = [
   '/admin-bookings.html',
   '/manifest.webmanifest',

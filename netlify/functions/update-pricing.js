@@ -2,6 +2,7 @@
 // Admin-only endpoint for updating pricing settings stored as a Cloudinary raw JSON asset.
 
 const crypto = require('crypto');
+const { loadNotificationSettings, canSendBrevoEmail, sendBrevoNotification, buildSimpleAdminEmail } = require('./notification-utils');
 
 const DEFAULT_PRICES = {
   acSplit: 1800,
@@ -68,6 +69,35 @@ function cloudinarySignature(params) {
   return crypto.createHash('sha1').update(base).digest('hex');
 }
 
+async function notifyPricingChanged(prices, updatedAt) {
+  try {
+    const settings = await loadNotificationSettings();
+    const gate = canSendBrevoEmail(settings, 'pricingChangeEmailEnabled');
+    if (!gate.ok) return { status: 'skipped', error: gate.reason };
+    const rows = [
+      ['事件', '價格設定變更'],
+      ['變更時間', updatedAt],
+      ['冷氣分離式', prices.acSplit],
+      ['冷氣分離式 3 台以上', prices.acSplitBulk],
+      ['冷氣吊隱式', prices.acCeiling],
+      ['變形金剛加價', prices.acTransformer],
+      ['防霉抗菌', prices.antiMold],
+      ['臭氧消毒', prices.ozone],
+      ['洗衣機', prices.washer],
+      ['水塔', prices.tank],
+      ['水管無廚一衛', prices.pipeBaseNoKitchenOneBath],
+      ['水管一廚一衛', prices.pipeBaseOneKitchenOneBath]
+    ];
+    return await sendBrevoNotification({
+      subject: `${process.env.EMAIL_SUBJECT_PREFIX || ''}後台價格設定已變更`,
+      html: buildSimpleAdminEmail('後台價格設定已變更', rows),
+      tags: ['reservation-admin', 'pricing-change']
+    });
+  } catch (err) {
+    return { status: 'failed', error: err && err.message ? err.message : String(err) };
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
   if (!verifyAdminToken(getToken(event))) return json(401, { error: 'Unauthorized' });
@@ -96,7 +126,8 @@ exports.handler = async (event) => {
     const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, { method: 'POST', body: form });
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) return json(resp.status || 500, { error: data.error?.message || 'Cloudinary upload failed', detail: data });
-    return json(200, { ok: true, prices, updated_at: nowIso, public_id: data.public_id || PRICING_PUBLIC_ID });
+    const notification = await notifyPricingChanged(prices, nowIso);
+    return json(200, { ok: true, prices, updated_at: nowIso, public_id: data.public_id || PRICING_PUBLIC_ID, notification });
   } catch (err) {
     return json(500, { error: err && err.message ? err.message : String(err) });
   }

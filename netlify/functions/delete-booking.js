@@ -1,6 +1,7 @@
 // netlify/functions/delete-booking.js
 const { v2: cloudinary } = require('cloudinary');
 const crypto = require('crypto');
+const { loadNotificationSettings, canSendBrevoEmail, sendBrevoNotification, buildSimpleAdminEmail } = require('./notification-utils');
 
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 const API_KEY    = process.env.CLOUDINARY_API_KEY;
@@ -28,6 +29,29 @@ function verify(token) {
     return true;
   } catch {
     return false;
+  }
+}
+
+
+async function notifyBookingDeleted({ deletedId, resourceType, rawPublicId }) {
+  try {
+    const settings = await loadNotificationSettings();
+    const gate = canSendBrevoEmail(settings, 'bookingDeleteEmailEnabled');
+    if (!gate.ok) return { status: 'skipped', error: gate.reason };
+    const nowIso = new Date().toISOString();
+    return await sendBrevoNotification({
+      subject: `${process.env.EMAIL_SUBJECT_PREFIX || ''}後台案件已刪除`,
+      html: buildSimpleAdminEmail('後台案件已刪除', [
+        ['事件', '案件刪除'],
+        ['刪除時間', nowIso],
+        ['原始 public_id', rawPublicId],
+        ['刪除 public_id', deletedId],
+        ['resource_type', resourceType]
+      ]),
+      tags: ['reservation-admin', 'booking-delete']
+    });
+  } catch (err) {
+    return { status: 'failed', error: err && err.message ? err.message : String(err) };
   }
 }
 
@@ -79,7 +103,8 @@ exports.handler = async function (event) {
         });
         // r.result 可能是 'ok'、'not found'、'error'
         if (r?.result === 'ok') {
-          return resp(200, { ok: true, deleted_id: id, resource_type: rt, result: r });
+          const notification = await notifyBookingDeleted({ deletedId: id, resourceType: rt, rawPublicId: pidWithExt });
+          return resp(200, { ok: true, deleted_id: id, resource_type: rt, result: r, notification });
         }
       } catch (e) {
         // 換下一個 resource_type / id 繼續嘗試
