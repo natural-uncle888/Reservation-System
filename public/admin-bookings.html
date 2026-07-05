@@ -89,18 +89,6 @@
     .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 
     .admin-select{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:140px}
-    .filter-state-hidden{display:none !important;}
-    .filter-group{display:flex;flex-direction:column;gap:6px;min-width:260px;}
-    .filter-title{font-size:13px;color:#334155;font-weight:800;}
-    .quick-filter-buttons{display:flex;flex-wrap:wrap;gap:8px;}
-    .quick-filter-btn{height:38px;padding:0 14px;border-radius:999px;border:1px solid #dbe4dd;background:#fff;color:#334155;font-weight:800;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .08s ease;}
-    .quick-filter-btn:hover{border-color:#14532d;box-shadow:0 4px 12px rgba(20,83,45,.12);}
-    .quick-filter-btn:active{transform:translateY(1px);}
-    .quick-filter-btn.is-active{background:#14532d;border-color:#14532d;color:#fff;box-shadow:0 8px 18px rgba(20,83,45,.18);}
-    .quick-filter-btn[data-status-filter="pending"].is-active{background:#6b7280;border-color:#6b7280;}
-    .quick-filter-btn[data-status-filter="scheduled"].is-active{background:#3b82f6;border-color:#3b82f6;}
-    .quick-filter-btn[data-status-filter="done"].is-active{background:#10b981;border-color:#10b981;}
-    .quick-filter-btn[data-status-filter="cancelled"].is-active{background:#ef4444;border-color:#ef4444;}
     .admin-pagination{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
     .admin-pagination #pageInfo{font-size:14px;color:#475569;min-width:86px;text-align:center}
 
@@ -338,11 +326,6 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   #btnSearch,#btnCsv{grid-column:auto !important;width:100% !important;height:46px;border-radius:14px;font-weight:800;}
   #btnSearch{background:#14532d;border-color:#14532d;color:#fff;}
   #btnCsv{background:#fff7d6;border-color:#fde68a;color:#854d0e;}
-  .wrap>.row .filter-group{grid-column:1 / -1;min-width:0;}
-  .wrap>.row .quick-filter-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-  .wrap>.row .status-filter .quick-filter-buttons{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .wrap>.row .quick-filter-btn{height:44px;border-radius:14px;padding:0 10px;font-size:14px;}
-  .wrap>.row .filter-state-hidden{display:none !important;}
 
   .grid{display:block !important;}
   .table-wrap{display:none !important;}
@@ -562,28 +545,9 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
-<div class="filter-group quick-date-filter" aria-labelledby="quickDateLabel">
-  <span class="filter-title" id="quickDateLabel">快速日期</span>
-  <div class="quick-filter-buttons" id="dateQuickButtons" role="group" aria-label="快速日期查詢">
-    <button class="quick-filter-btn is-active" type="button" data-date-preset="all" aria-pressed="true">全部日期</button>
-    <button class="quick-filter-btn" type="button" data-date-preset="today" aria-pressed="false">今天</button>
-    <button class="quick-filter-btn" type="button" data-date-preset="7" aria-pressed="false">近 7 天</button>
-    <button class="quick-filter-btn" type="button" data-date-preset="30" aria-pressed="false">近 30 天</button>
-  </div>
-</div>
-<div class="filter-group status-filter" aria-labelledby="statusFilterLabel">
-  <span class="filter-title" id="statusFilterLabel">狀態</span>
-  <div class="quick-filter-buttons" id="statusQuickButtons" role="group" aria-label="狀態查詢">
-    <button class="quick-filter-btn is-active" type="button" data-status-filter="all" aria-pressed="true">全部狀態</button>
-    <button class="quick-filter-btn" type="button" data-status-filter="pending" aria-pressed="false">未處理</button>
-    <button class="quick-filter-btn" type="button" data-status-filter="scheduled" aria-pressed="false">已登錄</button>
-    <button class="quick-filter-btn" type="button" data-status-filter="done" aria-pressed="false">已完成</button>
-    <button class="quick-filter-btn" type="button" data-status-filter="cancelled" aria-pressed="false">已取消</button>
-  </div>
-</div>
-<select id="datePreset" class="admin-select filter-state-hidden" aria-hidden="true" tabindex="-1"><option value="all">全部日期</option><option value="today">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option></select>
-<select id="statusFilter" class="admin-select filter-state-hidden" aria-hidden="true" tabindex="-1"><option value="all">全部狀態</option><option value="pending">未處理</option><option value="scheduled">已登錄</option><option value="done">已完成</option><option value="cancelled">已取消</option></select>
-<button class="btn primary filter-state-hidden" id="btnSearch" type="button" aria-hidden="true" tabindex="-1">查詢</button>
+<label class="input"><span>快速日期</span><select id="datePreset" class="admin-select"><option value="all">全部日期</option><option value="today">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option></select></label>
+<label class="input"><span>狀態</span><select id="statusFilter" class="admin-select"><option value="all">全部狀態</option><option value="pending">未處理</option><option value="scheduled">已登錄</option><option value="done">已完成</option><option value="cancelled">已取消</option></select></label>
+<button class="btn primary" id="btnSearch">查詢</button>
 <button class="btn" id="btnCsv">匯出 CSV</button>
 </div>
 <div class="grid">
@@ -1023,7 +987,7 @@ function bindMobileCardActions(card, it, status){
       it.context.custom = it.context.custom || {};
       it.context.custom.status = newStatus;
       try {
-        await fetch('/.netlify/functions/update-booking-context', {
+        const resp = await fetch('/.netlify/functions/update-booking-context', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN },
           body: JSON.stringify({
@@ -1033,9 +997,16 @@ function bindMobileCardActions(card, it, status){
             context: { status: newStatus }
           })
         });
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.detail || err.error || `HTTP ${resp.status}`);
+        }
         showToast('狀態已更新', 'success');
       } catch (e) {
-        showToast('更新狀態失敗，請稍後再試', 'error');
+        btnStatus.textContent = statusLabel(code);
+        btnStatus.className = `btn-status status-${code}`;
+        it.context.custom.status = code;
+        showToast('更新狀態失敗：' + (e && e.message ? e.message : '請稍後再試'), 'error');
       }
     });
   }
@@ -1166,6 +1137,7 @@ function renderFilteredList(items){
     const name = String(ctx.name || "");
     const phone = String(ctx.phone || ctx.mobile || ctx.phone_number || "");
     const service = String(ctx.service || ctx.service_description || "");
+    const publicId = String(it.public_id || "");
 
     // decide match
     let matched = false;
@@ -1177,6 +1149,8 @@ function renderFilteredList(items){
       else if (qDigits && digitsOnly(phone).includes(qDigits)) matched = true;
       // service match (case-insensitive)
       else if (service && service.toLowerCase().includes(qLower)) matched = true;
+      // public_id match; the input placeholder explicitly supports public_id.
+      else if (publicId && publicId.toLowerCase().includes(qLower)) matched = true;
     }
 
     if (!matched) continue;
@@ -1296,7 +1270,7 @@ function renderFilteredList(items){
         it.context.custom = it.context.custom || {};
         it.context.custom.status = newStatus;
         try {
-          await fetch("/.netlify/functions/update-booking-context", {
+          const resp = await fetch("/.netlify/functions/update-booking-context", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1309,8 +1283,16 @@ function renderFilteredList(items){
              context: { status: newStatus }
            })
           });
+          if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || err.error || `HTTP ${resp.status}`);
+          }
+          showToast('狀態已更新', 'success');
         } catch (e) {
-          alert("更新狀態失敗，請稍後再試");
+          btnStatus.textContent = statusLabel(code);
+          btnStatus.className = `btn-status status-${code}`;
+          it.context.custom.status = code;
+          showToast("更新狀態失敗：" + (e && e.message ? e.message : "請稍後再試"), 'error');
         }
       });
     }
@@ -1356,6 +1338,20 @@ function renderFilteredList(items){
   $("#foot").textContent = `共 ${shown} 筆`;
 }
 
+function debounce(fn, delay){
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const runSearchFromFirstPage = debounce(() => {
+  if (!ADMIN_TOKEN) return;
+  doSearch({ reset: true });
+}, 350);
+
+$("#q").addEventListener("input", runSearchFromFirstPage);
 </script>
 <script>
 function kv(label, value){
@@ -1447,145 +1443,21 @@ function formatDateInput(d){
   return `${y}/${m}/${day}`;
 }
 
-function getQuickDateRange(preset){
-  if (!preset || preset === "all") return { start: "", end: "" };
+function getSelectedDateRange(){
+  const preset = $("#datePreset") ? $("#datePreset").value : "all";
+  const manualStart = $("#start").value.trim();
+  const manualEnd = $("#end").value.trim();
+  if (preset === "all") return { start: manualStart, end: manualEnd };
 
   const now = new Date();
   const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startDate = new Date(endDate);
-  if (preset !== "today") {
-    const days = parseInt(preset, 10);
-    if (Number.isFinite(days) && days > 1) startDate.setDate(startDate.getDate() - (days - 1));
+  if (preset === "today") {
+    // same start/end date
+  } else {
+    startDate.setDate(startDate.getDate() - (parseInt(preset, 10) - 1));
   }
   return { start: formatDateInput(startDate), end: formatDateInput(endDate) };
-}
-
-function getSelectedDateRange(){
-  const preset = $("#datePreset") ? $("#datePreset").value : "all";
-  const manualStart = $("#start") ? $("#start").value.trim() : "";
-  const manualEnd = $("#end") ? $("#end").value.trim() : "";
-  if (preset === "all") return { start: manualStart, end: manualEnd };
-  return getQuickDateRange(preset);
-}
-
-function setQuickDatePreset(preset, options = {}){
-  const select = $("#datePreset");
-  if (select) select.value = preset;
-
-  const startInput = $("#start");
-  const endInput = $("#end");
-  if (startInput && endInput) {
-    if (preset === "all") {
-      startInput.value = "";
-      endInput.value = "";
-    } else {
-      const range = getQuickDateRange(preset);
-      startInput.value = range.start;
-      endInput.value = range.end;
-    }
-  }
-
-  updateQuickFilterActive();
-  if (options.search !== false) doSearch({ reset: true });
-}
-
-function setStatusFilter(status, options = {}){
-  const select = $("#statusFilter");
-  if (select) select.value = status || "all";
-  updateQuickFilterActive();
-  if (options.search !== false) doSearch({ reset: true });
-}
-
-function updateQuickFilterActive(){
-  const dateValue = $("#datePreset") ? $("#datePreset").value : "all";
-  const manualStart = $("#start") ? $("#start").value.trim() : "";
-  const manualEnd = $("#end") ? $("#end").value.trim() : "";
-  const manualDateInUse = dateValue === "all" && !!(manualStart || manualEnd);
-  document.querySelectorAll("#dateQuickButtons [data-date-preset]").forEach(btn => {
-    const active = !manualDateInUse && btn.dataset.datePreset === dateValue;
-    btn.classList.toggle("is-active", active);
-    btn.setAttribute("aria-pressed", active ? "true" : "false");
-  });
-
-  const statusValue = $("#statusFilter") ? $("#statusFilter").value : "all";
-  document.querySelectorAll("#statusQuickButtons [data-status-filter]").forEach(btn => {
-    const active = btn.dataset.statusFilter === statusValue;
-    btn.classList.toggle("is-active", active);
-    btn.setAttribute("aria-pressed", active ? "true" : "false");
-  });
-}
-
-function bindQuickFilters(){
-  document.querySelectorAll("#dateQuickButtons [data-date-preset]").forEach(btn => {
-    btn.addEventListener("click", () => setQuickDatePreset(btn.dataset.datePreset || "all"));
-  });
-  document.querySelectorAll("#statusQuickButtons [data-status-filter]").forEach(btn => {
-    btn.addEventListener("click", () => setStatusFilter(btn.dataset.statusFilter || "all"));
-  });
-  updateQuickFilterActive();
-}
-
-function bindInstantSearchInputs(){
-  const qInput = $("#q");
-  let qTimer = null;
-  if (qInput) {
-    qInput.addEventListener("input", () => {
-      clearTimeout(qTimer);
-      qTimer = setTimeout(() => doSearch({ reset: true }), 550);
-    });
-    qInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        clearTimeout(qTimer);
-        doSearch({ reset: true });
-      }
-    });
-  }
-
-  const manualDatePattern = /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/;
-  const isManualDateSearchReady = () => {
-    const startValue = $("#start") ? $("#start").value.trim() : "";
-    const endValue = $("#end") ? $("#end").value.trim() : "";
-    return [startValue, endValue].every(value => !value || manualDatePattern.test(value));
-  };
-  let manualDateTimer = null;
-  const runManualDateSearch = () => {
-    if (!isManualDateSearchReady()) return;
-    const preset = $("#datePreset");
-    if (preset) preset.value = "all";
-    updateQuickFilterActive();
-    doSearch({ reset: true });
-  };
-  const scheduleManualDateSearch = () => {
-    const preset = $("#datePreset");
-    if (preset) preset.value = "all";
-    updateQuickFilterActive();
-    clearTimeout(manualDateTimer);
-    if (!isManualDateSearchReady()) return;
-    manualDateTimer = setTimeout(runManualDateSearch, 550);
-  };
-
-  ["#start", "#end"].forEach(selector => {
-    const input = $(selector);
-    if (!input) return;
-    input.addEventListener("input", scheduleManualDateSearch);
-    input.addEventListener("change", () => {
-      clearTimeout(manualDateTimer);
-      runManualDateSearch();
-    });
-    input.addEventListener("blur", () => {
-      clearTimeout(manualDateTimer);
-      runManualDateSearch();
-    });
-    // 桌機鍵盤輔助；手機不需要 Enter，輸入/選取/離開欄位就會自動查詢。
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        clearTimeout(manualDateTimer);
-        runManualDateSearch();
-      }
-    });
-  });
 }
 
 function updatePaginationUI(){
@@ -1647,14 +1519,9 @@ function openDetails(item){
   selectBookingItem(item);
 }
 
-const btnSearchEl = $("#btnSearch");
-if (btnSearchEl) btnSearchEl.onclick = () => doSearch({ reset: true });
-const datePresetEl = $("#datePreset");
-if (datePresetEl) datePresetEl.onchange = () => setQuickDatePreset(datePresetEl.value || "all");
-const statusFilterEl = $("#statusFilter");
-if (statusFilterEl) statusFilterEl.onchange = () => setStatusFilter(statusFilterEl.value || "all");
-bindQuickFilters();
-bindInstantSearchInputs();
+$("#btnSearch").onclick = () => doSearch({ reset: true });
+$("#datePreset").onchange = () => doSearch({ reset: true });
+$("#statusFilter").onchange = () => doSearch({ reset: true });
 $("#prevPage").onclick = () => {
   if (CURRENT_PAGE <= 1) return;
   CURRENT_PAGE--;
@@ -2443,35 +2310,68 @@ document.addEventListener("DOMContentLoaded", function () {
     align-items:center;
     justify-content:center;
     z-index:1060;
-    padding:16px;
+    padding:clamp(24px,5dvh,56px) 16px;
   }
   .case-edit-modal.is-open{ display:flex; }
   .case-edit-dialog{
-    width:min(860px,96vw);
-    max-height:calc(100dvh - 32px);
-    overflow:auto;
+    width:min(760px,92vw);
+    max-height:min(760px,calc(100dvh - 96px));
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
     background:#fff;
     border:1px solid #e5e7eb;
     border-radius:18px;
     box-shadow:0 24px 70px rgba(15,23,42,.35);
-    padding:18px;
+    padding:16px;
   }
-  .case-edit-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
-  .case-edit-head h3{margin:0;font-size:20px;color:#111827}
-  .case-edit-sub{font-size:13px;color:#64748b;margin-top:3px}
-  .case-edit-close{border:0;background:#f1f5f9;border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px}
-  .case-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .case-edit-field{display:flex;flex-direction:column;gap:5px}
-  .case-edit-field label{font-size:13px;color:#475569;font-weight:600}
-  .case-edit-field input,.case-edit-field textarea,.case-edit-field select{border:1px solid #e5e7eb;border-radius:11px;padding:9px 10px;background:#fff;min-height:38px}
-  .case-edit-field textarea{min-height:82px;resize:vertical}
+  .case-edit-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:10px;
+    padding-bottom:10px;
+    border-bottom:1px solid #eef2f7;
+    flex:0 0 auto;
+  }
+  .case-edit-head h3{margin:0;font-size:18px;color:#111827;line-height:1.25}
+  .case-edit-sub{font-size:12px;color:#64748b;margin-top:3px;line-height:1.35}
+  .case-edit-close{border:0;background:#f1f5f9;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px;flex:0 0 auto}
+  #caseEditForm{display:flex;flex-direction:column;min-height:0;flex:1 1 auto}
+  .case-edit-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:2px 4px 2px 0;
+    max-height:calc(100dvh - 245px);
+  }
+  .case-edit-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .case-edit-field label{font-size:12px;color:#475569;font-weight:600;line-height:1.35}
+  .case-edit-field input,.case-edit-field textarea,.case-edit-field select{border:1px solid #e5e7eb;border-radius:10px;padding:7px 9px;background:#fff;min-height:34px;font-size:14px}
+  .case-edit-field textarea{min-height:62px;resize:vertical}
   .case-edit-field.full{grid-column:1 / -1}
-  .case-edit-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
-  .case-edit-msg{font-size:13px;margin-top:8px;color:#2563eb;min-height:18px}
+  .case-edit-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px solid #eef2f7;
+    flex-wrap:wrap;
+    flex:0 0 auto;
+  }
+  .case-edit-msg{font-size:13px;margin-top:6px;color:#2563eb;min-height:18px;flex:0 0 auto}
   @media(max-width:640px){
-    .case-edit-modal{align-items:flex-end;padding:0}
-    .case-edit-dialog{width:100vw;max-height:calc(100dvh - 8px);border-radius:18px 18px 0 0;padding-bottom:max(18px,env(safe-area-inset-bottom))}
-    .case-edit-grid{grid-template-columns:1fr}
+    .case-edit-modal{align-items:center;padding:20px 10px calc(20px + env(safe-area-inset-bottom))}
+    .case-edit-dialog{width:min(520px,96vw);max-height:calc(100dvh - 48px);border-radius:16px;padding:14px}
+    .case-edit-head{margin-bottom:8px;padding-bottom:8px}
+    .case-edit-head h3{font-size:16px}
+    .case-edit-sub{display:none}
+    .case-edit-grid{grid-template-columns:1fr;gap:9px;max-height:calc(100dvh - 205px)}
+    .case-edit-actions .btn{flex:1 1 120px}
   }
 </style>
 

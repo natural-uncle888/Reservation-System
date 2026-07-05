@@ -63,7 +63,7 @@ function parseDateToIso(dateStr, isEnd=false){
   return dt.toISOString();
 }
 
-function buildExpression({ q, fromIso, toIso, status }) {
+function buildExpression({ fromIso, toIso }) {
   const terms = [];
   // Only booking PDFs should appear in the admin list.
   // Uploaded site photos are stored as Cloudinary image assets with public_ids like
@@ -73,35 +73,6 @@ function buildExpression({ q, fromIso, toIso, status }) {
   terms.push(`public_id:${PREFIX}*`);
   if (fromIso) terms.push(`created_at>="${fromIso}"`);
   if (toIso) terms.push(`created_at<="${toIso}"`);
-
-
-  if (q) {
-    const qSafe = escapeForExpression(q);
-    const orParts = [
-      `public_id~${qSafe}`,
-      `context.name~${qSafe}`,
-      `context.customer_name~${qSafe}`,
-      `context.fullname~${qSafe}`,
-      `context.姓名~${qSafe}`,
-      `context.phone~${qSafe}`,
-      `context.phone_number~${qSafe}`,
-      `context.mobile~${qSafe}`,
-      `context.tel~${qSafe}`,
-      `context.電話~${qSafe}`,
-      `metadata.phone~${qSafe}`,
-      `metadata.mobile~${qSafe}`,
-      `metadata.tel~${qSafe}`,
-      `metadata.電話~${qSafe}`,
-      `context.service~${qSafe}`,
-      `context.service_item~${qSafe}`,
-      `context.service_category~${qSafe}`,
-      `metadata.service~${qSafe}`,
-      `metadata.service_item~${qSafe}`,
-      `metadata.service_category~${qSafe}`
-    ];
-    terms.push(`(${orParts.join(" OR ")})`);
-  }
-
   return terms.join(" AND ");
 }
 
@@ -136,6 +107,38 @@ function getAssetStatus(asset) {
 function statusMatchesAsset(asset, status) {
   if (!status || status === "all") return true;
   return getAssetStatus(asset) === status;
+}
+
+function digitsOnly(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function assetMatchesQuery(asset, q) {
+  const query = String(q || "").trim();
+  if (!query) return true;
+
+  const ctx = getContextObject(asset.context);
+  const meta = getContextObject(asset.metadata);
+  const values = [
+    asset.public_id,
+    ctx.name, ctx.customer_name, ctx.fullname, ctx["姓名"],
+    ctx.phone, ctx.phone_number, ctx.mobile, ctx.tel, ctx["電話"],
+    ctx.service, ctx.service_item, ctx.service_category, ctx.select_service, ctx["服務"],
+    ctx.address, ctx["地址"],
+    meta.name, meta.customer_name, meta.fullname, meta["姓名"],
+    meta.phone, meta.phone_number, meta.mobile, meta.tel, meta["電話"],
+    meta.service, meta.service_item, meta.service_category, meta.select_service, meta["服務"],
+    meta.address, meta["地址"],
+  ];
+
+  const haystack = values.filter(v => v != null && String(v).trim() !== "").map(String).join("\n");
+  const qLower = query.toLowerCase();
+  if (haystack.toLowerCase().includes(qLower)) return true;
+
+  const qDigits = digitsOnly(query);
+  if (qDigits && digitsOnly(haystack).includes(qDigits)) return true;
+
+  return false;
 }
 
 async function searchCloudinaryPage(payload) {
@@ -226,11 +229,14 @@ exports.handler = async (event, context) => {
     const fromIso = from ? parseDateToIso(from, false) : null;
     const toIso = to ? parseDateToIso(to, true) : null;
 
-    const expression = buildExpression({ q: String(q || ""), fromIso, toIso, status: String(status || "") });
+    const expression = buildExpression({ fromIso, toIso });
+
+    const hasLocalFilter = Boolean(String(q || "").trim()) || Boolean(status && status !== "all");
+    const cloudinaryPageSize = hasLocalFilter ? 100 : max_results;
 
     const payload = {
       expression,
-      max_results,
+      max_results: cloudinaryPageSize,
       sort_by: [{ created_at: "desc" }],
       with_field: ["context","metadata"],
     };
@@ -253,14 +259,14 @@ exports.handler = async (event, context) => {
         const resources = data.resources || [];
 
         for (const asset of resources) {
-          if (statusMatchesAsset(asset, status || "")) {
+          if (statusMatchesAsset(asset, status || "") && assetMatchesQuery(asset, q || "")) {
             matchedResources.push(asset);
             if (matchedResources.length >= max_results) break;
           }
         }
 
         cloudinaryCursor = data.next_cursor || null;
-      } while ((status && status !== "all") && matchedResources.length < max_results && cloudinaryCursor);
+      } while (hasLocalFilter && matchedResources.length < max_results && cloudinaryCursor);
     } catch (err) {
       return {
         statusCode: err.statusCode || 500,
