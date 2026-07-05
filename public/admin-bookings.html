@@ -89,6 +89,18 @@
     .email-dialog .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
 
     .admin-select{height:38px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;min-width:140px}
+    .filter-state-hidden{display:none !important;}
+    .filter-group{display:flex;flex-direction:column;gap:6px;min-width:260px;}
+    .filter-title{font-size:13px;color:#334155;font-weight:800;}
+    .quick-filter-buttons{display:flex;flex-wrap:wrap;gap:8px;}
+    .quick-filter-btn{height:38px;padding:0 14px;border-radius:999px;border:1px solid #dbe4dd;background:#fff;color:#334155;font-weight:800;cursor:pointer;transition:background .16s ease,border-color .16s ease,color .16s ease,box-shadow .16s ease,transform .08s ease;}
+    .quick-filter-btn:hover{border-color:#14532d;box-shadow:0 4px 12px rgba(20,83,45,.12);}
+    .quick-filter-btn:active{transform:translateY(1px);}
+    .quick-filter-btn.is-active{background:#14532d;border-color:#14532d;color:#fff;box-shadow:0 8px 18px rgba(20,83,45,.18);}
+    .quick-filter-btn[data-status-filter="pending"].is-active{background:#6b7280;border-color:#6b7280;}
+    .quick-filter-btn[data-status-filter="scheduled"].is-active{background:#3b82f6;border-color:#3b82f6;}
+    .quick-filter-btn[data-status-filter="done"].is-active{background:#10b981;border-color:#10b981;}
+    .quick-filter-btn[data-status-filter="cancelled"].is-active{background:#ef4444;border-color:#ef4444;}
     .admin-pagination{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
     .admin-pagination #pageInfo{font-size:14px;color:#475569;min-width:86px;text-align:center}
 
@@ -326,6 +338,11 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
   #btnSearch,#btnCsv{grid-column:auto !important;width:100% !important;height:46px;border-radius:14px;font-weight:800;}
   #btnSearch{background:#14532d;border-color:#14532d;color:#fff;}
   #btnCsv{background:#fff7d6;border-color:#fde68a;color:#854d0e;}
+  .wrap>.row .filter-group{grid-column:1 / -1;min-width:0;}
+  .wrap>.row .quick-filter-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .wrap>.row .status-filter .quick-filter-buttons{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .wrap>.row .quick-filter-btn{height:44px;border-radius:14px;padding:0 10px;font-size:14px;}
+  .wrap>.row .filter-state-hidden{display:none !important;}
 
   .grid{display:block !important;}
   .table-wrap{display:none !important;}
@@ -545,9 +562,28 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <label class="input"><span>關鍵字</span><input id="q" placeholder="姓名、電話、public_id…"/></label>
 <label class="input"><span>起始日期</span><input id="start" placeholder="yyyy/mm/dd"/></label>
 <label class="input"><span>結束日期</span><input id="end" placeholder="yyyy/mm/dd"/></label>
-<label class="input"><span>快速日期</span><select id="datePreset" class="admin-select"><option value="all">全部日期</option><option value="today">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option></select></label>
-<label class="input"><span>狀態</span><select id="statusFilter" class="admin-select"><option value="all">全部狀態</option><option value="pending">未處理</option><option value="scheduled">已登錄</option><option value="done">已完成</option><option value="cancelled">已取消</option></select></label>
-<button class="btn primary" id="btnSearch">查詢</button>
+<div class="filter-group quick-date-filter" aria-labelledby="quickDateLabel">
+  <span class="filter-title" id="quickDateLabel">快速日期</span>
+  <div class="quick-filter-buttons" id="dateQuickButtons" role="group" aria-label="快速日期查詢">
+    <button class="quick-filter-btn is-active" type="button" data-date-preset="all" aria-pressed="true">全部日期</button>
+    <button class="quick-filter-btn" type="button" data-date-preset="today" aria-pressed="false">今天</button>
+    <button class="quick-filter-btn" type="button" data-date-preset="7" aria-pressed="false">近 7 天</button>
+    <button class="quick-filter-btn" type="button" data-date-preset="30" aria-pressed="false">近 30 天</button>
+  </div>
+</div>
+<div class="filter-group status-filter" aria-labelledby="statusFilterLabel">
+  <span class="filter-title" id="statusFilterLabel">狀態</span>
+  <div class="quick-filter-buttons" id="statusQuickButtons" role="group" aria-label="狀態查詢">
+    <button class="quick-filter-btn is-active" type="button" data-status-filter="all" aria-pressed="true">全部狀態</button>
+    <button class="quick-filter-btn" type="button" data-status-filter="pending" aria-pressed="false">未處理</button>
+    <button class="quick-filter-btn" type="button" data-status-filter="scheduled" aria-pressed="false">已登錄</button>
+    <button class="quick-filter-btn" type="button" data-status-filter="done" aria-pressed="false">已完成</button>
+    <button class="quick-filter-btn" type="button" data-status-filter="cancelled" aria-pressed="false">已取消</button>
+  </div>
+</div>
+<select id="datePreset" class="admin-select filter-state-hidden" aria-hidden="true" tabindex="-1"><option value="all">全部日期</option><option value="today">今天</option><option value="7">近 7 天</option><option value="30">近 30 天</option></select>
+<select id="statusFilter" class="admin-select filter-state-hidden" aria-hidden="true" tabindex="-1"><option value="all">全部狀態</option><option value="pending">未處理</option><option value="scheduled">已登錄</option><option value="done">已完成</option><option value="cancelled">已取消</option></select>
+<button class="btn primary filter-state-hidden" id="btnSearch" type="button" aria-hidden="true" tabindex="-1">查詢</button>
 <button class="btn" id="btnCsv">匯出 CSV</button>
 </div>
 <div class="grid">
@@ -1320,20 +1356,6 @@ function renderFilteredList(items){
   $("#foot").textContent = `共 ${shown} 筆`;
 }
 
-function debounce(fn, delay){
-  let timer = null;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
-
-const runSearchFromFirstPage = debounce(() => {
-  if (!ADMIN_TOKEN) return;
-  doSearch({ reset: true });
-}, 350);
-
-$("#q").addEventListener("input", runSearchFromFirstPage);
 </script>
 <script>
 function kv(label, value){
@@ -1425,21 +1447,145 @@ function formatDateInput(d){
   return `${y}/${m}/${day}`;
 }
 
-function getSelectedDateRange(){
-  const preset = $("#datePreset") ? $("#datePreset").value : "all";
-  const manualStart = $("#start").value.trim();
-  const manualEnd = $("#end").value.trim();
-  if (preset === "all") return { start: manualStart, end: manualEnd };
+function getQuickDateRange(preset){
+  if (!preset || preset === "all") return { start: "", end: "" };
 
   const now = new Date();
   const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startDate = new Date(endDate);
-  if (preset === "today") {
-    // same start/end date
-  } else {
-    startDate.setDate(startDate.getDate() - (parseInt(preset, 10) - 1));
+  if (preset !== "today") {
+    const days = parseInt(preset, 10);
+    if (Number.isFinite(days) && days > 1) startDate.setDate(startDate.getDate() - (days - 1));
   }
   return { start: formatDateInput(startDate), end: formatDateInput(endDate) };
+}
+
+function getSelectedDateRange(){
+  const preset = $("#datePreset") ? $("#datePreset").value : "all";
+  const manualStart = $("#start") ? $("#start").value.trim() : "";
+  const manualEnd = $("#end") ? $("#end").value.trim() : "";
+  if (preset === "all") return { start: manualStart, end: manualEnd };
+  return getQuickDateRange(preset);
+}
+
+function setQuickDatePreset(preset, options = {}){
+  const select = $("#datePreset");
+  if (select) select.value = preset;
+
+  const startInput = $("#start");
+  const endInput = $("#end");
+  if (startInput && endInput) {
+    if (preset === "all") {
+      startInput.value = "";
+      endInput.value = "";
+    } else {
+      const range = getQuickDateRange(preset);
+      startInput.value = range.start;
+      endInput.value = range.end;
+    }
+  }
+
+  updateQuickFilterActive();
+  if (options.search !== false) doSearch({ reset: true });
+}
+
+function setStatusFilter(status, options = {}){
+  const select = $("#statusFilter");
+  if (select) select.value = status || "all";
+  updateQuickFilterActive();
+  if (options.search !== false) doSearch({ reset: true });
+}
+
+function updateQuickFilterActive(){
+  const dateValue = $("#datePreset") ? $("#datePreset").value : "all";
+  const manualStart = $("#start") ? $("#start").value.trim() : "";
+  const manualEnd = $("#end") ? $("#end").value.trim() : "";
+  const manualDateInUse = dateValue === "all" && !!(manualStart || manualEnd);
+  document.querySelectorAll("#dateQuickButtons [data-date-preset]").forEach(btn => {
+    const active = !manualDateInUse && btn.dataset.datePreset === dateValue;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+
+  const statusValue = $("#statusFilter") ? $("#statusFilter").value : "all";
+  document.querySelectorAll("#statusQuickButtons [data-status-filter]").forEach(btn => {
+    const active = btn.dataset.statusFilter === statusValue;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+
+function bindQuickFilters(){
+  document.querySelectorAll("#dateQuickButtons [data-date-preset]").forEach(btn => {
+    btn.addEventListener("click", () => setQuickDatePreset(btn.dataset.datePreset || "all"));
+  });
+  document.querySelectorAll("#statusQuickButtons [data-status-filter]").forEach(btn => {
+    btn.addEventListener("click", () => setStatusFilter(btn.dataset.statusFilter || "all"));
+  });
+  updateQuickFilterActive();
+}
+
+function bindInstantSearchInputs(){
+  const qInput = $("#q");
+  let qTimer = null;
+  if (qInput) {
+    qInput.addEventListener("input", () => {
+      clearTimeout(qTimer);
+      qTimer = setTimeout(() => doSearch({ reset: true }), 550);
+    });
+    qInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        clearTimeout(qTimer);
+        doSearch({ reset: true });
+      }
+    });
+  }
+
+  const manualDatePattern = /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/;
+  const isManualDateSearchReady = () => {
+    const startValue = $("#start") ? $("#start").value.trim() : "";
+    const endValue = $("#end") ? $("#end").value.trim() : "";
+    return [startValue, endValue].every(value => !value || manualDatePattern.test(value));
+  };
+  let manualDateTimer = null;
+  const runManualDateSearch = () => {
+    if (!isManualDateSearchReady()) return;
+    const preset = $("#datePreset");
+    if (preset) preset.value = "all";
+    updateQuickFilterActive();
+    doSearch({ reset: true });
+  };
+  const scheduleManualDateSearch = () => {
+    const preset = $("#datePreset");
+    if (preset) preset.value = "all";
+    updateQuickFilterActive();
+    clearTimeout(manualDateTimer);
+    if (!isManualDateSearchReady()) return;
+    manualDateTimer = setTimeout(runManualDateSearch, 550);
+  };
+
+  ["#start", "#end"].forEach(selector => {
+    const input = $(selector);
+    if (!input) return;
+    input.addEventListener("input", scheduleManualDateSearch);
+    input.addEventListener("change", () => {
+      clearTimeout(manualDateTimer);
+      runManualDateSearch();
+    });
+    input.addEventListener("blur", () => {
+      clearTimeout(manualDateTimer);
+      runManualDateSearch();
+    });
+    // 桌機鍵盤輔助；手機不需要 Enter，輸入/選取/離開欄位就會自動查詢。
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        clearTimeout(manualDateTimer);
+        runManualDateSearch();
+      }
+    });
+  });
 }
 
 function updatePaginationUI(){
@@ -1501,9 +1647,14 @@ function openDetails(item){
   selectBookingItem(item);
 }
 
-$("#btnSearch").onclick = () => doSearch({ reset: true });
-$("#datePreset").onchange = () => doSearch({ reset: true });
-$("#statusFilter").onchange = () => doSearch({ reset: true });
+const btnSearchEl = $("#btnSearch");
+if (btnSearchEl) btnSearchEl.onclick = () => doSearch({ reset: true });
+const datePresetEl = $("#datePreset");
+if (datePresetEl) datePresetEl.onchange = () => setQuickDatePreset(datePresetEl.value || "all");
+const statusFilterEl = $("#statusFilter");
+if (statusFilterEl) statusFilterEl.onchange = () => setStatusFilter(statusFilterEl.value || "all");
+bindQuickFilters();
+bindInstantSearchInputs();
 $("#prevPage").onclick = () => {
   if (CURRENT_PAGE <= 1) return;
   CURRENT_PAGE--;
