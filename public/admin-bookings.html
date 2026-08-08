@@ -34,6 +34,23 @@
     .pricing-field small{font-size:12px;color:#64748b;line-height:1.45}
     .pricing-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
     .pricing-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
+    .pricing-section-title{grid-column:1/-1;margin:8px 0 -2px;font-size:14px;font-weight:900;color:#166534;letter-spacing:.03em}
+    .pricing-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 14px;color:#64748b;font-size:13px}
+    .pricing-note-wrap{margin-top:16px;display:flex;flex-direction:column;gap:7px}
+    .pricing-note-wrap label{font-size:14px;font-weight:800;color:#334155}
+    .pricing-note-wrap textarea{min-height:76px;resize:vertical;border:1px solid #cbd5e1;border-radius:12px;padding:10px 12px;background:#fff;font:inherit;line-height:1.5}
+    .pricing-preview{margin-top:14px;padding:12px 14px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0;font-size:13px;line-height:1.6;color:#475569}
+    .pricing-preview strong{color:#0f172a}
+    .pricing-preview ul{margin:8px 0 0;padding-left:20px}
+    .pricing-warning{margin-top:8px;color:#b45309;font-weight:700}
+    .pricing-history{margin-top:22px;border-top:1px solid #e5e7eb;padding-top:18px}
+    .pricing-history h3{margin:0 0 10px;font-size:16px;color:#0f172a}
+    .pricing-history-empty{font-size:13px;color:#64748b}
+    .pricing-history-list{display:grid;gap:10px}
+    .pricing-history-item{border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:#f8fafc}
+    .pricing-history-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:#64748b}
+    .pricing-history-note{margin:7px 0 0;font-size:13px;color:#334155}
+    .pricing-history-changes{margin:7px 0 0;padding-left:20px;font-size:13px;color:#475569;line-height:1.55}
     .notification-settings{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(15,23,42,.06)}
     .notification-settings h2{margin:0 0 6px;font-size:22px;color:#0f172a}
     .notification-help{margin:0 0 16px;color:#64748b;font-size:14px;line-height:1.6}
@@ -581,14 +598,24 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 <section id="pricingAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabPricingBtn" hidden>
   <div class="pricing-settings">
     <h2>價格設定</h2>
-    <p class="pricing-help">修改後會儲存為 Cloudinary 的 pricing JSON。前台估價會讀取最新設定；若讀取失敗，會暫時使用程式內建預設價格。</p>
+    <p class="pricing-help">在此修改服務價格後，前台價目文字與即時估價會讀取同一份設定。儲存前會顯示異動項目；系統也會保留最近 30 次調價紀錄。</p>
+    <div class="pricing-meta"><span id="pricingLastUpdated">最後更新：—</span><span id="pricingSource"></span></div>
     <div class="pricing-grid" id="pricingFields"></div>
+    <div class="pricing-note-wrap">
+      <label for="pricingChangeNote">變更備註（選填）</label>
+      <textarea id="pricingChangeNote" maxlength="500" placeholder="例如：2026 秋季價格調整、原物料成本調整"></textarea>
+    </div>
+    <div class="pricing-preview" id="pricingChangePreview">尚未修改價格。</div>
     <div class="pricing-actions">
       <button class="btn" id="btnReloadPricing" type="button">重新讀取</button>
       <button class="btn" id="btnResetPricing" type="button">恢復預設值</button>
       <button class="btn primary" id="btnSavePricing" type="button">儲存價格設定</button>
     </div>
     <div class="pricing-status" id="pricingStatus" aria-live="polite"></div>
+    <div class="pricing-history">
+      <h3>最近調價紀錄</h3>
+      <div id="pricingHistory" class="pricing-history-empty">尚無調價紀錄。</div>
+    </div>
   </div>
 </section>
 <section id="notificationAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabNotificationsBtn" hidden>
@@ -1627,26 +1654,28 @@ const toRows = (o)=> Object.keys(o).length
 
 
 const PRICING_FIELDS = [
-  { key:'acSplit', label:'分離式冷氣清洗', note:'1–2 台時的單台價格' },
-  { key:'acSplitBulk', label:'分離式冷氣三台以上優惠', note:'3 台以上時的單台價格' },
-  { key:'acCeiling', label:'吊隱式冷氣清洗', note:'單台價格' },
-  { key:'acTransformer', label:'變形金剛系列加價', note:'單台加價' },
-  { key:'antiMold', label:'冷氣防霉抗菌處理', note:'一般單台價格' },
-  { key:'antiMoldBulk', label:'防霉滿五台優惠', note:'5 台以上單台價格' },
-  { key:'ozone', label:'臭氧空間消毒', note:'每間可密閉房間' },
-  { key:'washer', label:'直立式洗衣機清洗', note:'未搭配冷氣時' },
-  { key:'washerWithAc', label:'洗衣機搭配冷氣優惠', note:'有冷氣清洗時' },
-  { key:'tank', label:'家用水塔清洗', note:'未搭配水管時' },
-  { key:'tankWithPipe', label:'水塔搭配水管優惠', note:'有水管清洗時' },
-  { key:'pipeBaseNoKitchenOneBath', label:'水管清洗｜無廚一衛', note:'基本方案' },
-  { key:'pipeBaseOneKitchenOneBath', label:'水管清洗｜一廚一衛', note:'基本方案' },
-  { key:'pipeExtraBathOrKitchen', label:'水管清洗｜加一衛/廚', note:'額外衛浴或廚房加價' }
+  { group:'冷氣清洗', key:'acSplit', label:'分離式冷氣清洗', note:'1–2 台時的單台價格' },
+  { group:'冷氣清洗', key:'acSplitBulk', label:'分離式冷氣三台以上優惠', note:'3 台以上時的單台價格' },
+  { group:'冷氣清洗', key:'acCeiling', label:'吊隱式冷氣清洗', note:'單台價格' },
+  { group:'冷氣清洗', key:'acTransformer', label:'變形金剛系列加價', note:'估價計算使用的單台加價' },
+  { group:'冷氣清洗', key:'acSpecialExtraMin', label:'特殊機型加價起價', note:'前台特殊機型加價區間的起始金額' },
+  { group:'冷氣加購', key:'antiMold', label:'冷氣防霉抗菌處理', note:'一般單台價格' },
+  { group:'冷氣加購', key:'antiMoldBulk', label:'防霉滿五台優惠', note:'5 台以上單台價格' },
+  { group:'冷氣加購', key:'ozone', label:'臭氧空間消毒', note:'每間可密閉房間' },
+  { group:'其他清洗', key:'washer', label:'直立式洗衣機清洗', note:'未搭配冷氣時' },
+  { group:'其他清洗', key:'washerWithAc', label:'洗衣機搭配冷氣優惠', note:'有冷氣清洗時' },
+  { group:'其他清洗', key:'tank', label:'家用水塔清洗', note:'未搭配水管時' },
+  { group:'其他清洗', key:'tankWithPipe', label:'水塔搭配水管優惠', note:'有水管清洗時' },
+  { group:'自來水管', key:'pipeBaseNoKitchenOneBath', label:'水管清洗｜無廚一衛', note:'基本方案' },
+  { group:'自來水管', key:'pipeBaseOneKitchenOneBath', label:'水管清洗｜一廚一衛', note:'基本方案' },
+  { group:'自來水管', key:'pipeExtraBathOrKitchen', label:'水管清洗｜加一衛/廚', note:'額外衛浴或廚房加價' }
 ];
 const DEFAULT_PRICING = {
   acSplit: 1800,
   acSplitBulk: 1500,
   acCeiling: 2800,
   acTransformer: 500,
+  acSpecialExtraMin: 300,
   antiMold: 300,
   antiMoldBulk: 250,
   ozone: 200,
@@ -1659,19 +1688,27 @@ const DEFAULT_PRICING = {
   pipeExtraBathOrKitchen: 500
 };
 let CURRENT_PRICING = { ...DEFAULT_PRICING };
+let CURRENT_PRICING_HISTORY = [];
+let CURRENT_PRICING_UPDATED_AT = null;
+function pricingMoney(n){ return 'NT$' + Number(n || 0).toLocaleString('zh-TW'); }
 function setPricingStatus(text, type){
   const el = document.getElementById('pricingStatus');
   if (!el) return;
   el.textContent = text || '';
-  el.style.color = type === 'error' ? '#b91c1c' : '#2563eb';
+  el.style.color = type === 'error' ? '#b91c1c' : (type === 'warning' ? '#b45309' : '#2563eb');
 }
 function renderPricingFields(prices = CURRENT_PRICING){
   const box = document.getElementById('pricingFields');
   if (!box) return;
+  let lastGroup = '';
   box.innerHTML = PRICING_FIELDS.map(field => {
     const value = Number(prices[field.key] ?? DEFAULT_PRICING[field.key] ?? 0);
-    return `<div class="pricing-field"><label for="price_${field.key}">${escapeHtmlForRender(field.label)}</label><input id="price_${field.key}" name="${field.key}" type="number" min="0" step="1" inputmode="numeric" value="${value}"><small>${escapeHtmlForRender(field.note || '')}</small></div>`;
+    const heading = field.group !== lastGroup ? `<div class="pricing-section-title">${escapeHtmlForRender(field.group)}</div>` : '';
+    lastGroup = field.group;
+    return `${heading}<div class="pricing-field"><label for="price_${field.key}">${escapeHtmlForRender(field.label)}</label><input id="price_${field.key}" name="${field.key}" type="number" min="0" step="1" inputmode="numeric" value="${value}"><small>${escapeHtmlForRender(field.note || '')}</small></div>`;
   }).join('');
+  box.oninput = renderPricingChangePreview;
+  renderPricingChangePreview();
 }
 function collectPricingForm(){
   const next = {};
@@ -1679,53 +1716,121 @@ function collectPricingForm(){
     const el = document.getElementById(`price_${field.key}`);
     const num = Number(el && el.value);
     if (!Number.isFinite(num) || num < 0) throw new Error(`${field.label} 請輸入 0 以上的數字`);
+    if (!Number.isInteger(num)) throw new Error(`${field.label} 請輸入整數金額`);
     next[field.key] = Math.round(num);
   }
   return next;
+}
+function getPricingChanges(next){
+  return PRICING_FIELDS.filter(field => Number(CURRENT_PRICING[field.key]) !== Number(next[field.key])).map(field => ({
+    key: field.key,
+    label: field.label,
+    from: Number(CURRENT_PRICING[field.key]),
+    to: Number(next[field.key])
+  }));
+}
+function getPricingWarnings(next){
+  const warnings = [];
+  if (next.acSplitBulk > next.acSplit) warnings.push('分離式冷氣三台以上優惠價高於一般價');
+  if (next.antiMoldBulk > next.antiMold) warnings.push('防霉五台以上優惠價高於一般價');
+  if (next.washerWithAc > next.washer) warnings.push('洗衣機搭配冷氣優惠價高於單獨預約價');
+  if (next.tankWithPipe > next.tank) warnings.push('水塔搭配水管優惠價高於單獨預約價');
+  if (next.acSpecialExtraMin > next.acTransformer) warnings.push('特殊機型加價起價高於變形金剛系列加價');
+  return warnings;
+}
+function renderPricingChangePreview(){
+  const el = document.getElementById('pricingChangePreview');
+  if (!el) return;
+  let next;
+  try { next = collectPricingForm(); } catch(e){ el.innerHTML = `<span class="pricing-warning">${escapeHtmlForRender(e.message || String(e))}</span>`; return; }
+  const changes = getPricingChanges(next);
+  const warnings = getPricingWarnings(next);
+  if (!changes.length){
+    el.innerHTML = '<strong>尚未修改價格。</strong>';
+    return;
+  }
+  el.innerHTML = `<strong>預計變更 ${changes.length} 個項目：</strong><ul>${changes.map(c => `<li>${escapeHtmlForRender(c.label)}：${pricingMoney(c.from)} → <strong>${pricingMoney(c.to)}</strong></li>`).join('')}</ul>${warnings.length ? `<div class="pricing-warning">⚠ ${warnings.map(escapeHtmlForRender).join('；')}</div>` : ''}`;
+}
+function renderPricingMeta(source){
+  const updated = document.getElementById('pricingLastUpdated');
+  const sourceEl = document.getElementById('pricingSource');
+  if (updated) updated.textContent = '最後更新：' + (CURRENT_PRICING_UPDATED_AT ? new Date(CURRENT_PRICING_UPDATED_AT).toLocaleString('zh-TW') : '尚未建立自訂價格');
+  if (sourceEl) sourceEl.textContent = source === 'default' ? '目前來源：程式預設值' : '目前來源：後台價格設定';
+}
+function renderPricingHistory(history = CURRENT_PRICING_HISTORY){
+  const box = document.getElementById('pricingHistory');
+  if (!box) return;
+  if (!Array.isArray(history) || !history.length){ box.className = 'pricing-history-empty'; box.textContent = '尚無調價紀錄。'; return; }
+  box.className = 'pricing-history-list';
+  box.innerHTML = history.slice(0, 30).map(entry => {
+    const when = entry.updated_at ? new Date(entry.updated_at).toLocaleString('zh-TW') : '—';
+    const changes = Array.isArray(entry.changes) ? entry.changes : [];
+    return `<div class="pricing-history-item"><div class="pricing-history-head"><strong>${escapeHtmlForRender(when)}</strong><span>${escapeHtmlForRender(entry.updated_by || 'admin')}</span></div><div class="pricing-history-note">備註：${escapeHtmlForRender(entry.note || '未填寫')}</div><ul class="pricing-history-changes">${changes.map(c => `<li>${escapeHtmlForRender(c.label || c.key || '')}：${pricingMoney(c.from)} → ${pricingMoney(c.to)}</li>`).join('')}</ul></div>`;
+  }).join('');
+}
+async function requestAdminPricing(method, body){
+  const makeRequest = () => fetch(API_UPDATE_PRICING, {
+    method,
+    headers:{ ...(body ? {'Content-Type':'application/json'} : {}), 'x-admin-token': ADMIN_TOKEN, 'Cache-Control':'no-cache' },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let r = await makeRequest();
+  if (r.status === 401){
+    ADMIN_TOKEN = ''; localStorage.removeItem('admin_token');
+    if (await login()) r = await makeRequest();
+  }
+  return r;
 }
 async function loadPricingSettings(){
   renderPricingFields(CURRENT_PRICING);
   setPricingStatus('讀取價格設定中…');
   try{
-    const r = await fetch(API_GET_PRICING, { headers: { 'Cache-Control': 'no-cache' } });
+    const r = await requestAdminPricing('GET');
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || data.detail || '讀取失敗');
     CURRENT_PRICING = { ...DEFAULT_PRICING, ...(data.prices || {}) };
+    CURRENT_PRICING_HISTORY = Array.isArray(data.history) ? data.history : [];
+    CURRENT_PRICING_UPDATED_AT = data.updated_at || null;
     renderPricingFields(CURRENT_PRICING);
-    setPricingStatus(data.source === 'default' ? '目前使用預設價格，儲存後會建立後台價格設定。' : '已讀取目前價格設定。');
+    renderPricingMeta(data.source);
+    renderPricingHistory(CURRENT_PRICING_HISTORY);
+    const note = document.getElementById('pricingChangeNote'); if (note) note.value = '';
+    setPricingStatus(data.source === 'default' ? '目前使用預設價格；第一次儲存後會建立後台價格設定。' : '已讀取目前價格設定。');
   }catch(e){
     CURRENT_PRICING = { ...DEFAULT_PRICING };
+    CURRENT_PRICING_HISTORY = [];
+    CURRENT_PRICING_UPDATED_AT = null;
     renderPricingFields(CURRENT_PRICING);
+    renderPricingMeta('default');
+    renderPricingHistory([]);
     setPricingStatus('價格設定讀取失敗，暫時顯示預設值：' + (e.message || e), 'error');
   }
 }
 async function savePricingSettings(){
   let prices;
   try { prices = collectPricingForm(); } catch(e){ setPricingStatus(e.message, 'error'); return; }
+  const changes = getPricingChanges(prices);
+  if (!changes.length){ setPricingStatus('沒有價格異動，不需要儲存。'); return; }
+  const warnings = getPricingWarnings(prices);
+  const confirmText = ['即將套用以下價格變更：', '', ...changes.map(c => `${c.label}：${pricingMoney(c.from)} → ${pricingMoney(c.to)}`), ...(warnings.length ? ['', '⚠ 請注意：', ...warnings] : []), '', '確定要儲存並讓前台套用新價格嗎？'].join('\n');
+  if (!window.confirm(confirmText)) return;
+
   const btn = document.getElementById('btnSavePricing');
+  const note = document.getElementById('pricingChangeNote')?.value.trim() || '';
   if (btn) btn.disabled = true;
   setPricingStatus('儲存價格設定中…');
   try{
-    let r = await fetch(API_UPDATE_PRICING, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN },
-      body: JSON.stringify({ prices })
-    });
-    if (r.status === 401){
-      ADMIN_TOKEN = ''; localStorage.removeItem('admin_token');
-      if (await login()) {
-        r = await fetch(API_UPDATE_PRICING, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN },
-          body: JSON.stringify({ prices })
-        });
-      }
-    }
+    const r = await requestAdminPricing('POST', { prices, change_note: note });
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.error || data.detail || '儲存失敗');
     CURRENT_PRICING = { ...DEFAULT_PRICING, ...(data.prices || prices) };
+    CURRENT_PRICING_HISTORY = Array.isArray(data.history) ? data.history : CURRENT_PRICING_HISTORY;
+    CURRENT_PRICING_UPDATED_AT = data.updated_at || CURRENT_PRICING_UPDATED_AT;
     renderPricingFields(CURRENT_PRICING);
-    setPricingStatus('價格設定已儲存。前台重新整理後會使用新價格。');
+    renderPricingMeta('cloudinary');
+    renderPricingHistory(CURRENT_PRICING_HISTORY);
+    const noteEl = document.getElementById('pricingChangeNote'); if (noteEl) noteEl.value = '';
+    setPricingStatus(data.unchanged ? '價格沒有變更。' : `價格設定已儲存，共更新 ${data.changes?.length || changes.length} 個項目。前台重新整理後會使用新價格。`);
     showToast('價格設定已儲存', 'success');
   }catch(e){
     setPricingStatus('價格設定儲存失敗：' + (e.message || e), 'error');
@@ -2014,7 +2119,7 @@ document.getElementById("tabBookingsBtn").onclick = () => switchAdminTab('bookin
 document.getElementById("tabPricingBtn").onclick = () => switchAdminTab('pricing');
 document.getElementById("tabNotificationsBtn").onclick = () => switchAdminTab('notifications');
 document.getElementById("btnReloadPricing").onclick = loadPricingSettings;
-document.getElementById("btnResetPricing").onclick = () => { CURRENT_PRICING = { ...DEFAULT_PRICING }; renderPricingFields(CURRENT_PRICING); setPricingStatus('已恢復表單為預設值，按「儲存價格設定」後才會正式套用。'); };
+document.getElementById("btnResetPricing").onclick = () => { renderPricingFields({ ...DEFAULT_PRICING }); setPricingStatus('表單已填入預設值；尚未儲存，請確認異動後再按「儲存價格設定」。'); };
 document.getElementById("btnSavePricing").onclick = savePricingSettings;
 document.getElementById("btnReloadNotificationSettings").onclick = loadNotificationSettings;
 document.getElementById("btnSaveNotificationSettings").onclick = saveNotificationSettings;

@@ -27,3 +27,14 @@
 5) 若要自訂儲存位置，可在 Netlify 環境變數加入：
    - CLOUDINARY_NOTIFICATION_PUBLIC_ID = settings/notification-config.json
 6) 若尚未儲存任何通知設定，系統預設 Email 與 LINE 都是開啟，夜間靜音預設關閉，維持原本通知行為。
+
+後台價格設定
+1) 後台管理頁的「價格設定」分頁可直接修改各服務價格，無需修改 HTML / JavaScript。
+2) 價格會儲存在 Cloudinary raw JSON，預設 public_id：settings/pricing-config.json。
+3) 前台 pricing.js 會透過 /.netlify/functions/get-pricing 讀取最新價格；讀取失敗時使用程式內建預設值。
+4) 服務頁上的價目文字已改為與即時估價共用同一份價格來源，避免後台漲價後頁面仍顯示舊價格。
+5) 儲存前會顯示「舊價格 → 新價格」異動預覽，並對優惠價高於一般價等情況提出警告。
+6) 每次實際調價可填寫變更備註，系統會在 pricing JSON 中保留最近 30 次異動紀錄（時間、帳號、備註、異動項目）。
+7) 特殊機型加價區間新增 acSpecialExtraMin，預設 300；acTransformer 預設 500，兩者共同控制前台特殊機型加價區間文字。
+8) 若要自訂價格設定儲存位置，可在 Netlify 環境變數加入：
+   - CLOUDINARY_PRICING_PUBLIC_ID = settings/pricing-config.json

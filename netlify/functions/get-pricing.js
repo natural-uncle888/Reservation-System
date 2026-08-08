@@ -7,6 +7,7 @@ const DEFAULT_PRICES = {
   acSplitBulk: 1500,
   acCeiling: 2800,
   acTransformer: 500,
+  acSpecialExtraMin: 300,
   antiMold: 300,
   antiMoldBulk: 250,
   ozone: 200,

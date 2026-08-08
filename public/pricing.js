@@ -6,6 +6,7 @@
     acSplitBulk: 1500,
     acCeiling: 2800,
     acTransformer: 500,
+    acSpecialExtraMin: 300,
     antiMold: 300,
     antiMoldBulk: 250,
     ozone: 200,
@@ -37,6 +38,7 @@
         if(data && data.prices) {
           applyPrices(data.prices);
           refreshAll();
+          refreshPriceLabels();
         }
         return PRICES;
       })
@@ -45,6 +47,39 @@
 
   function money(n){
     return '$' + Number(n || 0).toLocaleString('zh-TW');
+  }
+
+  function displayMoney(n){
+    return 'NT$' + Number(n || 0).toLocaleString('zh-TW');
+  }
+
+  function refreshPriceLabels(){
+    document.querySelectorAll('[data-price-key],[data-price-difference],[data-price-range]').forEach(function(el){
+      var value = null;
+      var range = el.getAttribute('data-price-range');
+      var diff = el.getAttribute('data-price-difference');
+      var key = el.getAttribute('data-price-key');
+      var prefix = el.getAttribute('data-price-prefix');
+      var suffix = el.getAttribute('data-price-suffix') || '';
+
+      if(range){
+        var parts = range.split(',').map(function(v){ return v.trim(); });
+        if(parts.length === 2 && PRICES[parts[0]] != null && PRICES[parts[1]] != null){
+          var a = Number(PRICES[parts[0]] || 0);
+          var b = Number(PRICES[parts[1]] || 0);
+          value = (prefix === '' ? '' : 'NT$') + a.toLocaleString('zh-TW') + '–' + (prefix === '' ? '' : 'NT$') + b.toLocaleString('zh-TW') + suffix;
+        }
+      }else if(diff){
+        var d = diff.split(',').map(function(v){ return v.trim(); });
+        if(d.length === 2 && PRICES[d[0]] != null && PRICES[d[1]] != null){
+          var amount = Math.max(0, Number(PRICES[d[0]]) - Number(PRICES[d[1]]));
+          value = (prefix === '' ? '' : 'NT$') + amount.toLocaleString('zh-TW') + suffix;
+        }
+      }else if(key && PRICES[key] != null){
+        value = (prefix === '' ? '' : 'NT$') + Number(PRICES[key]).toLocaleString('zh-TW') + suffix;
+      }
+      if(value != null) el.textContent = value;
+    });
   }
 
   function hasValue(v){
@@ -237,6 +272,7 @@
 
   function refreshAll(seed){
     document.querySelectorAll('[data-estimate-card]').forEach(function(el){ render(el, seed); });
+    refreshPriceLabels();
   }
 
   function init(){
@@ -254,7 +290,9 @@
     calculate: calculate,
     render: render,
     refreshAll: refreshAll,
-    money: money
+    money: money,
+    displayMoney: displayMoney,
+    refreshPriceLabels: refreshPriceLabels
   };
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
