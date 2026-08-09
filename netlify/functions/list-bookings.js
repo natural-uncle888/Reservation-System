@@ -198,6 +198,8 @@ exports.handler = async (event, context) => {
     let cursor = null;
     let status = "";
     let max_results = 30;
+    let page = 1;
+    let include_total = true;
 
     if (event.httpMethod && event.httpMethod.toUpperCase() === "POST" && event.body) {
       try {
@@ -209,6 +211,9 @@ exports.handler = async (event, context) => {
         status = jb.status && jb.status !== "all" ? String(jb.status) : "";
         const rawLimit = parseInt(jb.limit || jb.max || jb.max_results || 30, 10);
         max_results = Math.min(isFinite(rawLimit) ? rawLimit : 30, 100);
+        const rawPage = parseInt(jb.page || 1, 10);
+        page = Math.max(1, isFinite(rawPage) ? rawPage : 1);
+        include_total = jb.include_total !== false;
       } catch (e) {
         // ignore parse error and fallback
       }
@@ -223,50 +228,91 @@ exports.handler = async (event, context) => {
       to = params.get("to") || params.get("end") || "";
       const limitRaw = parseInt(params.get("limit") || "30", 10);
       max_results = Math.min(isFinite(limitRaw) ? limitRaw : 30, 100);
+      const pageRaw = parseInt(params.get("page") || "1", 10);
+      page = Math.max(1, isFinite(pageRaw) ? pageRaw : 1);
+      include_total = params.get("include_total") !== "false";
     }
 
     // normalize dates into ISO (UTC) strings interpreted as Asia/Taipei local dates
     const fromIso = from ? parseDateToIso(from, false) : null;
     const toIso = to ? parseDateToIso(to, true) : null;
-
     const expression = buildExpression({ fromIso, toIso });
 
     const hasLocalFilter = Boolean(String(q || "").trim()) || Boolean(status && status !== "all");
-    const cloudinaryPageSize = hasLocalFilter ? 100 : max_results;
+    let itemsSource = [];
+    let nextCursor = null;
+    let hasNext = false;
+    let totalCount = null;
 
-    const payload = {
-      expression,
-      max_results: cloudinaryPageSize,
-      sort_by: [{ created_at: "desc" }],
-      with_field: ["context","metadata"],
-    };
-    if (cursor) payload.next_cursor = cursor;
-
-    let data = { resources: [], next_cursor: cursor || null };
-    let cloudinaryCursor = cursor || null;
-    const matchedResources = [];
-
-    // Cloudinary context 狀態篩選在不同資源格式下可能不穩定，
-    // 因此狀態改由 function 端讀取 context 後過濾。
-    // 有狀態篩選時會往後抓頁，直到湊滿本頁 20 筆或沒有更多資料。
     try {
-      do {
-        const pagePayload = { ...payload };
-        if (cloudinaryCursor) pagePayload.next_cursor = cloudinaryCursor;
-        else delete pagePayload.next_cursor;
+      if (!hasLocalFilter) {
+        // 無關鍵字/狀態篩選時，直接使用 Cloudinary 的游標分頁與 total_count。
+        const payload = {
+          expression,
+          max_results,
+          sort_by: [{ created_at: "desc" }],
+          with_field: ["context", "metadata"],
+        };
+        if (cursor && cursor !== "__NEXT_PAGE__") payload.next_cursor = cursor;
 
-        data = await searchCloudinaryPage(pagePayload);
-        const resources = data.resources || [];
+        const data = await searchCloudinaryPage(payload);
+        itemsSource = data.resources || [];
+        nextCursor = data.next_cursor || null;
+        hasNext = Boolean(nextCursor);
+        if (data.total_count !== null && data.total_count !== undefined && Number.isFinite(Number(data.total_count))) totalCount = Number(data.total_count);
+      } else {
+        // 關鍵字/狀態是 function 端過濾，改用頁碼從頭掃描，避免游標分頁
+        // 在同一個 Cloudinary 頁面內湊滿筆數後造成漏單。
+        const startIndex = (page - 1) * max_results;
+        const endIndex = startIndex + max_results;
+        const scanPayload = {
+          expression,
+          max_results: 100,
+          sort_by: [{ created_at: "desc" }],
+          with_field: ["context", "metadata"],
+        };
 
-        for (const asset of resources) {
-          if (statusMatchesAsset(asset, status || "") && assetMatchesQuery(asset, q || "")) {
-            matchedResources.push(asset);
-            if (matchedResources.length >= max_results) break;
+        let scanCursor = null;
+        let matchedCount = 0;
+        let stopEarly = false;
+
+        do {
+          const pagePayload = { ...scanPayload };
+          if (scanCursor) pagePayload.next_cursor = scanCursor;
+          const data = await searchCloudinaryPage(pagePayload);
+          const resources = data.resources || [];
+
+          for (const asset of resources) {
+            if (!statusMatchesAsset(asset, status || "") || !assetMatchesQuery(asset, q || "")) continue;
+
+            if (matchedCount >= startIndex && matchedCount < endIndex) {
+              itemsSource.push(asset);
+            }
+            matchedCount++;
+
+            // 非首次查詢且前端已快取總數時，只需要確認是否還有下一筆。
+            if (!include_total && matchedCount > endIndex) {
+              hasNext = true;
+              stopEarly = true;
+              break;
+            }
           }
+
+          scanCursor = data.next_cursor || null;
+          if (stopEarly) break;
+        } while (scanCursor);
+
+        if (include_total) {
+          totalCount = matchedCount;
+          hasNext = endIndex < matchedCount;
+        } else if (!hasNext) {
+          // 掃描到底仍沒有多一筆，代表已是最後一頁。
+          hasNext = false;
         }
 
-        cloudinaryCursor = data.next_cursor || null;
-      } while (hasLocalFilter && matchedResources.length < max_results && cloudinaryCursor);
+        // 本地篩選使用頁碼續頁，前端只需要知道是否可前往下一頁。
+        nextCursor = hasNext ? `local-page-${page + 1}` : null;
+      }
     } catch (err) {
       return {
         statusCode: err.statusCode || 500,
@@ -275,7 +321,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const items = matchedResources.map(x => ({
+    const items = itemsSource.map(x => ({
       public_id: x.public_id,
       created_at: x.created_at,
       bytes: x.bytes,
@@ -294,7 +340,11 @@ exports.handler = async (event, context) => {
       statusCode: 200,
       body: JSON.stringify({
         items,
-        next_cursor: cloudinaryCursor || null,
+        next_cursor: nextCursor,
+        has_next: hasNext,
+        total_count: totalCount,
+        total_pages: Number.isFinite(totalCount) ? Math.max(1, Math.ceil(totalCount / max_results)) : null,
+        page,
         count: items.length,
       }),
       headers: { "Content-Type": "application/json" }

@@ -38,3 +38,18 @@
 7) 特殊機型加價區間新增 acSpecialExtraMin，預設 300；acTransformer 預設 500，兩者共同控制前台特殊機型加價區間文字。
 8) 若要自訂價格設定儲存位置，可在 Netlify 環境變數加入：
    - CLOUDINARY_PRICING_PUBLIC_ID = settings/pricing-config.json
+
+## 本次修改：後台分頁資訊完整化
+- 後台分頁中央顯示「第 X / Y 頁」。
+- 列表下方顯示「顯示第 A–B 筆｜共 N 筆訂單」。
+- list-bookings API 新增 total_count、total_pages、page、has_next。
+- 關鍵字／狀態篩選改用頁碼掃描，避免 Cloudinary 游標在本地過濾時漏掉訂單。
+
+- `public/index.html`：目前啟用 B 版首頁（常用服務優先）。
+- 「其他居家清洗」中的服務文案已明確標示為「直立式洗衣機・水塔・自來水管」。
+
+## 目前首頁版本
+
+- `public/index.html`：B 版正式優化首頁。
+- 主要入口：冷氣清洗、其他居家清洗（直立式洗衣機・水塔・自來水管）。
+- 團購與公司／大量清洗為第二層入口。

@@ -766,6 +766,7 @@ let CURRENT_LIST = [];
 let CURRENT_NEXT_CURSOR = null;
 let PAGE_CURSORS = [null];
 let CURRENT_PAGE = 1;
+let CURRENT_TOTAL_COUNT = null;
 const PAGE_SIZE = 20;
 const $ = (s)=>document.querySelector(s);
 
@@ -1197,21 +1198,78 @@ function renderFilteredList(items){
       <td>${ serviceCellHtml }</td>
       <td>${ renderPhotoCell(ctx.photo_urls) }</td>
       <td>${ escapeHtmlForRender(fmtDate(it.created_at) || "") }</td>
-      <td>
-        <button class="btn-status status-${status}">${statusLabel(status)}</button>
-        <button class="btn-edit-row" title="編輯" aria-label="編輯此筆預約">✏️ 編輯</button>
-        <button class="btn-del" title="刪除" aria-label="刪除此筆預約">🗑 刪除</button>
+      <td class="td-actions">
+        <div class="row-action-control">
+          <button class="btn-status status-${status}" type="button" title="點擊切換訂單狀態">${statusLabel(status)}</button>
+          <button class="row-action-more" type="button" aria-label="更多操作" aria-haspopup="menu" aria-expanded="false" title="更多操作">⋯</button>
+          <div class="row-action-menu" role="menu" aria-hidden="true">
+            <button class="row-action-menu-item btn-edit-row" type="button" role="menuitem">
+              <span aria-hidden="true">✏️</span><span>編輯訂單</span>
+            </button>
+            <button class="row-action-menu-item danger btn-del" type="button" role="menuitem">
+              <span aria-hidden="true">🗑</span><span>刪除訂單</span>
+            </button>
+          </div>
+        </div>
       </td>
     `;
 
     // keep prior behaviors (click to open details, delete, status update)
     tr.onclick = ()=> openDetailsForMobile(it);
 
+    const actionControl = tr.querySelector('.row-action-control');
+    const btnMore = tr.querySelector('.row-action-more');
+    const actionMenu = tr.querySelector('.row-action-menu');
+    if (actionControl && btnMore && actionMenu) {
+      const closeActionMenu = () => {
+        actionControl.classList.remove('is-open');
+        btnMore.setAttribute('aria-expanded', 'false');
+        actionMenu.setAttribute('aria-hidden', 'true');
+      };
+      const openActionMenu = () => {
+        document.querySelectorAll('.row-action-control.is-open').forEach((control) => {
+          if (control === actionControl) return;
+          control.classList.remove('is-open');
+          const trigger = control.querySelector('.row-action-more');
+          const menu = control.querySelector('.row-action-menu');
+          if (trigger) trigger.setAttribute('aria-expanded', 'false');
+          if (menu) menu.setAttribute('aria-hidden', 'true');
+        });
+        actionControl.classList.add('is-open');
+        btnMore.setAttribute('aria-expanded', 'true');
+        actionMenu.setAttribute('aria-hidden', 'false');
+        const triggerRect = btnMore.getBoundingClientRect();
+        const menuRect = actionMenu.getBoundingClientRect();
+        const gap = 7;
+        const viewportPad = 8;
+        let left = triggerRect.right - menuRect.width;
+        left = Math.max(viewportPad, Math.min(left, window.innerWidth - menuRect.width - viewportPad));
+        let top = triggerRect.bottom + gap;
+        let opensUp = false;
+        if (top + menuRect.height > window.innerHeight - viewportPad) {
+          top = Math.max(viewportPad, triggerRect.top - menuRect.height - gap);
+          opensUp = true;
+        }
+        actionMenu.classList.toggle('opens-up', opensUp);
+        actionMenu.style.left = `${Math.round(left)}px`;
+        actionMenu.style.top = `${Math.round(top)}px`;
+      };
+      btnMore.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        actionControl.classList.contains('is-open') ? closeActionMenu() : openActionMenu();
+      });
+      actionMenu.addEventListener('click', (ev) => ev.stopPropagation());
+    }
+
     const btnEditRow = tr.querySelector('.btn-edit-row');
     if (btnEditRow) {
       btnEditRow.addEventListener('click', (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
+        tr.querySelector('.row-action-control')?.classList.remove('is-open');
+        tr.querySelector('.row-action-more')?.setAttribute('aria-expanded', 'false');
+        tr.querySelector('.row-action-menu')?.setAttribute('aria-hidden', 'true');
         openDetails(it);
         openEditModal(it);
       });
@@ -1222,6 +1280,9 @@ function renderFilteredList(items){
     if (btn) {
       btn.addEventListener('click', async (ev)=>{
         ev.stopPropagation();
+        tr.querySelector('.row-action-control')?.classList.remove('is-open');
+        tr.querySelector('.row-action-more')?.setAttribute('aria-expanded', 'false');
+        tr.querySelector('.row-action-menu')?.setAttribute('aria-hidden', 'true');
         if (btn.dataset.busy === '1') return;
         const confirmed = await showConfirmDialog({
           title: '確認刪除',
@@ -1365,6 +1426,24 @@ function renderFilteredList(items){
   $("#foot").textContent = `共 ${shown} 筆`;
 }
 
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest && ev.target.closest('.row-action-control')) return;
+  document.querySelectorAll('.row-action-control.is-open').forEach((control) => {
+    control.classList.remove('is-open');
+    control.querySelector('.row-action-more')?.setAttribute('aria-expanded', 'false');
+    control.querySelector('.row-action-menu')?.setAttribute('aria-hidden', 'true');
+  });
+});
+
+document.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Escape') return;
+  document.querySelectorAll('.row-action-control.is-open').forEach((control) => {
+    control.classList.remove('is-open');
+    control.querySelector('.row-action-more')?.setAttribute('aria-expanded', 'false');
+    control.querySelector('.row-action-menu')?.setAttribute('aria-hidden', 'true');
+  });
+});
+
 function debounce(fn, delay){
   let timer = null;
   return (...args) => {
@@ -1491,7 +1570,14 @@ function updatePaginationUI(){
   const info = $("#pageInfo");
   const prev = $("#prevPage");
   const next = $("#nextPage");
-  if (info) info.textContent = `第 ${CURRENT_PAGE} 頁`;
+  const totalPages = Number.isFinite(CURRENT_TOTAL_COUNT)
+    ? Math.max(1, Math.ceil(CURRENT_TOTAL_COUNT / PAGE_SIZE))
+    : null;
+  if (info) {
+    info.textContent = totalPages
+      ? `第 ${CURRENT_PAGE} / ${totalPages} 頁`
+      : `第 ${CURRENT_PAGE} 頁`;
+  }
   if (prev) prev.disabled = CURRENT_PAGE <= 1;
   if (next) next.disabled = !CURRENT_NEXT_CURSOR;
 }
@@ -1502,6 +1588,7 @@ async function doSearch(options = {}){
     CURRENT_PAGE = 1;
     PAGE_CURSORS = [null];
     CURRENT_NEXT_CURSOR = null;
+    CURRENT_TOTAL_COUNT = null;
   }
   const cursor = options.cursor || PAGE_CURSORS[CURRENT_PAGE - 1] || null;
   const range = getSelectedDateRange();
@@ -1511,6 +1598,8 @@ async function doSearch(options = {}){
     end: range.end,
     status: $("#statusFilter") ? $("#statusFilter").value : "all",
     max: PAGE_SIZE,
+    page: CURRENT_PAGE,
+    include_total: reset || !Number.isFinite(CURRENT_TOTAL_COUNT),
     cursor
   };
   const r = await fetch(API_LIST, { method:"POST", headers:{ "Content-Type":"application/json", "x-admin-token": ADMIN_TOKEN }, body: JSON.stringify(payload) });
@@ -1519,6 +1608,7 @@ async function doSearch(options = {}){
   if (!r.ok) {
     CURRENT_LIST = [];
     CURRENT_NEXT_CURSOR = null;
+    CURRENT_TOTAL_COUNT = null;
     renderFilteredList([]);
     const detail = data.detail || data.error || `HTTP ${r.status}`;
     showToast(`預約資料讀取失敗：${detail}`, 'error');
@@ -1528,14 +1618,19 @@ async function doSearch(options = {}){
   }
   const list = data.resources || data.items || [];
   CURRENT_LIST = list;
-  CURRENT_NEXT_CURSOR = data.next_cursor || null;
-  if (CURRENT_NEXT_CURSOR) PAGE_CURSORS[CURRENT_PAGE] = CURRENT_NEXT_CURSOR;
+  CURRENT_NEXT_CURSOR = data.has_next ? (data.next_cursor || "__NEXT_PAGE__") : (data.next_cursor || null);
+  if (data.total_count !== null && data.total_count !== undefined && Number.isFinite(Number(data.total_count))) CURRENT_TOTAL_COUNT = Number(data.total_count);
+  if (CURRENT_NEXT_CURSOR) PAGE_CURSORS[CURRENT_PAGE] = data.next_cursor || CURRENT_NEXT_CURSOR;
 
   renderFilteredList(CURRENT_LIST);
   const startNo = list.length ? ((CURRENT_PAGE - 1) * PAGE_SIZE + 1) : 0;
   const endNo = (CURRENT_PAGE - 1) * PAGE_SIZE + list.length;
-  const moreText = CURRENT_NEXT_CURSOR ? "，可前往下一頁" : "，已是最後一頁";
-  $("#foot").textContent = `本頁 ${list.length} 筆（第 ${startNo}–${endNo} 筆${moreText}）`;
+  const totalText = Number.isFinite(CURRENT_TOTAL_COUNT) ? `共 ${CURRENT_TOTAL_COUNT} 筆訂單` : "總筆數計算中";
+  if (list.length) {
+    $("#foot").textContent = `顯示第 ${startNo}–${endNo} 筆｜${totalText}`;
+  } else {
+    $("#foot").textContent = `目前無符合條件的訂單｜${totalText}`;
+  }
   updatePaginationUI();
 }
 
@@ -2240,6 +2335,103 @@ document.addEventListener("DOMContentLoaded", function () {
   .status-scheduled { background: #3b82f6; color: white; } /* 已安排 */
   .status-done { background: #10b981; color: white; }      /* 已完成 */
   .status-cancelled { background: #ef4444; color: white; } /* 已取消 */
+
+  /* === 桌面訂單操作：狀態常駐，其餘操作收進小選單 === */
+  .td-actions{
+    width:1%;
+    white-space:nowrap;
+    overflow:visible !important;
+  }
+  .row-action-control{
+    position:relative;
+    display:inline-flex;
+    align-items:stretch;
+    vertical-align:middle;
+    border-radius:10px;
+    box-shadow:0 1px 2px rgba(15,23,42,.08);
+  }
+  .row-action-control .btn-status{
+    min-width:72px;
+    height:34px;
+    padding:6px 10px;
+    border-radius:10px 0 0 10px;
+    box-shadow:none;
+  }
+  .row-action-more{
+    width:30px;
+    height:34px;
+    padding:0;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border:0;
+    border-left:1px solid rgba(255,255,255,.42);
+    border-radius:0 10px 10px 0;
+    background:#64748b;
+    color:#fff;
+    font-size:18px;
+    font-weight:900;
+    line-height:1;
+    cursor:pointer;
+  }
+  .row-action-more:hover,
+  .row-action-control.is-open .row-action-more{background:#475569;}
+  .row-action-more:focus-visible{outline:3px solid rgba(59,130,246,.24);outline-offset:2px;}
+  .row-action-menu{
+    position:fixed;
+    z-index:1080;
+    top:0;
+    left:0;
+    min-width:150px;
+    padding:6px;
+    display:none;
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    box-shadow:0 14px 34px rgba(15,23,42,.18);
+  }
+  .row-action-control.is-open .row-action-menu{display:block;}
+  .row-action-menu::before{
+    content:'';
+    position:absolute;
+    right:10px;
+    top:-5px;
+    width:9px;
+    height:9px;
+    background:#fff;
+    border-left:1px solid #e2e8f0;
+    border-top:1px solid #e2e8f0;
+    transform:rotate(45deg);
+  }
+  .row-action-menu.opens-up::before{
+    top:auto;
+    bottom:-5px;
+    border-left:0;
+    border-top:0;
+    border-right:1px solid #e2e8f0;
+    border-bottom:1px solid #e2e8f0;
+  }
+  .row-action-menu-item{
+    position:relative;
+    z-index:1;
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 10px;
+    border:0;
+    border-radius:8px;
+    background:transparent;
+    color:#0f172a;
+    font-size:13px;
+    font-weight:800;
+    text-align:left;
+    cursor:pointer;
+  }
+  .row-action-menu-item:hover{background:#f1f5f9;}
+  .row-action-menu-item.danger{color:#dc2626;}
+  .row-action-menu-item.danger:hover{background:#fef2f2;}
+
   /* ===== 自訂刪除確認視窗 ===== */
   .confirm-modal{
     position: fixed;
