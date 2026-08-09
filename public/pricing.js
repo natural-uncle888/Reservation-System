@@ -230,6 +230,30 @@
       notes.push('水管清洗若有額外迴路、五樓以上樓層或特殊環境，會再由人員確認。');
     }
 
+    // 後台動態新增的額外服務。既有服務仍維持原本固定欄位與計價邏輯；
+    // 沒有 extra_services 時不會改變任何既有估價結果。
+    var extraServices = [];
+    if(Array.isArray(data.extra_services)){
+      extraServices = data.extra_services;
+    }else if(typeof data.extra_services === 'string' && data.extra_services){
+      try { var parsedExtras = JSON.parse(data.extra_services); if(Array.isArray(parsedExtras)) extraServices = parsedExtras; } catch(e) {}
+    }
+    extraServices.forEach(function(extra){
+      if(!extra || typeof extra !== 'object') return;
+      var label = asText(extra.name);
+      if(!label) return;
+      var qty = Math.max(1, parseQty(extra.quantity, 1));
+      var unitText = asText(extra.unit) || '項';
+      var pricingType = asText(extra.pricing_type) || 'quote';
+      var unitPrice = Math.max(0, Number(extra.price || 0));
+      if(pricingType === 'quote'){
+        notes.push(label + '（' + qty + unitText + '）價格將由專人確認。');
+        return;
+      }
+      var suffix = pricingType === 'starting' ? '（起價）' : '';
+      add(label + suffix, qty, unitPrice, qty * unitPrice, pricingType === 'starting' ? '此為起價，實際金額由專人確認。' : '');
+    });
+
     var category = asText(data.service_category || data.service || '');
     if(category.indexOf('團購') >= 0 || hasValue(data.group_notes)){
       notes.push('團購預約會依戶數、台數與同區域安排另行確認報價。');
@@ -281,6 +305,7 @@
     loadRemotePrices();
     document.addEventListener('input', function(){ refreshAll(); });
     document.addEventListener('change', function(){ setTimeout(function(){ refreshAll(); }, 0); });
+    window.addEventListener('booking-extra-services-change', function(){ refreshAll(); });
   }
 
   window.BOOKING_PRICING = {

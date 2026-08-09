@@ -70,7 +70,59 @@
     .notify-switch input:checked + .notify-slider:before{transform:translateX(26px)}
     .notification-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
     .notification-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
-    @media(max-width:760px){.admin-tabs{position:sticky;top:74px;z-index:18;background:#eef5ee;padding:8px 0;margin:8px 0 12px}.admin-tab-btn{flex:1;min-width:140px}.pricing-settings,.notification-settings{padding:14px;border-radius:18px}.pricing-grid,.notification-grid{grid-template-columns:1fr}.pricing-actions .btn,.notification-actions .btn{width:100%}}
+    .service-settings{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(15,23,42,.06)}
+    .service-settings h2{margin:0 0 6px;font-size:22px;color:#0f172a}
+    .service-help{margin:0 0 14px;color:#64748b;font-size:14px;line-height:1.65}
+    .service-safety-note{margin:0 0 16px;padding:11px 13px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;font-size:13px;line-height:1.6}
+    .service-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;color:#64748b;font-size:13px}
+    .service-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+    .service-list{display:grid;gap:12px}
+    .service-empty{padding:24px 16px;text-align:center;border:1px dashed #cbd5e1;border-radius:14px;background:#f8fafc;color:#64748b;font-size:14px;line-height:1.7}
+    .service-card{border:1px solid #dbe4dc;border-radius:16px;background:#f8fafc;padding:14px}
+    .service-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px}
+    .service-card-title{font-weight:900;color:#14532d;font-size:15px}
+    .service-card-sub{font-size:12px;color:#64748b;margin-top:3px}
+    .service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .service-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+    .service-field.full{grid-column:1/-1}
+    .service-field.span2{grid-column:span 2}
+    .service-field label{font-size:12px;font-weight:800;color:#475569}
+    .service-field input,.service-field select,.service-field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;background:#fff;padding:9px 10px;font:inherit;color:#0f172a}
+    .service-field input,.service-field select{height:40px}
+    .service-field textarea{min-height:72px;resize:vertical;line-height:1.5}
+    .richtext-wrap{border:1px solid #cbd5e1;border-radius:12px;background:#fff;overflow:hidden}
+    .richtext-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px;border-bottom:1px solid #e2e8f0;background:#f8fafc}
+    .richtext-btn{height:32px;min-width:34px;padding:0 9px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-weight:800;cursor:pointer}
+    .richtext-btn:hover{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+    .richtext-size{height:32px!important;width:auto!important;min-width:112px;padding:0 8px!important;border-radius:8px!important}
+    .richtext-color-picker-wrap{position:relative;display:inline-flex}
+    .richtext-color-open{display:inline-flex;align-items:center;gap:6px}
+    .richtext-color-preview{width:16px;height:16px;border-radius:5px;background:#475569;box-shadow:inset 0 0 0 1px rgba(15,23,42,.16)}
+    .richtext-color-panel{display:none;position:absolute;left:0;top:38px;z-index:80;width:246px;padding:10px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;box-shadow:0 16px 36px rgba(15,23,42,.20)}
+    .richtext-color-picker-wrap.is-open .richtext-color-panel{display:block}
+    .richtext-color-panel-title{font-size:12px;font-weight:900;color:#334155;margin-bottom:7px}
+    .richtext-color-canvas{display:block;width:224px;height:138px;border-radius:9px;border:1px solid #cbd5e1;cursor:crosshair;touch-action:none}
+    .richtext-hue{display:block;width:224px!important;height:18px!important;margin:9px 0 4px!important;padding:0!important;border:0!important;border-radius:999px!important;background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)!important;appearance:none;-webkit-appearance:none;cursor:pointer}
+    .richtext-hue::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid #334155;box-shadow:0 1px 3px rgba(15,23,42,.25)}
+    .richtext-hue::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #334155;box-shadow:0 1px 3px rgba(15,23,42,.25)}
+    .richtext-color-panel-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:7px;font-size:11px;color:#64748b}
+    .richtext-color-done{border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:5px 9px;color:#334155;font-weight:800;cursor:pointer}
+    .richtext-color-palette{flex:1 0 100%;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding-top:2px}
+    .richtext-color-palette-label{font-size:12px;color:#64748b;font-weight:800;margin-right:2px}
+    .richtext-color-swatch{width:26px;height:26px;border-radius:7px;border:2px solid #fff;box-shadow:0 0 0 1px #cbd5e1;cursor:pointer;padding:0;transition:transform .12s ease,box-shadow .12s ease}
+    .richtext-color-swatch:hover{transform:translateY(-1px);box-shadow:0 0 0 2px #93c5fd}
+    .richtext-color-swatch:focus-visible{outline:3px solid rgba(37,99,235,.25);outline-offset:2px}
+    .richtext-editor{min-height:110px;padding:11px 12px;outline:none;line-height:1.65;color:#475569;font-size:16px;overflow-wrap:anywhere;word-break:break-word}
+    .richtext-editor:focus{box-shadow:inset 0 0 0 2px rgba(37,99,235,.13)}
+    .richtext-editor:empty:before{content:attr(data-placeholder);color:#94a3b8;pointer-events:none}
+    .richtext-editor p,.richtext-editor div{margin:.2em 0}.richtext-editor ul,.richtext-editor ol{margin:.35em 0;padding-left:1.6em}
+    .richtext-help{margin-top:5px;color:#64748b;font-size:12px;line-height:1.5;font-weight:500}
+    .service-enable{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#334155;white-space:nowrap}
+    .service-enable input{width:18px;height:18px;accent-color:#16a34a}
+    .service-remove{border-color:#fecaca;color:#b91c1c;background:#fff}
+    .service-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .service-status{min-height:20px;margin-top:10px;font-size:14px;color:#2563eb}
+    @media(max-width:760px){.admin-tabs{position:sticky;top:74px;z-index:18;background:#eef5ee;padding:8px 0;margin:8px 0 12px}.admin-tab-btn{flex:1;min-width:140px}.pricing-settings,.notification-settings,.service-settings{padding:14px;border-radius:18px}.pricing-grid,.notification-grid,.service-grid{grid-template-columns:1fr}.service-field.span2,.service-field.full{grid-column:1}.pricing-actions .btn,.notification-actions .btn,.service-actions .btn{width:100%}}
     .wrap{max-width:1100px;margin:0 auto;padding:0 20px 40px}
     .row{display:flex;gap:10px;align-items:end;margin:10px 0 14px;flex-wrap:wrap}
     .input{display:flex;flex-direction:column;gap:6px}
@@ -549,12 +601,13 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
 </div>
 <header>
 <h1>後台管理</h1>
-<div class="sub">可管理預約資料，也可調整前台即時估價與通知開關設定。</div>
+<div class="sub">可管理預約資料、價格、未來額外服務與通知開關設定。</div>
 </header>
 <div class="wrap">
 <div class="admin-tabs" role="tablist" aria-label="後台功能分頁">
   <button class="admin-tab-btn is-active" id="tabBookingsBtn" type="button" role="tab" aria-selected="true" aria-controls="bookingAdminTab">預約資料管理</button>
   <button class="admin-tab-btn" id="tabPricingBtn" type="button" role="tab" aria-selected="false" aria-controls="pricingAdminTab">價格設定</button>
+  <button class="admin-tab-btn" id="tabServicesBtn" type="button" role="tab" aria-selected="false" aria-controls="servicesAdminTab">額外服務</button>
   <button class="admin-tab-btn" id="tabNotificationsBtn" type="button" role="tab" aria-selected="false" aria-controls="notificationAdminTab">通知設定</button>
 </div>
 <section id="bookingAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabBookingsBtn">
@@ -616,6 +669,24 @@ body.body--modal-open{ height:100dvh; overflow:hidden; }
       <h3>最近調價紀錄</h3>
       <div id="pricingHistory" class="pricing-history-empty">尚無調價紀錄。</div>
     </div>
+  </div>
+</section>
+<section id="servicesAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabServicesBtn" hidden>
+  <div class="service-settings">
+    <h2>額外服務管理</h2>
+    <p class="service-help">這裡只管理未來新增的標準型服務，例如「冷氣加購」或「其他居家清洗」。既有的冷氣、防霉、臭氧、洗衣機、水塔與水管仍走原本程式，不會被這裡覆蓋。</p>
+    <div class="service-safety-note">沒有新增或啟用任何項目時，前台預約流程、舊訂單、Email、PDF 與 LINE 通知都維持原本行為。未來新增的服務才會以「額外服務」欄位附加到訂單。</div>
+    <div class="service-meta"><span id="extraServicesLastUpdated">最後更新：—</span><span id="extraServicesSource"></span></div>
+    <div class="service-toolbar">
+      <div style="font-size:13px;color:#64748b">支援固定價格、起價與現場報價；前台會依服務類型自動顯示在對應頁面。</div>
+      <button class="btn primary" id="btnAddExtraService" type="button">＋ 新增服務</button>
+    </div>
+    <div class="service-list" id="extraServicesList"></div>
+    <div class="service-actions">
+      <button class="btn" id="btnReloadExtraServices" type="button">重新讀取</button>
+      <button class="btn primary" id="btnSaveExtraServices" type="button">儲存額外服務</button>
+    </div>
+    <div class="service-status" id="extraServicesStatus" aria-live="polite"></div>
   </div>
 </section>
 <section id="notificationAdminTab" class="admin-tab-panel" role="tabpanel" aria-labelledby="tabNotificationsBtn" hidden>
@@ -758,6 +829,7 @@ const API_LOGIN = "/.netlify/functions/auth-login";
 const API_UPDATE_CTX = "/.netlify/functions/update-booking-context";
 const API_GET_PRICING = "/.netlify/functions/get-pricing";
 const API_UPDATE_PRICING = "/.netlify/functions/update-pricing";
+const API_UPDATE_EXTRA_SERVICES = "/.netlify/functions/update-extra-services";
 const API_GET_NOTIFICATION_SETTINGS = "/.netlify/functions/get-notification-settings";
 const API_UPDATE_NOTIFICATION_SETTINGS = "/.netlify/functions/update-notification-settings";
 let ADMIN_TOKEN = localStorage.getItem("admin_token") || "";
@@ -910,6 +982,22 @@ function decodeArray(val){
   } catch (e){
     return val;
   }
+}
+
+function formatExtraServicesForDisplay(value){
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+  return raw
+    .split(/\r?\n|、/)
+    .map((item) => String(item || '').trim())
+    .filter(Boolean)
+    .map((item) => item
+      .replace(/^．\s*/, '')
+      .replace(/（(?:NT\$[^）]*|價格另行確認)）/g, '')
+      .trim())
+    .filter(Boolean)
+    .map((item) => `．${item}`)
+    .join('\n');
 }
 
 function decodePhotoUrls(val){
@@ -1082,6 +1170,11 @@ function normalizeContext(item){
     ozone: get(["ozone","臭氧殺菌消毒"]),
     ozone_room_count: get(["ozone_room_count","臭氧消毒房間數","臭氧空間消毒房間數"]),
     extra_service: get(["extra_service","其他清洗服務"]),
+    extra_services_summary: (() => {
+      const split = Array.from({length:20}, (_,i) => get([`extra_service_${i+1}`])).filter(Boolean);
+      const raw = split.length ? split.join('\n') : decodeArray(get(["extra_services_summary","額外服務"]));
+      return formatExtraServicesForDisplay(raw);
+    })(),
     line_id: get(["line_or_fb","line_id","LINE","聯絡Line"]),
     fb_name: get(["social_name","fb_name","facebook","FB","LINE & Facebook 姓名"]),
     timeslot: get(["timeslot","預約時段"]),
@@ -1513,6 +1606,9 @@ if (data.service === "冷氣清洗" || data.service === "其他保養清洗") {
   kv("自來水管清洗戶型方案", data.pipe_service) +
   kv("自來水管清洗原因", data.pipe_reason)
 ));
+}
+if (data.extra_services_summary) {
+  blocks.push(sectionCard("額外服務", kv("加選項目", data.extra_services_summary)));
 }
 const photoHtml = renderPhotoSection(data.photo_urls);
 if (photoHtml) {
@@ -2051,19 +2147,431 @@ async function saveNotificationSettings(){
     if (btn) btn.disabled = false;
   }
 }
+
+let CURRENT_EXTRA_SERVICES = [];
+let EXTRA_SERVICES_UPDATED_AT = null;
+let EXTRA_SERVICES_SOURCE = 'default';
+
+function setExtraServicesStatus(text, type){
+  const el = document.getElementById('extraServicesStatus');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.color = type === 'error' ? '#b91c1c' : (type === 'warning' ? '#b45309' : '#2563eb');
+}
+function makeExtraServiceId(){
+  return 'extra_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+}
+function normalizeExtraServiceForAdmin(raw, index){
+  const service = raw && typeof raw === 'object' ? raw : {};
+  return {
+    id: String(service.id || makeExtraServiceId()),
+    name: String(service.name || ''),
+    category: ['ac_addon','other_service'].includes(service.category) ? service.category : 'other_service',
+    description: String(service.description || ''),
+    description_html: String(service.description_html || ''),
+    unit: String(service.unit || '項'),
+    pricing_type: ['fixed','starting','quote'].includes(service.pricing_type) ? service.pricing_type : 'quote',
+    price: Math.max(0, Number(service.price || 0)),
+    enabled: service.enabled === true,
+    sort_order: Number.isFinite(Number(service.sort_order)) ? Number(service.sort_order) : index * 10,
+    quantity_limit_type: ['fixed','ac_count','unlimited'].includes(service.quantity_limit_type) ? service.quantity_limit_type : 'fixed',
+    max_quantity: Math.max(1, Math.min(99, Number(service.max_quantity || 20)))
+  };
+}
+function extraServiceTypeLabel(category){
+  return category === 'ac_addon' ? '冷氣加購' : '其他居家清洗';
+}
+function renderExtraServicesMeta(){
+  const updated = document.getElementById('extraServicesLastUpdated');
+  const source = document.getElementById('extraServicesSource');
+  if (updated) updated.textContent = '最後更新：' + (EXTRA_SERVICES_UPDATED_AT ? new Date(EXTRA_SERVICES_UPDATED_AT).toLocaleString('zh-TW') : '尚未建立額外服務設定');
+  if (source) source.textContent = EXTRA_SERVICES_SOURCE === 'cloudinary' ? '目前來源：後台額外服務設定' : '目前來源：尚無設定';
+}
+const RICH_EDITOR_SELECTIONS = new WeakMap();
+function plainTextToEditorHtml(text){
+  return escapeHtmlForRender(String(text || '')).replace(/\r\n?|\n/g, '<br>');
+}
+function richTextToPlainText(editor){
+  if (!editor) return '';
+  const clone = editor.cloneNode(true);
+  clone.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+  clone.querySelectorAll('li').forEach(li => { li.insertBefore(document.createTextNode('• '), li.firstChild); li.appendChild(document.createTextNode('\n')); });
+  clone.querySelectorAll('p,div').forEach(el => el.appendChild(document.createTextNode('\n')));
+  return String(clone.textContent || '').replace(/\u00a0/g,' ').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim().slice(0,1500);
+}
+function saveRichSelection(editor){
+  const sel = window.getSelection && window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (editor.contains(range.commonAncestorContainer)) RICH_EDITOR_SELECTIONS.set(editor, range.cloneRange());
+}
+function restoreRichSelection(editor){
+  const range = RICH_EDITOR_SELECTIONS.get(editor);
+  editor.focus();
+  if (!range) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+function normalizeRichEditorMarkup(editor){
+  if (!editor) return;
+  const sizeMap = {'1':'13px','3':'16px','4':'18px','5':'20px','7':'20px'};
+  editor.querySelectorAll('font').forEach(font => {
+    const span = document.createElement('span');
+    const color = String(font.getAttribute('color') || '').trim();
+    const size = sizeMap[String(font.getAttribute('size') || '')];
+    if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(color)) span.style.color = color;
+    if (size) span.style.fontSize = size;
+    while (font.firstChild) span.appendChild(font.firstChild);
+    font.replaceWith(span);
+  });
+  editor.querySelectorAll('[style]').forEach(el => {
+    const color = el.style.color;
+    const fontSize = el.style.fontSize;
+    el.removeAttribute('style');
+    if (color) {
+      const probe = document.createElement('span'); probe.style.color = color;
+      const normalized = probe.style.color;
+      // Convert browser rgb() output to hex where practical; server performs final whitelist sanitation.
+      const m = normalized.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i);
+      if (m) el.style.color = '#' + [m[1],m[2],m[3]].map(v => Number(v).toString(16).padStart(2,'0')).join('');
+      else if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(normalized)) el.style.color = normalized;
+    }
+    if (['13px','16px','18px','20px'].includes(fontSize)) el.style.fontSize = fontSize;
+  });
+}
+function runRichCommand(editor, command, value){
+  if (!editor) return;
+  restoreRichSelection(editor);
+  if (command === 'fontSize') {
+    document.execCommand('fontSize', false, '7');
+    editor.querySelectorAll('font[size="7"]').forEach(font => {
+      const span = document.createElement('span');
+      span.style.fontSize = value;
+      while (font.firstChild) span.appendChild(font.firstChild);
+      font.replaceWith(span);
+    });
+  } else {
+    document.execCommand(command, false, value || null);
+  }
+  normalizeRichEditorMarkup(editor);
+  saveRichSelection(editor);
+}
+function initRichEditor(card, service){
+  const editor = card.querySelector('[data-field="description_html"]');
+  if (!editor) return;
+  editor.innerHTML = service.description_html || plainTextToEditorHtml(service.description || '');
+  editor.addEventListener('mouseup', () => saveRichSelection(editor));
+  editor.addEventListener('keyup', () => saveRichSelection(editor));
+  editor.addEventListener('input', () => saveRichSelection(editor));
+  editor.addEventListener('paste', e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData)?.getData('text/plain') || '';
+    document.execCommand('insertText', false, text);
+  });
+  editor.addEventListener('drop', e => e.preventDefault());
+  card.querySelectorAll('[data-rich-cmd]').forEach(btn => {
+    btn.addEventListener('mousedown', e => e.preventDefault());
+    btn.addEventListener('click', () => runRichCommand(editor, btn.dataset.richCmd));
+  });
+  const size = card.querySelector('[data-rich-size]');
+  if (size) size.addEventListener('change', () => { runRichCommand(editor, 'fontSize', size.value); size.value = '16px'; });
+  const colorWrap = card.querySelector('[data-rich-color-wrap]');
+  const colorOpen = card.querySelector('[data-rich-color-open]');
+  const colorPreview = card.querySelector('[data-rich-color-preview]');
+  const colorCanvas = card.querySelector('[data-rich-color-canvas]');
+  const hueInput = card.querySelector('[data-rich-hue]');
+  const colorDone = card.querySelector('[data-rich-color-done]');
+  let pickerHue = 210;
+  function hsvToHex(h, s, v){
+    const c = v * s;
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = v - c;
+    let r=0,g=0,b=0;
+    if (h < 60) [r,g,b]=[c,x,0]; else if (h < 120) [r,g,b]=[x,c,0]; else if (h < 180) [r,g,b]=[0,c,x];
+    else if (h < 240) [r,g,b]=[0,x,c]; else if (h < 300) [r,g,b]=[x,0,c]; else [r,g,b]=[c,0,x];
+    return '#' + [r,g,b].map(n => Math.round((n+m)*255).toString(16).padStart(2,'0')).join('');
+  }
+  function drawRichColorCanvas(){
+    if (!colorCanvas) return;
+    const ctx = colorCanvas.getContext('2d');
+    const w = colorCanvas.width, h = colorCanvas.height;
+    const hueColor = hsvToHex(pickerHue, 1, 1);
+    ctx.clearRect(0,0,w,h);
+    const sat = ctx.createLinearGradient(0,0,w,0); sat.addColorStop(0,'#fff'); sat.addColorStop(1,hueColor);
+    ctx.fillStyle = sat; ctx.fillRect(0,0,w,h);
+    const val = ctx.createLinearGradient(0,0,0,h); val.addColorStop(0,'rgba(0,0,0,0)'); val.addColorStop(1,'#000');
+    ctx.fillStyle = val; ctx.fillRect(0,0,w,h);
+  }
+  function applyRichColor(value){
+    if (!/^#[0-9a-f]{6}$/i.test(value || '')) return;
+    if (colorPreview) colorPreview.style.background = value;
+    runRichCommand(editor, 'foreColor', value);
+  }
+  if (colorCanvas){
+    colorCanvas.width = 448; colorCanvas.height = 276;
+    drawRichColorCanvas();
+    const pickFromCanvas = e => {
+      const rect = colorCanvas.getBoundingClientRect();
+      const point = e.touches ? e.touches[0] : e;
+      const x = Math.max(0, Math.min(rect.width, point.clientX - rect.left));
+      const y = Math.max(0, Math.min(rect.height, point.clientY - rect.top));
+      applyRichColor(hsvToHex(pickerHue, rect.width ? x/rect.width : 0, rect.height ? 1-y/rect.height : 1));
+    };
+    colorCanvas.addEventListener('click', pickFromCanvas);
+    colorCanvas.addEventListener('touchend', e => { e.preventDefault(); const t=e.changedTouches&&e.changedTouches[0]; if(t) pickFromCanvas({touches:[t]}); }, {passive:false});
+  }
+  if (hueInput) hueInput.addEventListener('input', () => { pickerHue = Number(hueInput.value || 210); drawRichColorCanvas(); });
+  if (colorOpen){
+    colorOpen.addEventListener('mousedown', e => e.preventDefault());
+    colorOpen.addEventListener('click', e => { e.stopPropagation(); if (colorWrap) colorWrap.classList.toggle('is-open'); });
+  }
+  if (colorDone) colorDone.addEventListener('click', () => colorWrap && colorWrap.classList.remove('is-open'));
+  if (colorWrap) colorWrap.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => colorWrap && colorWrap.classList.remove('is-open'), { once:false });
+  card.querySelectorAll('[data-rich-color-swatch]').forEach(swatch => {
+    swatch.addEventListener('mousedown', e => e.preventDefault());
+    swatch.addEventListener('click', () => applyRichColor(String(swatch.dataset.richColorSwatch || '').trim()));
+  });
+}
+
+function renderExtraServices(services = CURRENT_EXTRA_SERVICES){
+  const box = document.getElementById('extraServicesList');
+  if (!box) return;
+  CURRENT_EXTRA_SERVICES = (Array.isArray(services) ? services : []).map(normalizeExtraServiceForAdmin);
+  if (!CURRENT_EXTRA_SERVICES.length){
+    box.innerHTML = '<div class="service-empty">目前沒有額外服務。<br>現有正式服務完全不受影響；需要新增未來項目時，再按「＋ 新增服務」。</div>';
+    renderExtraServicesMeta();
+    return;
+  }
+  box.innerHTML = CURRENT_EXTRA_SERVICES.map((service, index) => {
+    const id = escapeHtmlForRender(service.id);
+    const priceDisabled = service.pricing_type === 'quote' ? ' disabled' : '';
+    return `<div class="service-card" data-extra-service-index="${index}">
+      <div class="service-card-head">
+        <div><div class="service-card-title">${escapeHtmlForRender(service.name || '尚未命名的服務')}</div><div class="service-card-sub">${escapeHtmlForRender(extraServiceTypeLabel(service.category))}｜ID：${id}</div></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label class="service-enable"><input type="checkbox" data-field="enabled"${service.enabled ? ' checked' : ''}>前台啟用</label>
+          <button class="btn service-remove" type="button" data-action="remove-extra-service">移除</button>
+        </div>
+      </div>
+      <input type="hidden" data-field="id" value="${id}">
+      <div class="service-grid">
+        <div class="service-field span2"><label>服務名稱</label><input data-field="name" maxlength="80" value="${escapeHtmlForRender(service.name)}" placeholder="例如：未來新增的清洗項目"></div>
+        <div class="service-field"><label>顯示位置</label><select data-field="category"><option value="ac_addon"${service.category === 'ac_addon' ? ' selected' : ''}>冷氣加購頁</option><option value="other_service"${service.category === 'other_service' ? ' selected' : ''}>其他居家清洗頁</option></select></div>
+        <div class="service-field"><label>價格方式</label><select data-field="pricing_type"><option value="fixed"${service.pricing_type === 'fixed' ? ' selected' : ''}>固定價格</option><option value="starting"${service.pricing_type === 'starting' ? ' selected' : ''}>起價</option><option value="quote"${service.pricing_type === 'quote' ? ' selected' : ''}>現場／專人報價</option></select></div>
+        <div class="service-field"><label>價格（NT$）</label><input data-field="price" type="number" min="0" step="1" inputmode="numeric" value="${Math.round(service.price)}"${priceDisabled}></div>
+        <div class="service-field"><label>計價單位</label><input data-field="unit" maxlength="12" value="${escapeHtmlForRender(service.unit)}" placeholder="台、組、張、項"></div>
+        <div class="service-field"><label>數量上限規則</label><select data-field="quantity_limit_type"><option value="fixed"${service.quantity_limit_type === 'fixed' ? ' selected' : ''}>固定上限</option><option value="ac_count"${service.quantity_limit_type === 'ac_count' ? ' selected' : ''}>跟隨冷氣清洗台數</option><option value="unlimited"${service.quantity_limit_type === 'unlimited' ? ' selected' : ''}>不限制（系統單次上限 99）</option></select><small style="color:#64748b;line-height:1.4">「跟隨冷氣清洗台數」適合風鼓拆洗、室外機沖洗等一台冷氣最多對應一項的加購；若本筆沒有冷氣台數，前台會停用此服務。</small></div>
+        <div class="service-field" data-max-quantity-field><label>固定最大數量</label><input data-field="max_quantity" type="number" min="1" max="99" step="1" value="${Math.round(service.max_quantity)}"><small style="color:#64748b;line-height:1.4">只有選「固定上限」時使用。</small></div>
+        <div class="service-field"><label>排序</label><input data-field="sort_order" type="number" step="1" value="${Math.round(service.sort_order)}"></div>
+        <div class="service-field full"><label>前台說明（選填）</label>
+          <div class="richtext-wrap">
+            <div class="richtext-toolbar" aria-label="前台說明文字格式工具列">
+              <button type="button" class="richtext-btn" data-rich-cmd="bold" title="粗體"><strong>B</strong></button>
+              <button type="button" class="richtext-btn" data-rich-cmd="italic" title="斜體"><em>I</em></button>
+              <button type="button" class="richtext-btn" data-rich-cmd="underline" title="底線"><u>U</u></button>
+              <select class="richtext-size" data-rich-size title="文字大小"><option value="16px" selected>正常文字</option><option value="13px">小字</option><option value="18px">大字</option><option value="20px">特大字</option></select>
+              <span class="richtext-color-picker-wrap" data-rich-color-wrap>
+                <button type="button" class="richtext-btn richtext-color-open" data-rich-color-open title="開啟文字色盤"><span class="richtext-color-preview" data-rich-color-preview></span>色盤</button>
+                <span class="richtext-color-panel" role="dialog" aria-label="文字色盤">
+                  <span class="richtext-color-panel-title">點選色盤套用文字顏色</span>
+                  <canvas class="richtext-color-canvas" data-rich-color-canvas aria-label="文字顏色色盤"></canvas>
+                  <input class="richtext-hue" data-rich-hue type="range" min="0" max="360" value="210" aria-label="調整色相">
+                  <span class="richtext-color-panel-foot"><span>拖曳下方色帶切換色系</span><button type="button" class="richtext-color-done" data-rich-color-done>完成</button></span>
+                </span>
+              </span>
+              <button type="button" class="richtext-btn" data-rich-cmd="insertUnorderedList" title="項目符號">• 清單</button>
+              <button type="button" class="richtext-btn" data-rich-cmd="insertOrderedList" title="編號清單">1. 清單</button>
+              <button type="button" class="richtext-btn" data-rich-cmd="removeFormat" title="清除文字格式">清除格式</button>
+              <div class="richtext-color-palette" aria-label="常用文字顏色">
+                <span class="richtext-color-palette-label">常用色</span>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#0f172a" style="background:#0f172a" title="黑色" aria-label="黑色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#475569" style="background:#475569" title="深灰色" aria-label="深灰色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#dc2626" style="background:#dc2626" title="紅色" aria-label="紅色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#ea580c" style="background:#ea580c" title="橘色" aria-label="橘色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#d97706" style="background:#d97706" title="金黃色" aria-label="金黃色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#16a34a" style="background:#16a34a" title="綠色" aria-label="綠色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#0f766e" style="background:#0f766e" title="藍綠色" aria-label="藍綠色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#2563eb" style="background:#2563eb" title="藍色" aria-label="藍色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#4f46e5" style="background:#4f46e5" title="靛藍色" aria-label="靛藍色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#7c3aed" style="background:#7c3aed" title="紫色" aria-label="紫色"></button>
+                <button type="button" class="richtext-color-swatch" data-rich-color-swatch="#db2777" style="background:#db2777" title="粉紅色" aria-label="粉紅色"></button>
+              </div>
+            </div>
+            <div class="richtext-editor" data-field="description_html" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="輸入前台說明，可選取文字後調整粗體、大小或顏色"></div>
+          </div>
+          <div class="richtext-help">可使用粗體、斜體、底線、文字大小、常用色塊／色盤及清單。選取文字後點色塊，或開啟色盤直接挑色；不提供 RGB 數值輸入。儲存時會自動過濾不安全的 HTML。</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  Array.from(box.querySelectorAll('.service-card')).forEach((card, index) => initRichEditor(card, CURRENT_EXTRA_SERVICES[index] || {}));
+  box.querySelectorAll('[data-field="pricing_type"]').forEach(select => {
+    select.addEventListener('change', () => {
+      const card = select.closest('.service-card');
+      const price = card && card.querySelector('[data-field="price"]');
+      if (price) price.disabled = select.value === 'quote';
+    });
+  });
+  box.querySelectorAll('[data-field="quantity_limit_type"]').forEach(select => {
+    const sync = () => {
+      const card = select.closest('.service-card');
+      const field = card && card.querySelector('[data-max-quantity-field]');
+      const input = card && card.querySelector('[data-field="max_quantity"]');
+      const fixed = select.value === 'fixed';
+      if (field) field.style.opacity = fixed ? '1' : '.48';
+      if (input) input.disabled = !fixed;
+    };
+    select.addEventListener('change', sync);
+    sync();
+  });
+  box.querySelectorAll('[data-field="name"],[data-field="category"]').forEach(input => {
+    input.addEventListener('input', () => {
+      const card = input.closest('.service-card');
+      if (!card) return;
+      const title = card.querySelector('.service-card-title');
+      const sub = card.querySelector('.service-card-sub');
+      const name = card.querySelector('[data-field="name"]')?.value.trim() || '尚未命名的服務';
+      const cat = card.querySelector('[data-field="category"]')?.value || 'other_service';
+      const idValue = card.querySelector('[data-field="id"]')?.value || '';
+      if (title) title.textContent = name;
+      if (sub) sub.textContent = `${extraServiceTypeLabel(cat)}｜ID：${idValue}`;
+    });
+    input.addEventListener('change', () => input.dispatchEvent(new Event('input')));
+  });
+  box.querySelectorAll('[data-action="remove-extra-service"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const card = btn.closest('.service-card');
+      if (!card) return;
+      const name = card.querySelector('[data-field="name"]')?.value.trim() || '此服務';
+      const ok = await showConfirmDialog({
+        title:'移除額外服務',
+        message:`確定要從設定中移除「${name}」嗎？已經送出的舊訂單仍會保留當時的服務文字。`,
+        confirmText:'確認移除',
+        cancelText:'取消'
+      });
+      if (ok) card.remove();
+    });
+  });
+  renderExtraServicesMeta();
+}
+function collectExtraServicesForm(){
+  const box = document.getElementById('extraServicesList');
+  const cards = Array.from(box ? box.querySelectorAll('.service-card') : []);
+  return cards.map((card, index) => {
+    const get = key => card.querySelector(`[data-field="${key}"]`);
+    const name = (get('name')?.value || '').trim();
+    if (!name) throw new Error(`第 ${index + 1} 項服務請填寫名稱`);
+    const pricingType = get('pricing_type')?.value || 'quote';
+    const price = pricingType === 'quote' ? 0 : Number(get('price')?.value || 0);
+    if (!Number.isFinite(price) || price < 0 || !Number.isInteger(price)) throw new Error(`${name} 的價格請輸入 0 以上整數`);
+    const quantityLimitType = ['fixed','ac_count','unlimited'].includes(get('quantity_limit_type')?.value) ? get('quantity_limit_type').value : 'fixed';
+    const maxQuantity = Number(get('max_quantity')?.value || 20);
+    if (quantityLimitType === 'fixed' && (!Number.isFinite(maxQuantity) || maxQuantity < 1 || maxQuantity > 99)) throw new Error(`${name} 的固定最大數量需介於 1 到 99`);
+    return {
+      id: (get('id')?.value || makeExtraServiceId()).trim(),
+      name,
+      category: get('category')?.value || 'other_service',
+      description: richTextToPlainText(get('description_html')),
+      description_html: (() => { const editor = get('description_html'); normalizeRichEditorMarkup(editor); return (editor?.innerHTML || '').trim(); })(),
+      unit: (get('unit')?.value || '項').trim() || '項',
+      pricing_type: pricingType,
+      price: Math.round(price),
+      enabled: !!get('enabled')?.checked,
+      sort_order: Math.round(Number(get('sort_order')?.value || index * 10)),
+      quantity_limit_type: quantityLimitType,
+      max_quantity: quantityLimitType === 'fixed' ? Math.round(maxQuantity) : Math.max(1, Math.min(99, Math.round(Number(maxQuantity) || 20)))
+    };
+  });
+}
+async function requestAdminExtraServices(method, body){
+  const makeRequest = () => fetch(API_UPDATE_EXTRA_SERVICES, {
+    method,
+    headers:{ ...(body ? {'Content-Type':'application/json'} : {}), 'x-admin-token': ADMIN_TOKEN, 'Cache-Control':'no-cache' },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let r = await makeRequest();
+  if (r.status === 401){
+    ADMIN_TOKEN = ''; localStorage.removeItem('admin_token');
+    if (await login()) r = await makeRequest();
+  }
+  return r;
+}
+async function loadExtraServicesSettings(){
+  setExtraServicesStatus('讀取額外服務設定中…');
+  try{
+    const r = await requestAdminExtraServices('GET');
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '讀取失敗');
+    CURRENT_EXTRA_SERVICES = Array.isArray(data.services) ? data.services : [];
+    EXTRA_SERVICES_UPDATED_AT = data.updated_at || null;
+    EXTRA_SERVICES_SOURCE = data.source || 'default';
+    renderExtraServices(CURRENT_EXTRA_SERVICES);
+    setExtraServicesStatus(CURRENT_EXTRA_SERVICES.length ? `已讀取 ${CURRENT_EXTRA_SERVICES.length} 項額外服務。` : '目前沒有額外服務，現有正式網站功能不會改變。');
+  }catch(e){
+    CURRENT_EXTRA_SERVICES = [];
+    EXTRA_SERVICES_UPDATED_AT = null;
+    EXTRA_SERVICES_SOURCE = 'default';
+    renderExtraServices([]);
+    setExtraServicesStatus('額外服務設定讀取失敗：' + (e.message || e), 'error');
+  }
+}
+async function saveExtraServicesSettings(){
+  let services;
+  try { services = collectExtraServicesForm(); }
+  catch(e){ setExtraServicesStatus(e.message || String(e), 'error'); return; }
+  const enabled = services.filter(s => s.enabled);
+  const btn = document.getElementById('btnSaveExtraServices');
+  if (btn) btn.disabled = true;
+  setExtraServicesStatus(`儲存中…共 ${services.length} 項，其中 ${enabled.length} 項前台啟用。`);
+  try{
+    const r = await requestAdminExtraServices('POST', { services });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || data.detail || '儲存失敗');
+    CURRENT_EXTRA_SERVICES = Array.isArray(data.services) ? data.services : services;
+    EXTRA_SERVICES_UPDATED_AT = data.updated_at || new Date().toISOString();
+    EXTRA_SERVICES_SOURCE = 'cloudinary';
+    renderExtraServices(CURRENT_EXTRA_SERVICES);
+    setExtraServicesStatus('額外服務設定已儲存。啟用的項目會由前台自動讀取。');
+    showToast('額外服務設定已儲存', 'success');
+  }catch(e){
+    setExtraServicesStatus('額外服務儲存失敗：' + (e.message || e), 'error');
+    showToast('額外服務儲存失敗', 'error');
+  }finally{
+    if (btn) btn.disabled = false;
+  }
+}
+function addExtraServiceCard(){
+  let current = [];
+  try { current = collectExtraServicesForm(); } catch(e) { current = CURRENT_EXTRA_SERVICES.slice(); }
+  current.push({ id:makeExtraServiceId(), name:'', category:'other_service', description:'', unit:'項', pricing_type:'quote', price:0, enabled:false, sort_order:current.length * 10, quantity_limit_type:'fixed', max_quantity:20 });
+  renderExtraServices(current);
+  const cards = document.querySelectorAll('#extraServicesList .service-card');
+  const last = cards[cards.length - 1];
+  last?.querySelector('[data-field="name"]')?.focus();
+  setExtraServicesStatus('已新增一個尚未儲存的服務欄位；填寫完成後請按「儲存額外服務」。');
+}
+
 function switchAdminTab(tab){
   const isPricing = tab === 'pricing';
+  const isServices = tab === 'services';
   const isNotifications = tab === 'notifications';
-  document.getElementById('bookingAdminTab').hidden = isPricing || isNotifications;
+  const isBookings = !isPricing && !isServices && !isNotifications;
+  document.getElementById('bookingAdminTab').hidden = !isBookings;
   document.getElementById('pricingAdminTab').hidden = !isPricing;
+  document.getElementById('servicesAdminTab').hidden = !isServices;
   document.getElementById('notificationAdminTab').hidden = !isNotifications;
-  document.getElementById('tabBookingsBtn').classList.toggle('is-active', !isPricing && !isNotifications);
+  document.getElementById('tabBookingsBtn').classList.toggle('is-active', isBookings);
   document.getElementById('tabPricingBtn').classList.toggle('is-active', isPricing);
+  document.getElementById('tabServicesBtn').classList.toggle('is-active', isServices);
   document.getElementById('tabNotificationsBtn').classList.toggle('is-active', isNotifications);
-  document.getElementById('tabBookingsBtn').setAttribute('aria-selected', String(!isPricing && !isNotifications));
+  document.getElementById('tabBookingsBtn').setAttribute('aria-selected', String(isBookings));
   document.getElementById('tabPricingBtn').setAttribute('aria-selected', String(isPricing));
+  document.getElementById('tabServicesBtn').setAttribute('aria-selected', String(isServices));
   document.getElementById('tabNotificationsBtn').setAttribute('aria-selected', String(isNotifications));
   if (isPricing) loadPricingSettings();
+  if (isServices) loadExtraServicesSettings();
   if (isNotifications) loadNotificationSettings();
 }
 
@@ -2212,10 +2720,14 @@ async function saveCurrentEdit(ev){
 
 document.getElementById("tabBookingsBtn").onclick = () => switchAdminTab('bookings');
 document.getElementById("tabPricingBtn").onclick = () => switchAdminTab('pricing');
+document.getElementById("tabServicesBtn").onclick = () => switchAdminTab('services');
 document.getElementById("tabNotificationsBtn").onclick = () => switchAdminTab('notifications');
 document.getElementById("btnReloadPricing").onclick = loadPricingSettings;
 document.getElementById("btnResetPricing").onclick = () => { renderPricingFields({ ...DEFAULT_PRICING }); setPricingStatus('表單已填入預設值；尚未儲存，請確認異動後再按「儲存價格設定」。'); };
 document.getElementById("btnSavePricing").onclick = savePricingSettings;
+document.getElementById("btnAddExtraService").onclick = addExtraServiceCard;
+document.getElementById("btnReloadExtraServices").onclick = loadExtraServicesSettings;
+document.getElementById("btnSaveExtraServices").onclick = saveExtraServicesSettings;
 document.getElementById("btnReloadNotificationSettings").onclick = loadNotificationSettings;
 document.getElementById("btnSaveNotificationSettings").onclick = saveNotificationSettings;
 

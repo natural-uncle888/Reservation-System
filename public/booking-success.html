@@ -248,6 +248,7 @@
         const td = document.createElement('td');
         th.textContent = label;
         td.textContent = label === '預估總額' && !Number.isNaN(Number(value)) ? '$' + Number(value).toLocaleString('zh-TW') : valueText(value);
+        if (label === '額外服務') td.style.whiteSpace = 'pre-wrap';
         tr.appendChild(th);
         tr.appendChild(td);
         tbody.appendChild(tr);
@@ -267,6 +268,16 @@
           used.add(label);
         }
       });
+
+      if (Array.isArray(data.extra_services) && data.extra_services.length) {
+        const extraText = data.extra_services.map(item => {
+          if (!item || !item.name) return '';
+          const qty = Math.max(1, Number(item.quantity || 1));
+          const unit = item.unit || '項';
+          return `．${item.name} × ${qty}${unit}`;
+        }).filter(Boolean).join('\n');
+        if (extraText) appendRow(tbody, '額外服務', extraText);
+      }
 
       if (hasValue(data._submittedAt)) {
         const submitted = new Date(data._submittedAt);

@@ -681,6 +681,25 @@
         show('tank_count','水塔顆數');
         show('pipe_service','水管清洗戶型');
         show('pipe_reason','水管清洗原因');
+        // 額外服務使用獨立通用欄位；沒有額外服務時完全不顯示，避免影響既有預約畫面。
+        if(Array.isArray(payload.extra_services) && payload.extra_services.length){
+          const extraText = payload.extra_services.map(item=>{
+            if(!item || !item.name) return '';
+            const qty = Math.max(1, Number(item.quantity || 1));
+            const unit = item.unit || '項';
+            if(item.pricing_type === 'quote') return `${item.name} × ${qty}${unit}（價格另行確認）`;
+            if(item.pricing_type === 'starting') return `${item.name} × ${qty}${unit}（NT$${Number(item.price||0).toLocaleString('zh-TW')} 起/${unit}）`;
+            return `${item.name} × ${qty}${unit}`;
+          }).filter(Boolean).join('、');
+          if(extraText){
+            const tr = document.createElement('tr');
+            const th = document.createElement('th');
+            const td = document.createElement('td');
+            th.textContent = '額外服務';
+            td.textContent = extraText;
+            tr.appendChild(th); tr.appendChild(td); tbody.appendChild(tr);
+          }
+        }
         show('group_notes','團購預約說明');
         show('bulk_notes','大量清洗需求說明');
         show('contact_method','聯繫方式');
@@ -784,9 +803,9 @@
             res = await fetch(FN, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
           }
           const t = await res.text();
-          if(!res.ok) throw new Error('['+res.status+'] '+t);
           let serverResult = {};
           try { serverResult = JSON.parse(t || '{}'); } catch(e) {}
+          if(!res.ok) throw new Error(serverResult.error || ('['+res.status+'] '+t));
           try {
             localStorage.setItem('BOOKING_SUCCESS_DATA', JSON.stringify(Object.assign({}, payload, {
               site_photo_urls: serverResult.photo_urls || payload.site_photo_urls || [],

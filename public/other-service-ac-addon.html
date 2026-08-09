@@ -215,6 +215,7 @@ html,body,.page{ width:100%; overflow-x:hidden }
 </style>
   <script src="booking-storage.js"></script>
   <script src="pricing.js"></script>
+  <script src="dynamic-services.js"></script>
   <link rel="stylesheet" href="option-card-unified.css" />
 </head>
 <body>
@@ -337,6 +338,9 @@ html,body,.page{ width:100%; overflow-x:hidden }
           <li>若有熱水器/軟水機/淨水器，將暫時關閉進出水與電源。</li>
         </ul>
       </div>
+
+      <!-- 未來由後台啟用的其他清洗服務；沒有設定時此區塊完全隱藏 -->
+      <div data-extra-services-category="other_service" data-extra-services-title="其他可加選服務" hidden></div>
 
       <!-- 導覽 -->
       <div class="estimate-card" data-estimate-card></div>

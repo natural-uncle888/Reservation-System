@@ -198,6 +198,8 @@ function buildLineReplyText(p, opts = {}){
   if (nb(p.washer_count)) details.push(`直立式洗衣機：${nb(p.washer_count)}`);
   if (nb(p.tank_count)) details.push(`水塔：${nb(p.tank_count)}`);
   if (nb(p.pipe_service)) details.push(`自來水管清洗：${nb(p.pipe_service)}`);
+  const extraReplySummary = extraServicesSummary(p.extra_services);
+  if (extraReplySummary) details.push(`額外服務：\n${extraReplySummary}`);
   if (area) details.push(`地區：${area}`);
   if (address) details.push(`地址：${address}`);
   if (timeslotText) details.push(`可安排時段：${timeslotText}`);
@@ -262,6 +264,127 @@ function appendUnitIfNeeded(value, unit) {
   return text.includes(unit) ? text : `${text}${unit}`;
 }
 
+// 額外服務使用獨立通用欄位，不改動既有 anti_mold / ozone / washer / tank / pipe 等格式。
+// 只有真的有選擇額外服務時，才會在通知、PDF 與 Cloudinary context 多顯示一段。
+function normalizeExtraServicesPayload(value) {
+  let list = value;
+  if (typeof list === 'string') {
+    try { list = JSON.parse(list); } catch(e) { list = []; }
+  }
+  if (!Array.isArray(list)) return [];
+  return list.slice(0, 30).map((raw) => {
+    if (!raw || typeof raw !== 'object') return null;
+    const safeText = (v, max) => nb(v).replace(/[<>|]/g, '').slice(0, max);
+    const id = safeText(raw.id, 80);
+    const name = safeText(raw.name, 80);
+    const category = ['ac_addon','other_service'].includes(nb(raw.category)) ? nb(raw.category) : 'other_service';
+    if (!id || !name) return null;
+    const unit = safeText(raw.unit, 12) || '項';
+    const pricingType = ['fixed','starting','quote'].includes(nb(raw.pricing_type)) ? nb(raw.pricing_type) : 'quote';
+    const quantity = Math.max(1, Math.min(99, Math.round(Number(raw.quantity) || 1)));
+    const price = pricingType === 'quote' ? 0 : Math.max(0, Math.round(Number(raw.price) || 0));
+    return { id, name, category, unit, pricing_type: pricingType, price, quantity, subtotal: pricingType === 'quote' ? 0 : price * quantity };
+  }).filter(Boolean);
+}
+
+function extraServicesItems(value) {
+  return normalizeExtraServicesPayload(value).map((item) => {
+    const qty = `${item.quantity}${item.unit}`;
+    return `${item.name} × ${qty}`;
+  });
+}
+
+// 通知／Email／PDF 顯示：一項一行，不顯示價格。
+function extraServicesSummary(value) {
+  return extraServicesItems(value).map((text) => `．${text}`).join('\n');
+}
+
+// Cloudinary context 使用單行格式，避免換行造成 metadata 相容性問題；後台讀取時再轉成條列。
+function extraServicesContextSummary(value) {
+  return extraServicesItems(value).join('、');
+}
+
+
+function parsePositiveIntFromBooking(value) {
+  const matches = String(value == null ? '' : value).match(/\d+/g);
+  if (!matches || !matches.length) return 0;
+  const n = Number(matches[matches.length - 1]);
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
+}
+
+function getSubmittedAcCount(p) {
+  const direct = parsePositiveIntFromBooking(p && p.ac_count_other);
+  if (direct > 0) return direct;
+  const named = parsePositiveIntFromBooking(p && p.ac_count);
+  if (named > 0) return named;
+  const serviceName = nb(p && (p.service_category || p.service || p.service_item));
+  return /冷氣/.test(serviceName) ? parsePositiveIntFromBooking(p && (p.count || p.quantity)) : 0;
+}
+
+async function loadExtraServiceQuantityRules() {
+  const cloud = nb(process.env.CLOUDINARY_CLOUD_NAME);
+  const apiKey = nb(process.env.CLOUDINARY_API_KEY);
+  const apiSecret = nb(process.env.CLOUDINARY_API_SECRET);
+  if (!cloud || !apiKey || !apiSecret) return new Map();
+  const publicId = nb(process.env.CLOUDINARY_EXTRA_SERVICES_PUBLIC_ID) || 'settings/extra-services-config.json';
+  try {
+    const auth = `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
+    const search = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/resources/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: auth },
+      body: JSON.stringify({ expression: `resource_type:raw AND public_id="${publicId}"`, max_results: 1 })
+    });
+    if (!search.ok) return new Map();
+    const searchData = await search.json().catch(() => ({}));
+    const asset = searchData?.resources?.[0];
+    if (!asset?.secure_url) return new Map();
+    const configResp = await fetch(asset.secure_url + (asset.secure_url.includes('?') ? '&' : '?') + 't=' + Date.now(), { headers: { 'Cache-Control':'no-cache' } });
+    if (!configResp.ok) return new Map();
+    const doc = await configResp.json().catch(() => ({}));
+    const map = new Map();
+    (Array.isArray(doc.services) ? doc.services : []).forEach((raw) => {
+      const id = nb(raw && raw.id).slice(0,80);
+      if (!id) return;
+      const type = ['fixed','ac_count','unlimited'].includes(raw.quantity_limit_type) ? raw.quantity_limit_type : 'fixed';
+      const maxRaw = Number(raw.max_quantity);
+      const max = Number.isFinite(maxRaw) && maxRaw >= 1 ? Math.min(99, Math.round(maxRaw)) : 20;
+      map.set(id, { quantity_limit_type:type, max_quantity:max, enabled:raw.enabled !== false, name:nb(raw.name) });
+    });
+    return map;
+  } catch(e) {
+    return new Map();
+  }
+}
+
+function extraServiceValidationError(message) {
+  const err = new Error(message);
+  err.statusCode = 400;
+  return err;
+}
+
+async function validateExtraServiceQuantities(p) {
+  const selected = normalizeExtraServicesPayload(p.extra_services);
+  if (!selected.length) return selected;
+  const rules = await loadExtraServiceQuantityRules();
+  if (!rules.size) return selected; // 設定服務暫時不可讀時，不阻斷既有預約流程。
+  const acCount = getSubmittedAcCount(p);
+  for (const item of selected) {
+    const rule = rules.get(item.id);
+    if (!rule || rule.enabled === false) continue;
+    if (rule.quantity_limit_type === 'fixed' && item.quantity > rule.max_quantity) {
+      throw extraServiceValidationError(`${item.name} 數量最多可填 ${rule.max_quantity}${item.unit}`);
+    }
+    if (rule.quantity_limit_type === 'ac_count') {
+      if (acCount < 1) throw extraServiceValidationError(`${item.name} 需先選擇冷氣清洗台數`);
+      if (item.quantity > acCount) throw extraServiceValidationError(`${item.name} 數量不能超過冷氣清洗 ${acCount} 台`);
+    }
+    if (rule.quantity_limit_type === 'unlimited' && item.quantity > 99) {
+      throw extraServiceValidationError(`${item.name} 單次最多可填 99${item.unit}`);
+    }
+  }
+  return selected;
+}
+
 function buildAdminLineNotificationText(p, pdfUrl) {
   const lines = ["自然大叔｜新預約通知", ""];
 
@@ -271,6 +394,7 @@ function buildAdminLineNotificationText(p, pdfUrl) {
   const washerCount = firstNonEmpty(p.washer_count);
   const tankCount = firstNonEmpty(p.tank_count);
   const pipeService = firstNonEmpty(p.pipe_service);
+  const extraSummary = extraServicesSummary(p.extra_services);
   const name = firstNonEmpty(p.customer_name, p.name);
   const phone = firstNonEmpty(p.phone, p.phone_number, p.mobile, p.tel);
   const address = firstNonEmpty(p.address);
@@ -291,7 +415,7 @@ function buildAdminLineNotificationText(p, pdfUrl) {
   const hasOzone = hasSelectedLineOption(p.ozone);
   const ozoneRoomCount = firstNonEmpty(p.ozone_room_count);
 
-  if (hasAntiMold || hasOzone || washerCount || tankCount || pipeService) {
+  if (hasAntiMold || hasOzone || washerCount || tankCount || pipeService || extraSummary) {
     lines.push("");
   }
 
@@ -302,6 +426,10 @@ function buildAdminLineNotificationText(p, pdfUrl) {
   if (washerCount) lines.push(`洗衣機：${appendUnitIfNeeded(washerCount, "台")}`);
   if (tankCount) lines.push(`水塔：${appendUnitIfNeeded(tankCount, "顆")}`);
   if (pipeService) lines.push(`水管清洗：${pipeService}`);
+  if (extraSummary) {
+    lines.push("額外服務：");
+    lines.push(...extraSummary.split("\n"));
+  }
 
   if (name || phone || address || timeslot) {
     lines.push("");
@@ -477,6 +605,11 @@ function buildEmailHtml(p, pdfUrl){
     makeRow("水塔清洗台數", p.tank_count)
   ].join("");
 
+  const extraServiceText = extraServicesSummary(p.extra_services);
+  const extraServiceSection = extraServiceText
+    ? makeSection("額外服務", makeRow("加選項目", escapeHtml(extraServiceText)))
+    : "";
+
   // ---- 團購／大量需求說明（手動輸入） ----
   const groupNotes = nb(p.group_notes);
   const bulkNotes  = nb(p.bulk_notes);
@@ -537,7 +670,7 @@ function buildEmailHtml(p, pdfUrl){
         ${summarySection}
         ${makeSection("服務資訊", serviceRows)}
         ${addonRows.trim() ? makeSection("防霉・消毒｜加購服務專區", addonRows) : ""}
-        ${otherServiceRows.trim() ? makeSection("其他清洗服務", otherServiceRows) : ""}
+        ${otherServiceRows.trim() ? makeSection("其他清洗服務", otherServiceRows) : ""}${extraServiceSection ? `\n        ${extraServiceSection}` : ""}
         ${groupSection}
         ${bulkSection}
         ${makeSection("聯繫資料", contactRows)}
@@ -582,7 +715,10 @@ async function buildPdfBuffer(p){
   const addRow = (k, v) => {
     if (v == null || v === "" || (Array.isArray(v) && v.length===0)) return;
     const text = Array.isArray(v) ? v.join("、") : String(v);
-    draw(`${k}：${text}`);
+    const rows = text.split(/\r?\n/).filter(Boolean);
+    if (!rows.length) return;
+    draw(`${k}：${rows[0]}`);
+    rows.slice(1).forEach((line) => draw(`　${line}`));
   };
 
   draw("新預約單", { size: 16 });
@@ -601,6 +737,7 @@ async function buildPdfBuffer(p){
   addRow("自來水管清洗", p.pipe_service);
   addRow("水管清洗原因", p.pipe_reason);
   addRow("水塔清洗台數", p.tank_count);
+  addRow("額外服務", extraServicesSummary(p.extra_services));
   addRow("與我們聯繫方式", p.contact_method);
   addRow("LINE 或 Facebook 名稱", p.line_or_fb);
   addRow("可安排時段", p.timeslot);
@@ -650,6 +787,7 @@ function buildBookingAssetContext(p, minimal = false){
     "ac_transformer_count", "ac_transformer_unknown",
     "anti_mold", "ozone", "ozone_room_count",
     "washer_count", "washer_floor", "tank_count", "pipe_service", "pipe_reason",
+    "extra_services_summary",
     "contact_method", "social_name", "line_or_fb", "other_contact_detail", "housing_type", "contact_time_preference",
     "timeslot", "time_other", "note", "group_notes", "bulk_notes", "service_description",
     "site_photo_count", "storage_warning"
@@ -659,6 +797,7 @@ function buildBookingAssetContext(p, minimal = false){
     "ac_type", "ac_count", "indoor_floor", "ac_brand",
     "ac_transformer_count", "ac_transformer_unknown",
     "anti_mold", "ozone", "ozone_room_count",
+    "extra_services_summary",
     "timeslot", "site_photo_count", "storage_warning"
   ];
   const keys = minimal ? fallbackKeys : standardKeys;
@@ -668,6 +807,13 @@ function buildBookingAssetContext(p, minimal = false){
   if (!minimal && Array.isArray(p.site_photo_urls)) {
     p.site_photo_urls.slice(0, 5).forEach((url, index) => {
       entries.push([`site_photo_url_${index + 1}`, url]);
+    });
+  }
+
+  // 額外服務逐項保存，避免單一 summary 因 Cloudinary context 長度限制被截短。
+  if (!minimal) {
+    normalizeExtraServicesPayload(p.extra_services).slice(0, 20).forEach((item, index) => {
+      entries.push([`extra_service_${index + 1}`, extraServicesContextSummary([item])]);
     });
   }
 
@@ -742,6 +888,9 @@ exports.handler = async (event) => {
       p.facebook_name ||
       p.line ||
       p.facebook;
+
+    p.extra_services = await validateExtraServiceQuantities(p);
+    p.extra_services_summary = extraServicesContextSummary(p.extra_services);
 
     // 先上傳 Cloudinary，取得 PDF URL
     let pdfUrl = "";
@@ -875,6 +1024,6 @@ exports.handler = async (event) => {
       })
     };
   }catch(err){
-    return { statusCode: 500, body: JSON.stringify({ ok:false, error: String((err && err.message) || err) }) };
+    return { statusCode: Number(err && err.statusCode) || 500, body: JSON.stringify({ ok:false, error: String((err && err.message) || err) }) };
   }
 };
