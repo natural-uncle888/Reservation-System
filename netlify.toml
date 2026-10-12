@@ -6,6 +6,15 @@
   node_bundler = "esbuild"
   included_files = ["netlify/functions/fonts/**"]
 
+# 舊 Netlify 網址永久轉址到正式預約網域，並保留原路徑
+# 例如 /privacy.html -> https://booking.naturaluncle.com/privacy.html
+[[redirects]]
+  from = "https://uncle-reservation-platform.netlify.app/*"
+  to = "https://booking.naturaluncle.com/:splat"
+  status = 301
+  force = true
+
+# 正式網域內原有 submit rewrite，保留不動
 [[redirects]]
   from = "/submit"
   to = "/.netlify/functions/submit"
