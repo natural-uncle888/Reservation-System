@@ -53,3 +53,10 @@
 - `public/index.html`：B 版正式優化首頁。
 - 主要入口：冷氣清洗、其他居家清洗（直立式洗衣機・水塔・自來水管）。
 - 團購與公司／大量清洗為第二層入口。
+
+
+## 正式網址（2026-10-07）
+
+- 線上預約正式網址：`https://booking.naturaluncle.com/`
+- 公司官方網站：`https://naturaluncle.com/`
+- 對外分享請優先使用正式網域，避免再使用 `*.netlify.app` 網址。
